@@ -16,7 +16,7 @@ Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean
 | `dotnet test NIMI.UniPortal.sln` | Run all tests (once test projects gain content) |
 | `dotnet build-server shutdown` | Stop lingering MSBuild/compiler servers (Windows file locks) |
 
-CI: `.github/workflows/backend-ci.yml` — restore → build → test on every push to `main` / `module/**` and every PR.
+CI: `.github/workflows/backend-ci.yml` — restore → build → test on every push to `main` / `dev` / `module/**` and every PR.
 
 ## Repository layout
 
