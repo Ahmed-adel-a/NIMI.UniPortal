@@ -4,16 +4,17 @@
 
 **NIMI.UniPortal**: the backend for an Arabic RTL university portal, built as a sellable multi-university product (Model 2: one isolated deployment + its own database per university). One deployment covers a **whole university**: faculties (colleges) → departments, all managed as data, nothing hardcoded. First client: **Cairo University** (core modules + `Lifecycle.CreditHours` + Forum + Events). **This repo is backend-only**; the React frontend lives in a separate repo (`university-map`) and is wired to this API in phase P12.
 
-Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean Architecture (84 projects: 3 BuildingBlocks + 16 modules × 5 + `Host.CairoUniversity`) · MediatR · EF Core · PostgreSQL (one DB per deployment) · Guid v7 keys · Central Package Management (`Directory.Packages.props`).
+Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean Architecture (87 projects: 3 BuildingBlocks + 16 modules × 5 + `Host.CairoUniversity` + 3 test projects) · MediatR · EF Core · PostgreSQL (one DB per deployment) · Guid v7 keys · Central Package Management (`Directory.Packages.props`).
 
-**State:** `Host.CairoUniversity` boots with an empty pipeline; no endpoints yet. Next: test projects + architecture rules (P0.A3), then the first vertical slice P0.1 (`GET /api/platform/settings`).
+**State:** `Host.CairoUniversity` boots with an empty pipeline; no endpoints yet. Architecture tests guard the layer/module rules (they read the `.csproj` reference graph). Next: test infrastructure (P0.A4), then the first vertical slice P0.1 (`GET /api/platform/settings`).
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
 | `dotnet build NIMI.UniPortal.sln -c Release` | Build the whole solution |
-| `dotnet test NIMI.UniPortal.sln` | Run all tests (once test projects gain content) |
+| `dotnet test NIMI.UniPortal.sln` | Run all tests |
+| `dotnet test tests/ArchitectureTests` | Run only the architecture rules (fast, no Docker) |
 | `dotnet run --project src/Hosts/Host.CairoUniversity` | Run the Cairo host locally |
 | `dotnet build-server shutdown` | Stop lingering MSBuild/compiler servers (Windows file locks) |
 

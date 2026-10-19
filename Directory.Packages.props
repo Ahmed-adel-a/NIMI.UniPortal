@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Central Package Management — every NuGet version will be declared here exactly once.
-  No packages yet; versions arrive with the Phase 0 slices.
+  Central Package Management — every NuGet version is declared here exactly once.
+  Versions are added when a step first needs them.
 -->
 <Project>
 
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
+
+  <!-- Testing (P0.A3) -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
 
 </Project>
