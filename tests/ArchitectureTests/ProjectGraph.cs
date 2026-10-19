@@ -44,8 +44,11 @@ internal static class ProjectGraph
         var dir = Path.GetDirectoryName(csprojPath)!;
         var xml = XDocument.Load(csprojPath);
 
+        // .csproj files spell paths with '\' (MSBuild convention). On Linux that's not a separator,
+        // so normalize before resolving — otherwise CI sees every reference as unresolvable.
         var referencePaths = xml.Descendants("ProjectReference")
-            .Select(e => Path.GetFullPath(Path.Combine(dir, e.Attribute("Include")!.Value)))
+            .Select(e => e.Attribute("Include")!.Value.Replace('\\', Path.DirectorySeparatorChar))
+            .Select(include => Path.GetFullPath(Path.Combine(dir, include)))
             .ToList();
         var packages = xml.Descendants("PackageReference")
             .Select(e => e.Attribute("Include")!.Value)
