@@ -38,7 +38,7 @@ CI: `.github/workflows/backend-ci.yml` — restore → build → test on every p
 
 ## Branching · commits · tracking
 
-- `main` (protected, PR-only, always green) ← `module/<module>` ← `slice/p<phase>.<n>-<slug>`; also `fix/<slug>`, `chore/<slug>`
+- Branch model: `main` (release line, protected, PR-only, always green) ← `dev` (integration base — **all work branches start from here**; a module merges into `dev` once it works flawlessly) ← `module/<module>` ← `slice/p<phase>.<n>-<slug>`; also `fix/<slug>`, `chore/<slug>` (based on `dev`)
 - Conventional Commits — e.g. `feat(attendance): P4.2 QR check-in (US-S05)`
 - **After every step:** update `phase-tracker.md` + `project-map.json` — the live map (both are **local-only**: gitignored, never committed)
 
