@@ -10,12 +10,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build:   # job id = the required status check 'build' in the branch ruleset — don't rename
+    # Pinned (not ubuntu-latest, which moves to Ubuntu 26): the image's preinstalled PostgreSQL must stay predictable.
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '10.0.x'
 
@@ -32,8 +33,10 @@ jobs:
           sudo systemctl start postgresql.service
           sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
           psql --version
+          pg_isready -h localhost -p 5432
 
+      # --logger GitHubActions: each failing test becomes a public annotation (readable without logging in).
       - name: Test
         env:
           PORTAL_TEST_DB: Host=localhost;Port=5432;Username=postgres;Password=postgres
-        run: dotnet test NIMI.UniPortal.sln --no-build -c Release --verbosity minimal
+        run: dotnet test NIMI.UniPortal.sln --no-build -c Release --verbosity minimal --logger GitHubActions
