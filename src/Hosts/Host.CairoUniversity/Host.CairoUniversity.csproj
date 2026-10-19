@@ -1,9 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <!-- Local dev secrets (ConnectionStrings:Portal) live in user secrets, never in the repo -->
+    <UserSecretsId>nimi-uniportal-host-cairo</UserSecretsId>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\NIMI.UniPortal.EventBus\NIMI.UniPortal.EventBus.csproj" />
     <ProjectReference Include="..\..\Modules\Platform\NIMI.UniPortal.Modules.Platform.Api\NIMI.UniPortal.Modules.Platform.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" />
   </ItemGroup>
 
 </Project>

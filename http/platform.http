@@ -1,0 +1,11 @@
+# Platform — demo requests (VS / Rider / VS Code REST Client).
+# Run the host first:  dotnet run --project src/Hosts/Host.CairoUniversity
+# Local DB connection (once):  dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=<password>" --project src/Hosts/Host.CairoUniversity
+
+@host = http://localhost:5080
+
+### Process alive → 200 Healthy
+GET {{host}}/api/health
+
+### Database reachable → 200 Healthy (503 Unhealthy if PostgreSQL is down or not configured)
+GET {{host}}/api/health/db

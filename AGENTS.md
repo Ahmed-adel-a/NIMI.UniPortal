@@ -6,7 +6,11 @@
 
 Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean Architecture (87 projects: 3 BuildingBlocks + 16 modules × 5 + `Host.CairoUniversity` + 3 test projects) · MediatR · EF Core · PostgreSQL (one DB per deployment) · Guid v7 keys · Central Package Management (`Directory.Packages.props`).
 
-**State:** `Host.CairoUniversity` boots with an empty pipeline; no endpoints yet. Architecture tests guard the layer/module rules (they read the `.csproj` reference graph). Next: test infrastructure (P0.A4), then the first vertical slice P0.1 (`GET /api/platform/settings`).
+**State:** `Host.CairoUniversity` serves `/api/health` + `/api/health/db`. Architecture tests guard the layer/module rules (they read the `.csproj` reference graph); integration tests boot the host against a throwaway PostgreSQL database. Next: the first vertical slice P0.1 (`GET /api/platform/settings`).
+
+**No Docker during development.** PostgreSQL 17 is installed locally:
+- Integration tests: set the user env var `PORTAL_TEST_DB` = `Host=localhost;Port=5432;Username=postgres;Password=…` (no database name; each run creates and drops its own `portal_test_*` database). CI uses the runner's preinstalled PostgreSQL.
+- Running the host: `dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=…" --project src/Hosts/Host.CairoUniversity`
 
 ## Commands
 
@@ -14,7 +18,8 @@ Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean
 |---------|-------------|
 | `dotnet build NIMI.UniPortal.sln -c Release` | Build the whole solution |
 | `dotnet test NIMI.UniPortal.sln` | Run all tests |
-| `dotnet test tests/ArchitectureTests` | Run only the architecture rules (fast, no Docker) |
+| `dotnet test tests/ArchitectureTests` | Run only the architecture rules (fast, no database) |
+| `dotnet test tests/Modules.IntegrationTests` | Run the integration tests (needs `PORTAL_TEST_DB`) |
 | `dotnet run --project src/Hosts/Host.CairoUniversity` | Run the Cairo host locally |
 | `dotnet build-server shutdown` | Stop lingering MSBuild/compiler servers (Windows file locks) |
 
@@ -28,6 +33,7 @@ CI: `.github/workflows/backend-ci.yml` runs restore → build → test on every 
 - `src/Hosts/`: one host per deployment. `Host.CairoUniversity` (real) · `Host.AinShamsUniversity` (placeholder reference host for the SemesterBased variant, created in P4.10). Premium modules and exactly one lifecycle variant are selected per host at build time
 - `tests/`: `ArchitectureTests` · `Modules.IntegrationTests` · `Modules.UnitTests`
 - `deployments/`: per-client deployment assets (Docker deferred to the deployment phase, DEP)
+- `http/`: `.http` demo files, one per module (`platform.http`, …)
 
 ## Binding conventions (full rules: `implementation-plan.md` §1 · reference matrix: `solution-structure.md` §2)
 
