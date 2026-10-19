@@ -1,1 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Payments.Application\NIMI.UniPortal.Modules.Payments.Application.csproj" />
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Payments.Infrastructure\NIMI.UniPortal.Modules.Payments.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

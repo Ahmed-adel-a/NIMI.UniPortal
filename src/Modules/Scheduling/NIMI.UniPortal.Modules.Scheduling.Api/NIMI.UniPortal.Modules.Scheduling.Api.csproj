@@ -1,1 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Scheduling.Application\NIMI.UniPortal.Modules.Scheduling.Application.csproj" />
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Scheduling.Infrastructure\NIMI.UniPortal.Modules.Scheduling.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

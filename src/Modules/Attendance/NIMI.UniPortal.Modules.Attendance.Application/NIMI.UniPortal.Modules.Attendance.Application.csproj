@@ -1,1 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Attendance.Domain\NIMI.UniPortal.Modules.Attendance.Domain.csproj" />
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Attendance.Contracts\NIMI.UniPortal.Modules.Attendance.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

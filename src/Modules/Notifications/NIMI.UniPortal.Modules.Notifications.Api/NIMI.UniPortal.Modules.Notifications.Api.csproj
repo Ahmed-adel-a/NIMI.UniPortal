@@ -1,1 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Notifications.Application\NIMI.UniPortal.Modules.Notifications.Application.csproj" />
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Notifications.Infrastructure\NIMI.UniPortal.Modules.Notifications.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

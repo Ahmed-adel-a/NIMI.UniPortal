@@ -1,1 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Attendance.Application\NIMI.UniPortal.Modules.Attendance.Application.csproj" />
+  </ItemGroup>
+
+</Project>

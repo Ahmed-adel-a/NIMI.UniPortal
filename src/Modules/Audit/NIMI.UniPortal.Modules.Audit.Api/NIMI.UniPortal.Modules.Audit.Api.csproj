@@ -1,1 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Audit.Application\NIMI.UniPortal.Modules.Audit.Application.csproj" />
+    <ProjectReference Include="..\NIMI.UniPortal.Modules.Audit.Infrastructure\NIMI.UniPortal.Modules.Audit.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
