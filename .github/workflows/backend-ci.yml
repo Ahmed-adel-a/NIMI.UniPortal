@@ -1,0 +1,29 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, 'module/**']
+  pull_request:
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore NIMI.UniPortal.sln
+
+      - name: Build
+        run: dotnet build NIMI.UniPortal.sln --no-restore -c Release
+
+      - name: Test
+        run: dotnet test NIMI.UniPortal.sln --no-build -c Release --verbosity minimal

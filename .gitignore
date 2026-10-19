@@ -1,0 +1,22 @@
+# Build output
+bin/
+obj/
+
+# IDE / user files
+.vs/
+*.user
+
+# Local secrets / environment files — never committed (trap #10)
+.env
+*.env
+
+# Internal docs & planning - local only, never committed (decision 2026-10-19)
+/architecture.md
+/database-and-user-stories.md
+/implementation-plan.md
+/missing-requirements.md
+/mvp-documentation.md
+/phase-tracker.md
+/solution-structure.md
+/user-stories.md
+/project-map.json
