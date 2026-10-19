@@ -9,3 +9,7 @@ GET {{host}}/api/health
 
 ### Database reachable → 200 Healthy (503 Unhealthy if PostgreSQL is down or not configured)
 GET {{host}}/api/health/db
+
+### P0.1 — public settings (anonymous; the login screen's branding + calendar basics) → 200
+# Migrations apply on startup in Development (Database:ApplyMigrationsOnStartup).
+GET {{host}}/api/platform/settings

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NIMI.UniPortal.SharedKernel.Persistence;
 using Npgsql;
 
 namespace Host.CairoUniversity.Health;
@@ -10,9 +11,9 @@ internal sealed class DatabaseHealthCheck(IConfiguration configuration) : IHealt
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var connectionString = configuration.GetConnectionString("Portal");
+        var connectionString = configuration.GetConnectionString(PortalDatabase.ConnectionStringName);
         if (string.IsNullOrWhiteSpace(connectionString))
-            return HealthCheckResult.Unhealthy("Connection string 'Portal' is not configured.");
+            return HealthCheckResult.Unhealthy($"Connection string '{PortalDatabase.ConnectionStringName}' is not configured.");
 
         try
         {

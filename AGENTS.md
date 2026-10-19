@@ -6,7 +6,7 @@
 
 Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean Architecture (87 projects: 3 BuildingBlocks + 16 modules × 5 + `Host.CairoUniversity` + 3 test projects) · MediatR · EF Core · PostgreSQL (one DB per deployment) · Guid v7 keys · Central Package Management (`Directory.Packages.props`).
 
-**State:** `Host.CairoUniversity` serves `/api/health` + `/api/health/db`. Architecture tests guard the layer/module rules (they read the `.csproj` reference graph); integration tests boot the host against a throwaway PostgreSQL database. Next: the first vertical slice P0.1 (`GET /api/platform/settings`).
+**State:** `Host.CairoUniversity` serves `/api/health`, `/api/health/db` and `GET /api/platform/settings` (P0.1; first module DbContext + migration, applied on startup when `Database:ApplyMigrationsOnStartup` is true — Development + tests). Architecture tests guard the layer/module rules (they read the `.csproj` reference graph); integration tests boot the host against a throwaway PostgreSQL database. Next: P0.2 (`PUT /api/platform/settings` + JWT + Admin policy).
 
 **No Docker during development.** PostgreSQL 17 is installed locally:
 - Integration tests: set the user env var `PORTAL_TEST_DB` = `Host=localhost;Port=5432;Username=postgres;Password=…` (no database name; each run creates and drops its own `portal_test_*` database). CI uses the runner's preinstalled PostgreSQL.
@@ -21,9 +21,11 @@ Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean
 | `dotnet test tests/ArchitectureTests` | Run only the architecture rules (fast, no database) |
 | `dotnet test tests/Modules.IntegrationTests` | Run the integration tests (needs `PORTAL_TEST_DB`) |
 | `dotnet run --project src/Hosts/Host.CairoUniversity` | Run the Cairo host locally |
+| `dotnet tool restore` | Restore repo-local tools (`dotnet-ef` 10.0.13, pinned in `dotnet-tools.json`) |
+| `dotnet ef migrations add <Name> --project src/Modules/<M>/NIMI.UniPortal.Modules.<M>.Infrastructure --context <M>DbContext --output-dir Persistence/Migrations` | Add a migration for one module (`--context` is mandatory) |
 | `dotnet build-server shutdown` | Stop lingering MSBuild/compiler servers (Windows file locks) |
 
-CI: `.github/workflows/backend-ci.yml` runs restore → build → test on every push to `main` / `dev` / `module/**` and on every PR.
+CI: `.github/workflows/backend-ci.yml` runs restore → build → test (against the runner's PostgreSQL) on every push to `main` / `dev` / `module/**` / `slice/**` / `fix/**` / `chore/**` and on every PR. Failing tests appear as public annotations.
 
 ## Repository layout
 
@@ -38,7 +40,7 @@ CI: `.github/workflows/backend-ci.yml` runs restore → build → test on every 
 ## Binding conventions (full rules: `implementation-plan.md` §1 · reference matrix: `solution-structure.md` §2)
 
 - **No repository/UoW classes**: modules expose `I<Module>DbContext`; exactly one `SaveChangesAsync` per command via `UnitOfWorkBehavior`; integration events published **after** commit
-- MediatR pipelines: **Validation + UnitOfWork only**
+- Mediator: our own minimal one in `SharedKernel.Messaging` (`IQuery`/`ICommand`, `IRequestHandler`, `IPipelineBehavior`, `ISender`) — **no MediatR** (licensing). Pipelines: **Validation + UnitOfWork only**
 - IDs: **Guid v7** created in the domain (`Guid.CreateVersion7()`)
 - Reads: `AsNoTracking` + projections; pagination on every list endpoint
 - Time: store UTC; wall-clock schedule/attendance math uses the effective timezone setting; `TimeProvider` only. `DateTime.Now` is banned

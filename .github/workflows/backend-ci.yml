@@ -2,7 +2,7 @@ name: Backend CI
 
 on:
   push:
-    branches: [main, dev, 'module/**']
+    branches: [main, dev, 'module/**', 'slice/**', 'fix/**', 'chore/**']
   pull_request:
 
 concurrency:

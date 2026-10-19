@@ -7,10 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace NIMI.UniPortal.Modules.IntegrationTests.Infrastructure;
 
 /// <summary>
-/// Boots the real Cairo host in memory against a throwaway PostgreSQL database.
-/// Shared per test collection (see <see cref="PortalCollection"/>). Module migrations are applied
-/// here once the first DbContext exists (P0.1), and data is reset between tests with Respawn
-/// once there are tables to reset.
+/// Boots the real Cairo host in memory against a throwaway PostgreSQL database, with every module's
+/// migrations applied on startup. Shared per test collection (see <see cref="PortalCollection"/>).
+/// Data reset between tests (Respawn) arrives with the first slice that writes data (P0.2).
 /// </summary>
 public sealed class PortalWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
@@ -30,6 +29,8 @@ public sealed class PortalWebAppFactory : WebApplicationFactory<Program>, IAsync
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Portal", _database.ConnectionString);
+        // Every module's migrations run when the host starts, against the throwaway database.
+        builder.UseSetting("Database:ApplyMigrationsOnStartup", "true");
 
         builder.ConfigureTestServices(services =>
             services.AddAuthentication(TestAuthHandler.SchemeName)
