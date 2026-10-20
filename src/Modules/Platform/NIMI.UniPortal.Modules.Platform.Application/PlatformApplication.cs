@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Platform.Application.Behaviors;
+using NIMI.UniPortal.Modules.Platform.Contracts;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Platform.Application;
@@ -12,6 +13,7 @@ public static class PlatformApplication
         services.AddRequestHandlers(assembly);
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PlatformUnitOfWorkBehavior<,>));
+        services.AddScoped<IPlatformSettingsApi, PlatformSettingsApi>();   // public contract for other modules
         return services;
     }
 }

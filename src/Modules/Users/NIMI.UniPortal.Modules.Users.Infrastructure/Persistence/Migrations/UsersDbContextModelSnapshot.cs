@@ -257,6 +257,26 @@ namespace NIMI.UniPortal.Modules.Users.Infrastructure.Persistence.Migrations
                     b.ToTable("faculties", "users");
                 });
 
+            modelBuilder.Entity("NIMI.UniPortal.Modules.Users.Infrastructure.Persistence.StudentCodeCounter", b =>
+                {
+                    b.Property<string>("CounterKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("counter_key");
+
+                    b.Property<int>("LastValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_value");
+
+                    b.HasKey("CounterKey")
+                        .HasName("pk_student_code_counters");
+
+                    b.ToTable("student_code_counters", "users", t =>
+                        {
+                            t.HasCheckConstraint("ck_student_code_counters_last_value", "last_value >= 1");
+                        });
+                });
+
             modelBuilder.Entity("NIMI.UniPortal.Modules.Users.Domain.Accounts.User", b =>
                 {
                     b.HasOne("NIMI.UniPortal.Modules.Users.Domain.Organization.Department", null)

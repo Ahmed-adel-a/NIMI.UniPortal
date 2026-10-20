@@ -17,6 +17,7 @@ public static class UsersInfrastructure
         services.AddScoped<IUsersDbContext>(provider => provider.GetRequiredService<UsersDbContext>());
         services.AddScoped<IModuleDatabase, UsersDatabase>();
         services.AddScoped<IModuleSeeder, DevelopmentAdminSeeder>();
+        services.AddScoped<IStudentCodeAllocator, StudentCodeAllocator>();
         services.AddSingleton<IPasswordHasher, AspNetPasswordHasher>();
         services.AddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         return services;

@@ -23,6 +23,7 @@ public static class UsersModule
     {
         AuthEndpoints.Map(endpoints);
         OrganizationEndpoints.Map(endpoints);
+        UserAdminEndpoints.Map(endpoints);
         return endpoints;
     }
 }
