@@ -13,7 +13,7 @@ public sealed class PlatformSettingsTests(PortalWebAppFactory factory) : PortalT
         var response = await Factory.CreateClient().GetAsync("/api/platform/settings");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var settings = await response.Content.ReadFromJsonAsync<PublicSettings>();
+        var settings = await response.Content.ReadFromJsonAsync<PublicSettingsResponse>();
         Assert.NotNull(settings);
         Assert.Equal("University", settings.UniversityName);
         Assert.Equal("الجامعة", settings.UniversityNameAr);   // Arabic survives the round trip (UTF-8 end to end)
@@ -35,14 +35,4 @@ public sealed class PlatformSettingsTests(PortalWebAppFactory factory) : PortalT
         Assert.DoesNotContain("studentCodeFormat", json);
         Assert.DoesNotContain("militaryEducationPolicy", json);
     }
-
-    private sealed record PublicSettings(
-        string UniversityName,
-        string UniversityNameAr,
-        string? LogoUrl,
-        string PrimaryColor,
-        string SecondaryColor,
-        string TimeZone,
-        int WeekStartDay,
-        int[] WorkingDays);
 }

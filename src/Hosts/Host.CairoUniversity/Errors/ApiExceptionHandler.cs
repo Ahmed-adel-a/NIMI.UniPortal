@@ -4,13 +4,8 @@ using NIMI.UniPortal.SharedKernel;
 
 namespace Host.CairoUniversity.Errors;
 
-/// <summary>The standard error envelope for every endpoint: <c>{ code, message, details[] }</c>.</summary>
-public sealed record ApiError(string Code, string Message, IReadOnlyList<ApiErrorDetail> Details);
-
-public sealed record ApiErrorDetail(string Field, string Error);
-
 /// <summary>
-/// Maps exceptions to the envelope:
+/// Maps exceptions to the <see cref="ApiError"/> envelope:
 /// validation → 400 · domain rule (ArgumentException thrown <b>from a .Domain assembly</b>) → 400 ·
 /// malformed request → 400 · <see cref="ConflictException"/> → 409 · anything else → 500 without internals.
 /// </summary>

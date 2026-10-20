@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using NIMI.UniPortal.Modules.UnitTests.SharedKernel.TestDoubles;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.UnitTests.SharedKernel;
@@ -23,8 +24,8 @@ public sealed class SenderTests
         await using var provider = Build(services =>
         {
             services.AddSingleton(trace);
-            services.AddScoped<IPipelineBehavior<Echo, string>, Outer>();
-            services.AddScoped<IPipelineBehavior<Echo, string>, Inner>();
+            services.AddScoped<IPipelineBehavior<Echo, string>, OuterBehavior>();
+            services.AddScoped<IPipelineBehavior<Echo, string>, InnerBehavior>();
         });
 
         await SendAsync(provider, new Echo("x"));
@@ -35,7 +36,7 @@ public sealed class SenderTests
     [Fact]
     public async Task A_behavior_can_short_circuit_the_handler()
     {
-        await using var provider = Build(services => services.AddScoped<IPipelineBehavior<Echo, string>, Refuse>());
+        await using var provider = Build(services => services.AddScoped<IPipelineBehavior<Echo, string>, RefuseBehavior>());
 
         var answer = await SendAsync(provider, new Echo("ignored"));
 
@@ -71,44 +72,5 @@ public sealed class SenderTests
         var services = new ServiceCollection().AddMessaging().AddScoped<IRequestHandler<Echo, string>, EchoHandler>();
         configure(services);
         return services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
-    }
-
-    public sealed record Echo(string Text) : IQuery<string>;
-
-    public sealed class EchoHandler(IServiceProvider services) : IRequestHandler<Echo, string>
-    {
-        public Task<string> Handle(Echo request, CancellationToken cancellationToken)
-        {
-            services.GetService<List<string>>()?.Add("handler");
-            return Task.FromResult(request.Text);
-        }
-    }
-
-    private sealed class Outer(List<string> trace) : IPipelineBehavior<Echo, string>
-    {
-        public async Task<string> Handle(Echo request, RequestHandlerDelegate<string> next, CancellationToken cancellationToken)
-        {
-            trace.Add("outer:before");
-            var result = await next();
-            trace.Add("outer:after");
-            return result;
-        }
-    }
-
-    private sealed class Inner(List<string> trace) : IPipelineBehavior<Echo, string>
-    {
-        public async Task<string> Handle(Echo request, RequestHandlerDelegate<string> next, CancellationToken cancellationToken)
-        {
-            trace.Add("inner:before");
-            var result = await next();
-            trace.Add("inner:after");
-            return result;
-        }
-    }
-
-    private sealed class Refuse : IPipelineBehavior<Echo, string>
-    {
-        public Task<string> Handle(Echo request, RequestHandlerDelegate<string> next, CancellationToken cancellationToken) =>
-            Task.FromResult("refused");
     }
 }

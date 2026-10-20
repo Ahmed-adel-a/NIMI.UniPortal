@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Platform.Application.Abstractions;
 using NIMI.UniPortal.Modules.Platform.Infrastructure.Persistence;
@@ -22,20 +21,4 @@ public static class PlatformInfrastructure
         options
             .UseNpgsql(connectionString, npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", PlatformDbContext.Schema))
             .UseSnakeCaseNamingConvention();
-}
-
-internal sealed class PlatformDatabase(PlatformDbContext db) : IModuleDatabase
-{
-    public string Module => "Platform";
-
-    public Task MigrateAsync(CancellationToken cancellationToken) => db.Database.MigrateAsync(cancellationToken);
-}
-
-/// <summary>Lets `dotnet ef migrations add` build the model without the host. It never connects.</summary>
-internal sealed class PlatformDesignTimeDbContextFactory : IDesignTimeDbContextFactory<PlatformDbContext>
-{
-    public PlatformDbContext CreateDbContext(string[] args) =>
-        new((DbContextOptions<PlatformDbContext>)PlatformInfrastructure
-            .Configure(new DbContextOptionsBuilder<PlatformDbContext>(), "Host=localhost;Database=design_time")
-            .Options);
 }

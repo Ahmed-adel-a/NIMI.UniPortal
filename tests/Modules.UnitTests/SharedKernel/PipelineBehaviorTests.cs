@@ -1,6 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using NIMI.UniPortal.Modules.UnitTests.SharedKernel.TestDoubles;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.UnitTests.SharedKernel;
@@ -81,8 +82,6 @@ public sealed class PipelineBehaviorTests
         Assert.Equal(0, saves.Saved);
     }
 
-    // ── test module ─────────────────────────────────────────────
-
     private static ServiceProvider Build(SaveCounter saves, bool validators = false, Assembly? moduleAssembly = null)
     {
         var services = new ServiceCollection()
@@ -101,52 +100,5 @@ public sealed class PipelineBehaviorTests
     {
         await using var scope = provider.CreateAsyncScope();
         return await scope.ServiceProvider.GetRequiredService<ISender>().Send(request);
-    }
-
-    public sealed record Rename(string Name) : ICommand<Unit>;
-
-    public sealed record Peek : IQuery<int>;
-
-    public sealed class SaveCounter
-    {
-        public List<string> Trace { get; } = [];
-        public int Handled => Trace.Count(t => t == "handled");
-        public int Saved => Trace.Count(t => t == "saved");
-    }
-
-    public sealed record TestModule(Assembly Assembly);
-
-    private sealed class RenameHandler(SaveCounter saves) : IRequestHandler<Rename, Unit>
-    {
-        public Task<Unit> Handle(Rename request, CancellationToken cancellationToken)
-        {
-            if (request.Name == "boom")
-                throw new InvalidOperationException("handler failed");
-            saves.Trace.Add("handled");
-            return Task.FromResult(Unit.Value);
-        }
-    }
-
-    private sealed class PeekHandler : IRequestHandler<Peek, int>
-    {
-        public Task<int> Handle(Peek request, CancellationToken cancellationToken) => Task.FromResult(42);
-    }
-
-    private sealed class RenameValidator : AbstractValidator<Rename>
-    {
-        public RenameValidator() => RuleFor(r => r.Name).NotEmpty();
-    }
-
-    private sealed class TestUnitOfWork<TRequest, TResponse>(SaveCounter saves, TestModule module)
-        : ModuleUnitOfWorkBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
-    {
-        protected override Assembly ModuleAssembly => module.Assembly;
-
-        protected override Task SaveChangesAsync(CancellationToken cancellationToken)
-        {
-            saves.Trace.Add("saved");
-            return Task.CompletedTask;
-        }
     }
 }

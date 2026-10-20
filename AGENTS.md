@@ -19,7 +19,7 @@ Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean
 |---------|-------------|
 | `dotnet build NIMI.UniPortal.sln -c Release` | Build the whole solution |
 | `dotnet test NIMI.UniPortal.sln` | Run all tests |
-| `dotnet test tests/ArchitectureTests` | Run only the architecture rules (fast, no database) |
+| `dotnet test tests/ArchitectureTests` | Run only the architecture rules — layers, module boundaries, one type per file (fast, no database) |
 | `dotnet test tests/Modules.IntegrationTests` | Run the integration tests (needs `PORTAL_TEST_DB`) |
 | `dotnet run --project src/Hosts/Host.CairoUniversity` | Run the Cairo host locally |
 | `dotnet tool restore` | Restore repo-local tools (`dotnet-ef` 10.0.13, pinned in `dotnet-tools.json`) |
@@ -42,6 +42,7 @@ CI: `.github/workflows/backend-ci.yml` runs restore → build → test (against 
 
 - **No repository/UoW classes**: modules expose `I<Module>DbContext`; exactly one `SaveChangesAsync` per command via `UnitOfWorkBehavior`; integration events published **after** commit
 - Mediator: our own minimal one in `SharedKernel.Messaging` (`IQuery`/`ICommand`, `IRequestHandler`, `IPipelineBehavior`, `ISender`) — **no MediatR** (licensing). Pipelines: **Validation + UnitOfWork only**
+- **One type per file, file named after the type** (classes, records, structs, interfaces, enums, delegates — nested types too; `src/` and `tests/`). Enforced by `OneTypePerFileTests`; only EF `Migrations/` and `Program.cs` are exempt
 - IDs: **Guid v7** created in the domain (`Guid.CreateVersion7()`)
 - Reads: `AsNoTracking` + projections; pagination on every list endpoint
 - Time: store UTC; wall-clock schedule/attendance math uses the effective timezone setting; `TimeProvider` only. `DateTime.Now` is banned

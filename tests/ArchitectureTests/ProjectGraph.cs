@@ -12,13 +12,16 @@ internal static class ProjectGraph
 {
     private const string ModulePrefix = "NIMI.UniPortal.Modules.";
 
+    // Order matters: static fields initialize top to bottom, and Load() needs RepoRoot.
+    public static readonly string RepoRoot = FindRepoRoot();
+
     public static readonly IReadOnlyList<ProjectNode> Projects = Load();
 
     public static IEnumerable<ProjectNode> ModuleProjects => Projects.Where(p => p.Module is not null);
 
     private static List<ProjectNode> Load()
     {
-        var src = Path.Combine(FindRepoRoot(), "src");
+        var src = Path.Combine(RepoRoot, "src");
         var nodes = Directory
             .EnumerateFiles(src, "*.csproj", SearchOption.AllDirectories)
             .Select(Parse)
@@ -77,28 +80,4 @@ internal static class ProjectGraph
 
         throw new InvalidOperationException("Could not find NIMI.UniPortal.sln above " + AppContext.BaseDirectory);
     }
-}
-
-internal sealed record ProjectNode(
-    string Name,
-    string Path,
-    string? Module,
-    string? Layer,
-    IReadOnlyList<string> ReferencePaths,
-    IReadOnlyList<string> Packages)
-{
-    public List<ProjectNode> References { get; } = [];
-
-    public override string ToString() => Name;
-}
-
-internal static class Layers
-{
-    public const string Contracts = "Contracts";
-    public const string Domain = "Domain";
-    public const string Application = "Application";
-    public const string Infrastructure = "Infrastructure";
-    public const string Api = "Api";
-
-    public static readonly string[] All = [Contracts, Domain, Application, Infrastructure, Api];
 }
