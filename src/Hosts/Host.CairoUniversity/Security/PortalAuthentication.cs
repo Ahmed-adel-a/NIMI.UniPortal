@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NIMI.UniPortal.SharedKernel.Security;
@@ -43,8 +44,19 @@ internal static class PortalAuthentication
                 };
             });
 
+        // Every protected endpoint also requires the temporary password to have been replaced — except the two
+        // endpoints the user needs to do exactly that (PendingPasswordChange).
+        builder.Services.AddSingleton<IAuthorizationHandler, PasswordChangedHandler>();
+        builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, PortalAuthorizationResultHandler>();
         builder.Services.AddAuthorizationBuilder()
-            .AddPolicy(PortalPolicies.Admin, policy => policy.RequireRole(PortalRoles.Admin));
+            .SetDefaultPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .AddRequirements(new PasswordChangedRequirement())
+                .Build())
+            .AddPolicy(PortalPolicies.Admin, policy => policy
+                .RequireRole(PortalRoles.Admin)
+                .AddRequirements(new PasswordChangedRequirement()))
+            .AddPolicy(PortalPolicies.PendingPasswordChange, policy => policy.RequireAuthenticatedUser());
 
         return builder;
     }
