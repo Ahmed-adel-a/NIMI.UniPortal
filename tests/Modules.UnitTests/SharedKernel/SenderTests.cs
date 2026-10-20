@@ -67,7 +67,8 @@ public sealed class SenderTests
 
     private static ServiceProvider Build(Action<IServiceCollection> configure)
     {
-        var services = new ServiceCollection().AddMessaging().AddRequestHandlers(typeof(SenderTests).Assembly);
+        // Explicit registration: scanning the whole test assembly would also pick up other test classes' handlers.
+        var services = new ServiceCollection().AddMessaging().AddScoped<IRequestHandler<Echo, string>, EchoHandler>();
         configure(services);
         return services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
     }

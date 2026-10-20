@@ -4,13 +4,14 @@
 
 **NIMI.UniPortal**: the backend for an Arabic RTL university portal, built as a sellable multi-university product (Model 2: one isolated deployment + its own database per university). One deployment covers a **whole university**: faculties (colleges) → departments, all managed as data, nothing hardcoded. First client: **Cairo University** (core modules + `Lifecycle.CreditHours` + Forum + Events). **This repo is backend-only**; the React frontend lives in a separate repo (`university-map`) and is wired to this API in phase P12.
 
-Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean Architecture (87 projects: 3 BuildingBlocks + 16 modules × 5 + `Host.CairoUniversity` + 3 test projects) · MediatR · EF Core · PostgreSQL (one DB per deployment) · Guid v7 keys · Central Package Management (`Directory.Packages.props`).
+Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean Architecture (87 projects: 3 BuildingBlocks + 16 modules × 5 + `Host.CairoUniversity` + 3 test projects) · own minimal mediator (no MediatR) · FluentValidation · JWT bearer · EF Core · PostgreSQL (one DB per deployment) · Guid v7 keys · Central Package Management (`Directory.Packages.props`).
 
-**State:** `Host.CairoUniversity` serves `/api/health`, `/api/health/db` and `GET /api/platform/settings` (P0.1; first module DbContext + migration, applied on startup when `Database:ApplyMigrationsOnStartup` is true — Development + tests). Architecture tests guard the layer/module rules (they read the `.csproj` reference graph); integration tests boot the host against a throwaway PostgreSQL database. Next: P0.2 (`PUT /api/platform/settings` + JWT + Admin policy).
+**State:** the **Platform module is complete**: `GET /api/platform/settings` (public) and `GET`/`PUT /api/admin/settings` (Admin), plus `/api/health` + `/api/health/db`. Shared plumbing in place for every module: validation + unit-of-work pipeline steps, the error envelope `{ code, message, details[] }` (400 / 409 / 500), JWT bearer + `Admin` policy, optimistic concurrency (`xmin` → 409). Migrations apply on startup only when `Database:ApplyMigrationsOnStartup` is true (Development + tests). Next module: **Users** (P1).
 
-**No Docker during development.** PostgreSQL 17 is installed locally:
+**No Docker during development.** PostgreSQL 18 is installed locally:
 - Integration tests: set the user env var `PORTAL_TEST_DB` = `Host=localhost;Port=5432;Username=postgres;Password=…` (no database name; each run creates and drops its own `portal_test_*` database). CI uses the runner's preinstalled PostgreSQL.
 - Running the host: `dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=…" --project src/Hosts/Host.CairoUniversity`
+- Admin token before real login exists (P1.1): `dotnet user-jwts create --role admin --project src/Hosts/Host.CairoUniversity` (dev-only; see `http/platform.http`)
 
 ## Commands
 
@@ -51,7 +52,8 @@ CI: `.github/workflows/backend-ci.yml` runs restore → build → test (against 
 
 ## Branching · commits · tracking
 
-- Branch model: `main` (release line, protected, PR-only, always green) ← `dev` (integration base: **all work branches start from here**; a module merges into `dev` once it works flawlessly) ← `module/<module>` ← `slice/p<phase>.<n>-<slug>`; also `fix/<slug>`, `chore/<slug>` (based on `dev`)
+- Branch model: `main` (release line, protected, PR-only, always green) ← `dev` (integration base: **all work branches start from here**; a module merges into `dev` once it works flawlessly) ← `module/<module>`; also `fix/<slug>`, `chore/<slug>` (based on `dev`)
+- **One module at a time, built whole** on its `module/<module>` branch (every feature DB → Api → Tests, one commit per feature), then **one PR** into `dev` when the module is complete and green. No per-feature branches. Present the exact work list before starting a module/phase and wait for approval
 - Conventional Commits, e.g. `feat(attendance): P6.2 QR check-in (US-S05)`
 - **After every step:** update `phase-tracker.md` + `project-map.json`, the live map (both **local-only**: gitignored, never committed). New decisions go into `decisions.md`
 

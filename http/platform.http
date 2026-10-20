@@ -1,8 +1,14 @@
 # Platform — demo requests (VS / Rider / VS Code REST Client).
-# Run the host first:  dotnet run --project src/Hosts/Host.CairoUniversity
-# Local DB connection (once):  dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=<password>" --project src/Hosts/Host.CairoUniversity
+#
+# One-time local setup:
+#   dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=<password>" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-jwts create --role admin --project src/Hosts/Host.CairoUniversity
+#     → prints a dev-only admin token (signing key stays in your user secrets). Paste it into @adminToken below.
+#     Real tokens come from POST /api/auth/login once the Users module ships (P1.1).
+# Run:  dotnet run --project src/Hosts/Host.CairoUniversity      (migrations apply on startup in Development)
 
 @host = http://localhost:5080
+@adminToken = paste-the-user-jwts-token-here
 
 ### Process alive → 200 Healthy
 GET {{host}}/api/health
@@ -10,6 +16,46 @@ GET {{host}}/api/health
 ### Database reachable → 200 Healthy (503 Unhealthy if PostgreSQL is down or not configured)
 GET {{host}}/api/health/db
 
-### P0.1 — public settings (anonymous; the login screen's branding + calendar basics) → 200
-# Migrations apply on startup in Development (Database:ApplyMigrationsOnStartup).
+### Public settings (anonymous; login-screen branding + calendar) → 200
 GET {{host}}/api/platform/settings
+
+### Admin: every setting + version → 200 (401 without token, 403 for non-admin)
+GET {{host}}/api/admin/settings
+Authorization: Bearer {{adminToken}}
+
+### Admin: full replace → 200 with the saved settings
+# Copy "version" from the GET above. A stale version → 409 conflict. Bad values → 400 { code, message, details[] }.
+PUT {{host}}/api/admin/settings
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "universityName": "Cairo University",
+  "universityNameAr": "جامعة القاهرة",
+  "domain": null,
+  "logoUrl": null,
+  "primaryColor": "#0A4CB3",
+  "secondaryColor": "#5B9BFF",
+  "timeZone": "Africa/Cairo",
+  "weekStartDay": 0,
+  "workingDays": [0, 1, 2, 3, 4, 5],
+  "attendanceThreshold": 75,
+  "lateGraceMinutes": 10,
+  "gradingScale": [
+    { "grade": "A+", "minScore": 97, "points": 4.0 },
+    { "grade": "A",  "minScore": 93, "points": 4.0 },
+    { "grade": "A-", "minScore": 89, "points": 3.7 },
+    { "grade": "B+", "minScore": 84, "points": 3.3 },
+    { "grade": "B",  "minScore": 80, "points": 3.0 },
+    { "grade": "B-", "minScore": 76, "points": 2.7 },
+    { "grade": "C+", "minScore": 73, "points": 2.3 },
+    { "grade": "C",  "minScore": 70, "points": 2.0 },
+    { "grade": "C-", "minScore": 67, "points": 1.7 },
+    { "grade": "D+", "minScore": 64, "points": 1.3 },
+    { "grade": "D",  "minScore": 60, "points": 1.0 },
+    { "grade": "F",  "minScore": 0,  "points": 0.0 }
+  ],
+  "studentCodeFormat": "{DEPT}-{YEAR}-{SEQ:0000}",
+  "militaryEducationPolicy": { "mode": "opt_in" },
+  "version": 0
+}

@@ -5,13 +5,12 @@ using NIMI.UniPortal.Modules.IntegrationTests.Infrastructure;
 namespace NIMI.UniPortal.Modules.IntegrationTests.Platform;
 
 /// <summary>P0.1 — GET /api/platform/settings (anonymous).</summary>
-[Collection(PortalCollection.Name)]
-public sealed class PlatformSettingsTests(PortalWebAppFactory factory)
+public sealed class PlatformSettingsTests(PortalWebAppFactory factory) : PortalTest(factory)
 {
     [Fact]
     public async Task Anonymous_caller_gets_the_seeded_public_settings()
     {
-        var response = await factory.CreateClient().GetAsync("/api/platform/settings");
+        var response = await Factory.CreateClient().GetAsync("/api/platform/settings");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var settings = await response.Content.ReadFromJsonAsync<PublicSettings>();
@@ -29,7 +28,7 @@ public sealed class PlatformSettingsTests(PortalWebAppFactory factory)
     [Fact]
     public async Task Public_settings_do_not_expose_academic_rules()
     {
-        var json = await factory.CreateClient().GetStringAsync("/api/platform/settings");
+        var json = await Factory.CreateClient().GetStringAsync("/api/platform/settings");
 
         Assert.DoesNotContain("attendanceThreshold", json);
         Assert.DoesNotContain("gradingScale", json);

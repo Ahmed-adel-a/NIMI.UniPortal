@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NIMI.UniPortal.Modules.Platform.Application.Abstractions;
 using NIMI.UniPortal.Modules.Platform.Domain.Settings;
 
 namespace NIMI.UniPortal.Modules.Platform.Infrastructure.Persistence.Configurations;
@@ -30,6 +31,13 @@ internal sealed class SystemSettingsConfiguration : IEntityTypeConfiguration<Sys
 
         builder.HasKey(s => s.Id);
         builder.Property(s => s.Id).ValueGeneratedNever();
+
+        // Optimistic concurrency on PostgreSQL's system column xmin (changes on every UPDATE; no real column is added).
+        // Named explicitly so the snake_case convention can't rename it.
+        builder.Property<uint>(SettingsVersion.PropertyName)
+            .IsRowVersion()
+            .HasColumnName("xmin")
+            .HasColumnType("xid");
 
         builder.Property(s => s.UniversityName).HasMaxLength(255);
         builder.Property(s => s.UniversityNameAr).HasMaxLength(255);

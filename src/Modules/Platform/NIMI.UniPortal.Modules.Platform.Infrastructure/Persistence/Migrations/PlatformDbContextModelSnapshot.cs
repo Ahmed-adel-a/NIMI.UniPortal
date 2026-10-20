@@ -104,6 +104,12 @@ namespace NIMI.UniPortal.Modules.Platform.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.Property<int>("WeekStartDay")
                         .HasColumnType("integer")
                         .HasColumnName("week_start_day");

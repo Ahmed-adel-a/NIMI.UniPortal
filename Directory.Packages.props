@@ -4,17 +4,27 @@
   Versions are added when a step first needs them.
   Transitive pinning: a version listed here also wins when the package arrives indirectly
   (keeps the EF Core family aligned even though the Npgsql provider targets an older patch).
+  Licensing: only free/OSS packages (decision MEDIATOR — no commercially licensed libraries).
 -->
 <Project>
+
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-  <!-- Hosting / DI -->
+
+  <!-- Hosting / DI / security -->
   <ItemGroup>
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
   </ItemGroup>
+
+  <!-- Application -->
+  <ItemGroup>
+    <PackageVersion Include="FluentValidation" Version="12.2.0" />
+  </ItemGroup>
+
   <!-- Data access -->
   <ItemGroup>
     <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
@@ -24,12 +34,15 @@
     <PackageVersion Include="Npgsql" Version="10.0.3" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>
+
   <!-- Testing -->
   <ItemGroup>
     <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.13" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Respawn" Version="7.0.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
+
 </Project>
