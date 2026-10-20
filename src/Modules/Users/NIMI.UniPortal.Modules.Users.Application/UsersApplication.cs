@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Users.Application.Behaviors;
+using NIMI.UniPortal.Modules.Users.Contracts;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Users.Application;
@@ -12,6 +13,7 @@ public static class UsersApplication
         services.AddRequestHandlers(assembly);
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UsersUnitOfWorkBehavior<,>));
+        services.AddScoped<IUsersApi, UsersApi>();   // public contract for other modules
         return services;
     }
 }

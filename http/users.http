@@ -1,0 +1,127 @@
+# Users module — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development):
+#   dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=<password>" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-secrets set SEED_ADMIN_EMAIL "admin@cu.edu.eg" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-secrets set SEED_ADMIN_PASSWORD "<a password>" --project src/Hosts/Host.CairoUniversity
+# Run:  dotnet run --project src/Hosts/Host.CairoUniversity
+#   → migrations apply and the first admin is seeded (Development only). Tokens are signed with a random
+#     per-run key in Development unless Auth:Jwt:SigningKey is set — restart = log in again.
+
+@host = http://localhost:5080
+@adminEmail = admin@cu.edu.eg
+@adminPassword = paste-SEED_ADMIN_PASSWORD-here
+
+### 1. Log in as the seeded admin → copy "accessToken" into @token
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{adminEmail}}", "password": "{{adminPassword}}" }
+
+###
+@token = {{login.response.body.$.accessToken}}
+
+### 2. Who am I
+GET {{host}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### 3. Create a faculty
+# @name faculty
+POST {{host}}/api/admin/faculties
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "code": "ENG", "name": "Engineering", "nameAr": "الهندسة" }
+
+### 4. Create a department in it
+# @name department
+POST {{host}}/api/admin/departments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "facultyId": "{{faculty.response.body.$.id}}", "code": "CS", "name": "Computer Science", "nameAr": "علوم الحاسب" }
+
+### 5. Lists (paged: ?page=1&pageSize=20)
+GET {{host}}/api/faculties
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/departments?facultyId={{faculty.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### 6. Create a student → studentCode CS-2026-0001 + one-time temporaryPassword
+# @name student
+POST {{host}}/api/admin/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "role": "student",
+  "fullName": "أحمد علي",
+  "email": "ahmed@cu.edu.eg",
+  "departmentId": "{{department.response.body.$.id}}",
+  "enrollmentYear": 2026,
+  "gender": "male"
+}
+
+### 7. Create a professor (academicTitle: professor | lecturer | demonstrator)
+POST {{host}}/api/admin/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "role": "professor",
+  "fullName": "د. هاني",
+  "email": "hany@cu.edu.eg",
+  "departmentId": "{{department.response.body.$.id}}",
+  "academicTitle": "professor"
+}
+
+### 8. Bulk import a cohort — multipart, field "file"; columns:
+#    full_name,email,national_id,department_code,enrollment_year   (max 2,000 rows / 5 MB, UTF-8)
+POST {{host}}/api/admin/users/bulk
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=cohort
+
+--cohort
+Content-Disposition: form-data; name="file"; filename="cohort.csv"
+Content-Type: text/csv
+
+full_name,email,national_id,department_code,enrollment_year
+منى حسن,mona@cu.edu.eg,29901010000001,CS,2026
+عمر سعيد,omar@cu.edu.eg,,CS,2026
+--cohort--
+
+### 9. Find users (role / facultyId / departmentId / isActive / search, paged)
+GET {{host}}/api/admin/users?role=student&search=CS-2026
+Authorization: Bearer {{token}}
+
+### 10. Deactivate / reactivate (204)
+PATCH {{host}}/api/admin/users/{{student.response.body.$.user.id}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "isActive": false }
+
+### 11. Admin password reset → new one-time temporaryPassword, forced change, lockout cleared
+POST {{host}}/api/admin/users/{{student.response.body.$.user.id}}/reset-password
+Authorization: Bearer {{token}}
+
+### 12. The student's first login (temporary password) → mustChangePassword: true
+# @name studentLogin
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "ahmed@cu.edu.eg", "password": "paste-temporaryPassword-here" }
+
+### 13. Anything else is 403 password_change_required until the password is changed
+GET {{host}}/api/faculties
+Authorization: Bearer {{studentLogin.response.body.$.accessToken}}
+
+### 14. Change it → fresh token with mustChangePassword: false
+POST {{host}}/api/auth/change-password
+Authorization: Bearer {{studentLogin.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "currentPassword": "paste-temporaryPassword-here", "newPassword": "MyOwnPass9" }

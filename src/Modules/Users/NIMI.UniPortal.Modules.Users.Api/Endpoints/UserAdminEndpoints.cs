@@ -1,11 +1,18 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Users.Api.Csv;
+using NIMI.UniPortal.Modules.Users.Application.Accounts;
 using NIMI.UniPortal.Modules.Users.Application.Accounts.CreateUser;
 using NIMI.UniPortal.Modules.Users.Application.Accounts.ImportStudents;
+using NIMI.UniPortal.Modules.Users.Application.Accounts.ListUsers;
+using NIMI.UniPortal.Modules.Users.Application.Accounts.ResetPassword;
+using NIMI.UniPortal.Modules.Users.Application.Accounts.SetUserStatus;
+using NIMI.UniPortal.Modules.Users.Domain.Accounts;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Paging;
 using NIMI.UniPortal.SharedKernel.Security;
 
 namespace NIMI.UniPortal.Modules.Users.Api.Endpoints;
@@ -17,11 +24,21 @@ internal static class UserAdminEndpoints
     {
         var admin = endpoints.MapGroup("/api/admin/users").WithTags("Users").RequireAuthorization(PortalPolicies.Admin);
 
+        admin.MapGet("/", ListUsers).WithName("ListUsers");
         admin.MapPost("/", CreateUser).WithName("CreateUser");
 
         // Bearer-token API (no cookies), so the browser-form antiforgery check doesn't apply.
         admin.MapPost("/bulk", ImportStudents).DisableAntiforgery().WithName("ImportStudents");
+
+        admin.MapPatch("/{id:guid}/status", SetStatus).WithName("SetUserStatus");
+        admin.MapPost("/{id:guid}/reset-password", ResetPassword).WithName("ResetUserPassword");
     }
+
+    private static async Task<Ok<PagedResult<UserDto>>> ListUsers(
+        ISender sender, UserRole? role, Guid? facultyId, Guid? departmentId, bool? isActive, string? search,
+        int? page, int? pageSize, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new ListUsersQuery(role, facultyId, departmentId, isActive, search, new PageRequest(page, pageSize)), cancellationToken));
 
     private static async Task<Created<CreatedUserDto>> CreateUser(CreateUserCommand command, ISender sender, CancellationToken cancellationToken)
     {
@@ -41,4 +58,14 @@ internal static class UserAdminEndpoints
         var rows = await StudentCsvReader.ReadAsync(stream, cancellationToken);
         return TypedResults.Ok(await sender.Send(new ImportStudentsCommand(rows), cancellationToken));
     }
+
+    private static async Task<NoContent> SetStatus(
+        Guid id, SetUserStatusRequest request, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
+    {
+        await sender.Send(new SetUserStatusCommand(id, request.IsActive, caller.GetUserId()), cancellationToken);
+        return TypedResults.NoContent();
+    }
+
+    private static async Task<Ok<TemporaryPasswordDto>> ResetPassword(Guid id, ISender sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(new ResetPasswordCommand(id), cancellationToken));
 }
