@@ -36,6 +36,8 @@ internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) :
                 "The request could not be read. Check that the body is valid JSON with the expected fields.",
                 [])),
 
+            AuthenticationFailedException failed => (StatusCodes.Status401Unauthorized, new ApiError("invalid_credentials", failed.Message, [])),
+
             NotFoundException notFound => (StatusCodes.Status404NotFound, new ApiError("not_found", notFound.Message, [])),
 
             ConflictException conflict => (StatusCodes.Status409Conflict, new ApiError("conflict", conflict.Message, [])),

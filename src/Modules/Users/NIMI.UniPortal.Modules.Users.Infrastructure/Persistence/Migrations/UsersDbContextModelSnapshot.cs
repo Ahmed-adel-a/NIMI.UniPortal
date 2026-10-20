@@ -23,6 +23,132 @@ namespace NIMI.UniPortal.Modules.Users.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NIMI.UniPortal.Modules.Users.Domain.Accounts.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AcademicTitle")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("academic_title");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date")
+                        .HasColumnName("date_of_birth");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("department_id");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("email");
+
+                    b.Property<int?>("EnrollmentYear")
+                        .HasColumnType("integer")
+                        .HasColumnName("enrollment_year");
+
+                    b.Property<int>("FailedLoginCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("failed_login_count");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("Gender")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("gender");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTimeOffset?>("LockedUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_until");
+
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("boolean")
+                        .HasColumnName("must_change_password");
+
+                    b.Property<string>("NationalId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("national_id");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("password_hash");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.Property<string>("StudentCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("student_code");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_users");
+
+                    b.HasIndex("DepartmentId")
+                        .HasDatabaseName("ix_users_department_id");
+
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_email");
+
+                    b.HasIndex("Role")
+                        .HasDatabaseName("ix_users_role");
+
+                    b.HasIndex("StudentCode")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_student_code");
+
+                    b.ToTable("users", "users", t =>
+                        {
+                            t.HasCheckConstraint("ck_users_academic_title", "academic_title IN ('professor', 'lecturer', 'demonstrator')");
+
+                            t.HasCheckConstraint("ck_users_failed_login_count", "failed_login_count >= 0");
+
+                            t.HasCheckConstraint("ck_users_gender", "gender IN ('male', 'female')");
+
+                            t.HasCheckConstraint("ck_users_role", "role IN ('student', 'professor', 'admin')");
+                        });
+                });
+
             modelBuilder.Entity("NIMI.UniPortal.Modules.Users.Domain.Organization.Department", b =>
                 {
                     b.Property<Guid>("Id")
@@ -129,6 +255,15 @@ namespace NIMI.UniPortal.Modules.Users.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_faculties_code");
 
                     b.ToTable("faculties", "users");
+                });
+
+            modelBuilder.Entity("NIMI.UniPortal.Modules.Users.Domain.Accounts.User", b =>
+                {
+                    b.HasOne("NIMI.UniPortal.Modules.Users.Domain.Organization.Department", null)
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_users_departments_department_id");
                 });
 
             modelBuilder.Entity("NIMI.UniPortal.Modules.Users.Domain.Organization.Department", b =>

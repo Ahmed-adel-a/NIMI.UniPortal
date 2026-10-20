@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
 using NIMI.UniPortal.Modules.Users.Infrastructure.Persistence;
+using NIMI.UniPortal.Modules.Users.Infrastructure.Security;
+using NIMI.UniPortal.Modules.Users.Infrastructure.Seeding;
 using NIMI.UniPortal.SharedKernel.Persistence;
 
 namespace NIMI.UniPortal.Modules.Users.Infrastructure;
@@ -14,6 +16,9 @@ public static class UsersInfrastructure
         services.AddDbContext<UsersDbContext>((provider, options) => Configure(options, connectionString(provider)));
         services.AddScoped<IUsersDbContext>(provider => provider.GetRequiredService<UsersDbContext>());
         services.AddScoped<IModuleDatabase, UsersDatabase>();
+        services.AddScoped<IModuleSeeder, DevelopmentAdminSeeder>();
+        services.AddSingleton<IPasswordHasher, AspNetPasswordHasher>();
+        services.AddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         return services;
     }
 

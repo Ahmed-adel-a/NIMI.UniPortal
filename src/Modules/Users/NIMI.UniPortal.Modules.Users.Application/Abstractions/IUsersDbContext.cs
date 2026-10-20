@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.Modules.Users.Domain.Accounts;
 using NIMI.UniPortal.Modules.Users.Domain.Organization;
 
 namespace NIMI.UniPortal.Modules.Users.Application.Abstractions;
@@ -9,6 +10,8 @@ public interface IUsersDbContext
     DbSet<Faculty> Faculties { get; }
 
     DbSet<Department> Departments { get; }
+
+    DbSet<User> Users { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

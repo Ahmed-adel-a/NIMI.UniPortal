@@ -3,12 +3,11 @@ using System.Text.Json.Serialization;
 using Host.CairoUniversity;
 using Host.CairoUniversity.Errors;
 using Host.CairoUniversity.Health;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Host.CairoUniversity.Security;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.Modules.Platform.Api;
 using NIMI.UniPortal.Modules.Users.Api;
 using NIMI.UniPortal.SharedKernel.Messaging;
-using NIMI.UniPortal.SharedKernel.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,12 +19,7 @@ builder.Services.AddProblemDetails();   // required by UseExceptionHandler(); ou
 builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);   // malformed bodies → our envelope
 builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower)));
-
-// JWT bearer: issuer/audience/keys come from configuration (Authentication:Schemes:Bearer).
-// Real tokens are issued by POST /api/auth/login from P1.1; until then use `dotnet user-jwts` (see http/platform.http).
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(PortalPolicies.Admin, policy => policy.RequireRole(PortalRoles.Admin));
+builder.AddPortalAuthentication();                                        // JWT validation + policies (Security/)
 
 // ── Core modules ───────────────────────────────────────────────
 builder.Services.AddPlatformModule();
@@ -37,6 +31,7 @@ builder.Services.AddHealthChecks()
 var app = builder.Build();
 
 await app.ApplyModuleMigrationsAsync();
+await app.RunDevelopmentSeedersAsync();
 
 app.UseExceptionHandler();
 app.UseAuthentication();

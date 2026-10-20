@@ -21,6 +21,7 @@ public static class UsersModule
 
     public static IEndpointRouteBuilder MapUsersEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        AuthEndpoints.Map(endpoints);
         OrganizationEndpoints.Map(endpoints);
         return endpoints;
     }
