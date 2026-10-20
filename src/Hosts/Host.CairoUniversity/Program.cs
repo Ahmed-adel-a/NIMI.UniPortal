@@ -6,6 +6,7 @@ using Host.CairoUniversity.Health;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.Modules.Platform.Api;
+using NIMI.UniPortal.Modules.Users.Api;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Security;
 
@@ -28,6 +29,7 @@ builder.Services.AddAuthorizationBuilder()
 
 // ── Core modules ───────────────────────────────────────────────
 builder.Services.AddPlatformModule();
+builder.Services.AddUsersModule();
 
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database", tags: [DatabaseHealthCheck.Tag], timeout: TimeSpan.FromSeconds(5));
@@ -46,5 +48,6 @@ app.MapHealthChecks("/api/health", new HealthCheckOptions { Predicate = _ => fal
 app.MapHealthChecks("/api/health/db", new HealthCheckOptions { Predicate = c => c.Tags.Contains(DatabaseHealthCheck.Tag) });
 
 app.MapPlatformEndpoints();
+app.MapUsersEndpoints();
 
 app.Run();

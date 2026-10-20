@@ -4,6 +4,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
     <ProjectReference Include="..\..\src\Modules\Platform\NIMI.UniPortal.Modules.Platform.Domain\NIMI.UniPortal.Modules.Platform.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Users\NIMI.UniPortal.Modules.Users.Domain\NIMI.UniPortal.Modules.Users.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
