@@ -1,16 +1,22 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.SharedKernel;
+using Npgsql;
 
 namespace Host.CairoUniversity.Errors;
 
 /// <summary>
 /// Maps exceptions to the <see cref="ApiError"/> envelope:
 /// validation → 400 · domain rule (ArgumentException thrown <b>from a .Domain assembly</b>) → 400 ·
-/// malformed request → 400 · <see cref="ConflictException"/> → 409 · anything else → 500 without internals.
+/// malformed request → 400 · <see cref="NotFoundException"/> → 404 · <see cref="ConflictException"/> or a
+/// database unique-key violation → 409 · anything else → 500 without internals.
 /// </summary>
 internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : IExceptionHandler
 {
+    /// <summary>PostgreSQL error code for a unique-constraint violation.</summary>
+    private const string UniqueViolation = "23505";
+
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         var (status, error) = exception switch
@@ -30,7 +36,15 @@ internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) :
                 "The request could not be read. Check that the body is valid JSON with the expected fields.",
                 [])),
 
+            AuthenticationFailedException failed => (StatusCodes.Status401Unauthorized, new ApiError("invalid_credentials", failed.Message, [])),
+
+            NotFoundException notFound => (StatusCodes.Status404NotFound, new ApiError("not_found", notFound.Message, [])),
+
             ConflictException conflict => (StatusCodes.Status409Conflict, new ApiError("conflict", conflict.Message, [])),
+
+            // Backstop for races the handlers' duplicate checks can't see (two admins at the same moment).
+            DbUpdateException { InnerException: PostgresException { SqlState: UniqueViolation } } =>
+                (StatusCodes.Status409Conflict, new ApiError("conflict", "A record with the same unique value already exists.", [])),
 
             _ => (StatusCodes.Status500InternalServerError, new ApiError("server_error", "An unexpected error occurred.", [])),
         };

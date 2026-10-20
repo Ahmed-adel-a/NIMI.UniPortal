@@ -6,12 +6,13 @@
 
 Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean Architecture (87 projects: 3 BuildingBlocks + 16 modules × 5 + `Host.CairoUniversity` + 3 test projects) · own minimal mediator (no MediatR) · FluentValidation · JWT bearer · EF Core · PostgreSQL (one DB per deployment) · Guid v7 keys · Central Package Management (`Directory.Packages.props`).
 
-**State:** the **Platform module is complete**: `GET /api/platform/settings` (public) and `GET`/`PUT /api/admin/settings` (Admin), plus `/api/health` + `/api/health/db`. Shared plumbing in place for every module: validation + unit-of-work pipeline steps, the error envelope `{ code, message, details[] }` (400 / 409 / 500), JWT bearer + `Admin` policy, optimistic concurrency (`xmin` → 409). Migrations apply on startup only when `Database:ApplyMigrationsOnStartup` is true (Development + tests). Next module: **Users** (P1).
+**State:** modules complete: **Platform** (university settings: `GET /api/platform/settings` public, `GET`/`PUT /api/admin/settings`) and **Users** (faculties + departments, accounts with generated student codes, CSV cohort import, user management, login with real JWTs, 5-failure/15-minute lockout, forced password change on first login). Shared plumbing for every module: validation + unit-of-work pipeline steps, the error envelope `{ code, message, details[] }` (400 / 401 / 403 `password_change_required` / 404 / 409 / 500), JWT bearer + `Admin` / `PendingPasswordChange` policies, optimistic concurrency, paging (`PagedResult<T>`, max 100). Cross-module reads: `IPlatformSettingsApi`, `IUsersApi`. Migrations apply on startup only when `Database:ApplyMigrationsOnStartup` is true (Development + tests). Next: per-faculty setting overrides in Platform (P1.4), then **Notifications** (P2).
 
 **No Docker during development.** PostgreSQL 18 is installed locally:
 - Integration tests: set the user env var `PORTAL_TEST_DB` = `Host=localhost;Port=5432;Username=postgres;Password=…` (no database name; each run creates and drops its own `portal_test_*` database). CI uses the runner's preinstalled PostgreSQL.
 - Running the host: `dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=…" --project src/Hosts/Host.CairoUniversity`
-- Admin token before real login exists (P1.1): `dotnet user-jwts create --role admin --project src/Hosts/Host.CairoUniversity` (dev-only; see `http/platform.http`)
+- First admin (Development only): `dotnet user-secrets set SEED_ADMIN_EMAIL …` + `SEED_ADMIN_PASSWORD …` → seeded at startup, then log in via `POST /api/auth/login` (see `http/users.http`)
+- Token signing key: `Auth:Jwt:SigningKey` (≥ 32 bytes, env / user secrets, never committed). **Required** outside Development — the host refuses to start without it; Development generates a random key per run
 
 ## Commands
 
