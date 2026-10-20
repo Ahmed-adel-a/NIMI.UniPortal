@@ -34,11 +34,25 @@ internal static class UserAdminEndpoints
         admin.MapPost("/{id:guid}/reset-password", ResetPassword).WithName("ResetUserPassword");
     }
 
+    /// <param name="role">student / professor / admin — same spelling as in JSON bodies (case-insensitive).</param>
     private static async Task<Ok<PagedResult<UserDto>>> ListUsers(
-        ISender sender, UserRole? role, Guid? facultyId, Guid? departmentId, bool? isActive, string? search,
+        ISender sender, string? role, Guid? facultyId, Guid? departmentId, bool? isActive, string? search,
         int? page, int? pageSize, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(
-            new ListUsersQuery(role, facultyId, departmentId, isActive, search, new PageRequest(page, pageSize)), cancellationToken));
+            new ListUsersQuery(ParseRole(role), facultyId, departmentId, isActive, search, new PageRequest(page, pageSize)), cancellationToken));
+
+    /// <summary>
+    /// Query strings don't go through the JSON enum converter (ASP.NET's default enum binding is case-sensitive),
+    /// so "?role=student" is parsed here, the same way bodies are.
+    /// </summary>
+    private static UserRole? ParseRole(string? role)
+    {
+        if (string.IsNullOrWhiteSpace(role))
+            return null;
+        if (Enum.TryParse<UserRole>(role.Trim(), ignoreCase: true, out var parsed) && Enum.IsDefined(parsed) && !int.TryParse(role, out _))
+            return parsed;
+        throw new FluentValidation.ValidationException([new FluentValidation.Results.ValidationFailure("role", "Use student, professor or admin.")]);
+    }
 
     private static async Task<Created<CreatedUserDto>> CreateUser(CreateUserCommand command, ISender sender, CancellationToken cancellationToken)
     {

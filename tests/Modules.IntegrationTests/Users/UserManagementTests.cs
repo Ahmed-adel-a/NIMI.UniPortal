@@ -35,6 +35,17 @@ public sealed class UserManagementTests(PortalWebAppFactory factory) : PortalTes
         Assert.Equal(2, page["items"]!.AsArray().Count);
     }
 
+    [Theory]
+    [InlineData("teacher")]
+    [InlineData("1")]
+    public async Task An_unknown_role_filter_is_a_400_on_role(string role)
+    {
+        var response = await Admin().GetAsync($"{Url}?role={role}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("role", (string?)(await response.Content.ReadFromJsonAsync<JsonObject>())!["details"]![0]!["field"]);
+    }
+
     [Fact]
     public async Task A_deactivated_user_cannot_log_in_until_reactivated()
     {
