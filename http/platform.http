@@ -9,6 +9,7 @@
 
 @host = http://localhost:5080
 @adminToken = paste-the-user-jwts-token-here
+@facultyId = paste-a-faculty-id-here
 
 ### Process alive → 200 Healthy
 GET {{host}}/api/health
@@ -59,3 +60,32 @@ Content-Type: application/json
   "militaryEducationPolicy": { "mode": "opt_in" },
   "version": 0
 }
+
+### Admin: one faculty's overrides + effective rules → 200 (all overrides null until set)
+# 404 for an unknown faculty · 401 without a token · 403 for non-admins.
+GET {{host}}/api/admin/faculties/{{facultyId}}/settings
+Authorization: Bearer {{adminToken}}
+
+### Admin: override rules for that faculty → 200 with overrides + effective + version
+# The body is the complete set every time (null/omitted = inherit). Omit "version" to create;
+# once overrides exist, copy the version from the GET above — a stale version → 409 conflict.
+PUT {{host}}/api/admin/faculties/{{facultyId}}/settings
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "attendanceThreshold": 60,
+  "workingDays": [0, 1, 2, 3]
+}
+
+### Admin: remove every override → 204 (idempotent)
+DELETE {{host}}/api/admin/faculties/{{facultyId}}/settings
+Authorization: Bearer {{adminToken}}
+
+### Signed in: effective rules for that faculty → 200 (defaults + its overrides)
+GET {{host}}/api/settings/effective?facultyId={{facultyId}}
+Authorization: Bearer {{adminToken}}
+
+### Signed in: effective rules for the whole university → 200 (facultyId omitted = defaults)
+GET {{host}}/api/settings/effective
+Authorization: Bearer {{adminToken}}

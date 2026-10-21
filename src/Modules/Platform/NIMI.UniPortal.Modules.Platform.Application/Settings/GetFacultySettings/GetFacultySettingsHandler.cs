@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Platform.Application.Abstractions;
 using NIMI.UniPortal.Modules.Platform.Application.Settings.GetAdminSettings;
+using NIMI.UniPortal.Modules.Platform.Contracts;
 using NIMI.UniPortal.Modules.Platform.Domain.Settings;
 using NIMI.UniPortal.Modules.Users.Contracts;
 using NIMI.UniPortal.SharedKernel;
@@ -8,7 +9,7 @@ using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Platform.Application.Settings.GetFacultySettings;
 
-internal sealed class GetFacultySettingsHandler(IPlatformDbContext db, IUsersApi users)
+internal sealed class GetFacultySettingsHandler(IPlatformDbContext db, IUsersApi users, IPlatformSettingsApi settings)
     : IRequestHandler<GetFacultySettingsQuery, FacultySettingsDto>
 {
     public async Task<FacultySettingsDto> Handle(GetFacultySettingsQuery query, CancellationToken cancellationToken)
@@ -23,15 +24,12 @@ internal sealed class GetFacultySettingsHandler(IPlatformDbContext db, IUsersApi
             .Select(f => new { Settings = f, Version = EF.Property<uint>(f, SettingsVersion.PropertyName) })
             .SingleOrDefaultAsync(cancellationToken);
 
-        var system = await db.SystemSettings.AsNoTracking().SingleAsync(cancellationToken);
-        var settings = row?.Settings;
-
         return new FacultySettingsDto(
             query.FacultyId,
-            Overrides(settings),
-            Effective(query.FacultyId, system, settings),
+            Overrides(row?.Settings),
+            EffectiveSettingsDto.From(await settings.GetEffectiveSettingsAsync(query.FacultyId, cancellationToken)),
             row?.Version,
-            settings?.UpdatedAt);
+            row?.Settings?.UpdatedAt);
     }
 
     private static FacultySettingsOverridesDto Overrides(FacultySettings? settings) =>
@@ -42,16 +40,4 @@ internal sealed class GetFacultySettingsHandler(IPlatformDbContext db, IUsersApi
             settings?.GradingScale?.Select(b => new GradeBandDto(b.Grade, b.MinScore, b.Points)).ToArray(),
             settings?.StudentCodeFormat,
             settings?.MilitaryEducationPolicy is { } policy ? new MilitaryEducationPolicyDto(policy.Mode) : null);
-
-    /// <summary>Field by field: the faculty value when it overrides, otherwise the university default (P1.4).</summary>
-    private static EffectiveSettingsDto Effective(Guid facultyId, SystemSettings system, FacultySettings? settings) =>
-        new(facultyId,
-            system.TimeZone,
-            settings?.WeekStartDay ?? system.WeekStartDay,
-            settings?.WorkingDays ?? system.WorkingDays,
-            settings?.AttendanceThreshold ?? system.AttendanceThreshold,
-            settings?.LateGraceMinutes ?? system.LateGraceMinutes,
-            [.. (settings?.GradingScale ?? system.GradingScale).Select(b => new GradeBandDto(b.Grade, b.MinScore, b.Points))],
-            settings?.StudentCodeFormat ?? system.StudentCodeFormat,
-            new MilitaryEducationPolicyDto(settings?.MilitaryEducationPolicy?.Mode ?? system.MilitaryEducationPolicy.Mode));
 }

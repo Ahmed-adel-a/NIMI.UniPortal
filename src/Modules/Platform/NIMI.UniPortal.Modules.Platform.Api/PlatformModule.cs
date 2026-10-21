@@ -46,6 +46,9 @@ public static class PlatformModule
         // Per-faculty overrides (P1.4) — Student Affairs only, like the university settings above.
         FacultySettingsEndpoints.Map(endpoints);
 
+        // Effective rules for any signed-in user (P1.4).
+        EffectiveSettingsEndpoints.Map(endpoints);
+
         return endpoints;
     }
 
