@@ -23,6 +23,7 @@ public static class AttendanceModule
     {
         AttendanceSessionEndpoints.Map(endpoints);
         AttendanceReportEndpoints.Map(endpoints);
+        DeviceChangeEndpoints.Map(endpoints);
         return endpoints;
     }
 }
