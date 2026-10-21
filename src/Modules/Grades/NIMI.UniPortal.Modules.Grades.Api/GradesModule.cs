@@ -22,6 +22,7 @@ public static class GradesModule
     public static IEndpointRouteBuilder MapGradesEndpoints(this IEndpointRouteBuilder endpoints)
     {
         GroupGradeEndpoints.Map(endpoints);
+        PublishingEndpoints.Map(endpoints);
         return endpoints;
     }
 }
