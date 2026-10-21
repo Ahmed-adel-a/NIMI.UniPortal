@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Assignments.Application;
+using NIMI.UniPortal.Modules.Assignments.Application.Browse;
 using NIMI.UniPortal.Modules.Assignments.Application.Manage;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Paging;
 
 namespace NIMI.UniPortal.Modules.Assignments.Api.Endpoints;
 
@@ -21,7 +23,17 @@ internal static class AssignmentEndpoints
         group.MapPost("/", Create).WithName("CreateAssignment");
         group.MapPut("/{id:guid}", Update).WithName("UpdateAssignment");
         group.MapDelete("/{id:guid}", Delete).WithName("DeleteAssignment");
+        group.MapGet("/", List).WithName("ListAssignments");
+        group.MapGet("/{id:guid}", Get).WithName("GetAssignment");
     }
+
+    private static async Task<Ok<PagedResult<AssignmentDto>>> List(
+        Guid? subjectId, string? status, int? page, int? pageSize, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new ListAssignmentsQuery(subjectId, status, CallerViewer.From(caller), new PageRequest(page, pageSize)), cancellationToken));
+
+    private static async Task<Ok<AssignmentDto>> Get(Guid id, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(new GetAssignmentQuery(id, CallerViewer.From(caller)), cancellationToken));
 
     private static async Task<Created<AssignmentDto>> Create(
         AssignmentRequest request, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)

@@ -42,6 +42,32 @@ internal sealed class CourseAccess(ISchedulingApi scheduling, IAcademicLifecycle
         return groups;
     }
 
+    /// <summary>Every group the student is a confirmed member of this term, with its subject.</summary>
+    public async Task<IReadOnlyList<GroupRef>> StudentGroupsInTermAsync(Guid studentId, Guid termId, CancellationToken cancellationToken)
+    {
+        var groups = new List<GroupRef>();
+        foreach (var groupId in await lifecycle.GetGroupsForStudentAsync(studentId, termId, cancellationToken))
+        {
+            if (await scheduling.GetGroupAsync(groupId, cancellationToken) is { } group)
+                groups.Add(group);
+        }
+
+        return groups;
+    }
+
+    /// <summary>The subjects a staff member teaches this term (whole subject or any of its groups).</summary>
+    public async Task<IReadOnlyList<Guid>> TaughtSubjectsAsync(Guid staffId, Guid termId, CancellationToken cancellationToken)
+    {
+        var subjects = new HashSet<Guid>();
+        foreach (var groupId in await scheduling.GetGroupIdsTaughtByAsync(staffId, termId, cancellationToken))
+        {
+            if (await scheduling.GetGroupAsync(groupId, cancellationToken) is { } group)
+                subjects.Add(group.SubjectId);
+        }
+
+        return [.. subjects];
+    }
+
     /// <summary>Students a new item is for: one group's members, or every group of the subject in the term.</summary>
     public async Task<IReadOnlyList<Guid>> AudienceAsync(Guid subjectId, Guid termId, Guid? subjectGroupId, CancellationToken cancellationToken)
     {
