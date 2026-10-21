@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using NIMI.UniPortal.Modules.Assignments.Application.Mine;
 using NIMI.UniPortal.Modules.Assignments.Application.Review;
 using NIMI.UniPortal.Modules.Assignments.Application.Submit;
 using NIMI.UniPortal.SharedKernel.Messaging;
@@ -35,6 +36,7 @@ internal static class SubmissionEndpoints
             .RequireAuthorization();
         submissions.MapGet("/{id:guid}/file", Download).WithName("DownloadSubmission");
         submissions.MapPut("/{id:guid}/review", Review).WithName("ReviewSubmission");
+        submissions.MapGet("/mine", Mine).WithName("MySubmissions");
     }
 
     private static async Task<Ok<PagedResult<SubmissionDto>>> List(
@@ -53,6 +55,11 @@ internal static class SubmissionEndpoints
         TypedResults.Ok(await sender.Send(
             new ReviewSubmissionCommand(id, request.Decision, request.Grade, request.Feedback, request.RejectionReason, CallerViewer.From(caller)),
             cancellationToken));
+
+    private static async Task<Ok<PagedResult<MySubmissionDto>>> Mine(
+        string? status, int? page, int? pageSize, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new MySubmissionsQuery(status, CallerViewer.From(caller), new PageRequest(page, pageSize)), cancellationToken));
 
     private static async Task<Created<SubmissionReceiptDto>> Submit(
         Guid id, IFormFile? file, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
