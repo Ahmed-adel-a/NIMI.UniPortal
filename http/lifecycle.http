@@ -103,6 +103,10 @@ Authorization: Bearer {{professorToken}}
 GET {{host}}/api/schedule?from=2026-09-19&to=2026-09-25
 Authorization: Bearer {{studentToken}}
 
-### 9. Progress: credits earned (empty until P9), in progress now, outstanding graduation requirements
+### 8b. The same week as an Excel-friendly CSV (UTF-8 with BOM) — P10.4
+GET {{host}}/api/schedule/export?from=2026-09-19&to=2026-09-25
+Authorization: Bearer {{studentToken}}
+
+### 9. Progress: credits earned and GPA (from published grades, P9), in progress now, outstanding graduation requirements
 GET {{host}}/api/registration/progress
 Authorization: Bearer {{studentToken}}

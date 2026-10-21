@@ -77,3 +77,11 @@ Authorization: Bearer {{adminToken}}
 ### Admin: approve (old phone revoked, new one registered) — or POST …/reject
 POST {{host}}/api/admin/attendance/device-changes/{{deviceChangeId}}/approve
 Authorization: Bearer {{adminToken}}
+
+### Teacher / admin: the group's attendance sheet as CSV (one status column per closed session) — P10.4
+GET {{host}}/api/attendance/groups/{{groupId}}/export
+Authorization: Bearer {{professorToken}}
+
+### Teacher (own groups) / admin: finals eligibility; barred = below the faculty's threshold — P10.5
+GET {{host}}/api/attendance/eligibility?groupId={{groupId}}&barredOnly=true
+Authorization: Bearer {{professorToken}}

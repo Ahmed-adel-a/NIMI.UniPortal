@@ -1,0 +1,20 @@
+# Audit (P10.2) — demo requests (VS / Rider / VS Code REST Client).
+#
+# Sensitive actions (settings, faculty overrides, accounts, grade confirm/publish/correct, office payments, device
+# decisions, timetable edits) are logged after their commit. Student Affairs reads them newest first.
+
+@host = http://localhost:5080
+@adminToken = paste-the-admin-token-here
+@userId = paste-a-user-id-here
+
+### Everything, newest first (paged)
+GET {{host}}/api/admin/activity?page=1&pageSize=20
+Authorization: Bearer {{adminToken}}
+
+### One account's history (created, status changed, password reset …)
+GET {{host}}/api/admin/activity?entityType=user&entityId={{userId}}
+Authorization: Bearer {{adminToken}}
+
+### Timetable edits in a window
+GET {{host}}/api/admin/activity?entityType=schedule_slot&from=2026-10-01T00:00:00Z&to=2026-10-31T23:59:59Z
+Authorization: Bearer {{adminToken}}

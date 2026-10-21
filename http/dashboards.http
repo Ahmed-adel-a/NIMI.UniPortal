@@ -1,0 +1,23 @@
+# Dashboards (P10.1 + P10.6) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development) is the same as users.http. Both dashboards are composed in the host from module
+# contracts; a section/metric whose source fails comes back null and is listed in "unavailable".
+
+@host = http://localhost:5080
+@adminToken = paste-the-admin-token-here
+@studentToken = paste-a-students-token-here
+@termId = paste-the-active-term-id-here
+@facultyId = paste-a-faculty-id-here
+
+### Student: home screen — today's lectures, next lecture, assignments due in 7 days, latest announcements,
+### attendance rate, unread notifications, outstanding fees
+GET {{host}}/api/dashboard
+Authorization: Bearer {{studentToken}}
+
+### Student Affairs: the metric catalog (key, titles, unit, drill-down list URL)
+GET {{host}}/api/admin/dashboard/metrics
+Authorization: Bearer {{adminToken}}
+
+### Student Affairs: every metric for a term (default: the active one), optionally one faculty or department
+GET {{host}}/api/admin/dashboard/summary?termId={{termId}}&facultyId={{facultyId}}
+Authorization: Bearer {{adminToken}}
