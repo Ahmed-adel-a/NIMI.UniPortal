@@ -242,7 +242,9 @@ namespace NIMI.UniPortal.Modules.Payments.Infrastructure.Persistence.Migrations
                         .HasName("pk_payments");
 
                     b.HasIndex("PaymentIntentId")
-                        .HasDatabaseName("ix_payments_payment_intent_id");
+                        .IsUnique()
+                        .HasDatabaseName("ix_payments_payment_intent_id")
+                        .HasFilter("payment_intent_id IS NOT NULL");
 
                     b.HasIndex("ReceiptNumber")
                         .IsUnique()

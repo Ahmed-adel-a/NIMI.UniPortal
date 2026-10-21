@@ -46,6 +46,8 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         builder.HasIndex(p => p.ReceiptNumber).IsUnique();
         builder.HasIndex(p => new { p.StudentId, p.PaidAt }).IsDescending(false, true);
-        builder.HasIndex(p => p.PaymentIntentId);
+        builder.HasIndex(p => p.PaymentIntentId)
+            .IsUnique()
+            .HasFilter("payment_intent_id IS NOT NULL");
     }
 }
