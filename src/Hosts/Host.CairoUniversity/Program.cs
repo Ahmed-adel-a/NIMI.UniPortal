@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Host.CairoUniversity;
+using Host.CairoUniversity.Dashboards;
 using Host.CairoUniversity.Errors;
 using Host.CairoUniversity.Health;
 using Host.CairoUniversity.Security;
@@ -44,6 +45,7 @@ builder.Services.AddMaterialsModule();
 builder.Services.AddAnnouncementsModule();
 builder.Services.AddAssignmentsModule();
 builder.Services.AddGradesModule();
+builder.Services.AddDashboards();                // P10: host-level dashboards over module contracts
 builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
 builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
 
@@ -75,5 +77,6 @@ app.MapAssignmentsEndpoints();
 app.MapGradesEndpoints();
 app.MapPaymentsEndpoints();
 app.MapCreditHoursEndpoints();
+app.MapDashboardEndpoints();
 
 app.Run();
