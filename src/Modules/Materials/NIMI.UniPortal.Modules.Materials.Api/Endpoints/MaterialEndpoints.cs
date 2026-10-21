@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Materials.Application;
 using NIMI.UniPortal.Modules.Materials.Application.Browse;
+using NIMI.UniPortal.Modules.Materials.Application.Manage;
 using NIMI.UniPortal.Modules.Materials.Application.Upload;
 using NIMI.UniPortal.Modules.Materials.Domain;
 using NIMI.UniPortal.SharedKernel.Messaging;
@@ -32,6 +33,28 @@ internal static class MaterialEndpoints
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });
         group.MapGet("/", List).WithName("ListMaterials");
         group.MapGet("/{id:guid}/download", Download).WithName("DownloadMaterial");
+        group.MapPut("/{id:guid}", Edit).WithName("EditMaterial");
+        group.MapDelete("/{id:guid}", Delete).WithName("DeleteMaterial");
+    }
+
+    private static async Task<Ok<MaterialDto>> Edit(
+        Guid id,
+        EditMaterialRequest request,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new EditMaterialCommand(id, request.Title ?? string.Empty, request.Description, request.WeekNumber, CallerViewer.From(caller)),
+            cancellationToken));
+
+    private static async Task<NoContent> Delete(
+        Guid id,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new DeleteMaterialCommand(id, CallerViewer.From(caller)), cancellationToken);
+        return TypedResults.NoContent();
     }
 
     private static async Task<Ok<PagedResult<MaterialDto>>> List(
