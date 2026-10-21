@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Grades.Application.Abstractions;
 using NIMI.UniPortal.Modules.Grades.Application.Common;
 using NIMI.UniPortal.Modules.Grades.Contracts;
@@ -51,6 +52,14 @@ internal sealed class CorrectGradeHandler(
             $"Your grade in {subject.Name} is now {grade.Grade}.",
             $"درجتك في {subject.NameAr} أصبحت {grade.Grade}.",
             "/grades"));
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            now,
+            command.Caller.UserId,
+            AuditActions.GradeCorrected,
+            AuditEntities.FinalGrade,
+            grade.Id,
+            $"{subject.Code} grade corrected {correction.OldScore:0.##} ({correction.OldGrade}) → {correction.NewScore:0.##} ({correction.NewGrade}): {correction.Reason}"));
 
         return FinalGradeDto.From(grade);
     }

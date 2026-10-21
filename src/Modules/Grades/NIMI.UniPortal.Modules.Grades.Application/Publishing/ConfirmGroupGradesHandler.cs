@@ -1,6 +1,8 @@
 using FluentValidation;
 using FluentValidation.Results;
 using NIMI.UniPortal.Abstractions.Lifecycle;
+using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Grades.Application.Abstractions;
 using NIMI.UniPortal.Modules.Grades.Application.Common;
 using NIMI.UniPortal.Modules.Grades.Domain;
@@ -14,7 +16,7 @@ namespace NIMI.UniPortal.Modules.Grades.Application.Publishing;
 /// <c>missingStudentIds</c> detail. Drafts become confirmed; confirmed and published rows are left alone.
 /// </summary>
 internal sealed class ConfirmGroupGradesHandler(
-    IGradesDbContext db, GradingAccess access, IAcademicLifecycle lifecycle, TimeProvider clock)
+    IGradesDbContext db, GradingAccess access, IAcademicLifecycle lifecycle, IEventCollector events, TimeProvider clock)
     : IRequestHandler<ConfirmGroupGradesCommand, ConfirmResultDto>
 {
     public async Task<ConfirmResultDto> Handle(ConfirmGroupGradesCommand command, CancellationToken cancellationToken)
@@ -34,6 +36,18 @@ internal sealed class ConfirmGroupGradesHandler(
         var drafts = grades.Values.Where(g => g.Status == GradeStatus.Draft).ToList();
         foreach (var draft in drafts)
             draft.Confirm(command.Caller.UserId, now);
+
+        if (drafts.Count > 0)
+        {
+            events.Add(new AuditableActionPerformed(
+                Guid.CreateVersion7(),
+                now,
+                command.Caller.UserId,
+                AuditActions.GradesConfirmed,
+                AuditEntities.SubjectGroup,
+                graded.Group.Id,
+                $"{drafts.Count} grade(s) of {graded.Subject.Code} group {graded.Group.GroupNumber} confirmed."));
+        }
 
         return new ConfirmResultDto(drafts.Count);
     }

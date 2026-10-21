@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Grades.Application.Abstractions;
 using NIMI.UniPortal.Modules.Grades.Contracts;
 using NIMI.UniPortal.Modules.Grades.Domain;
@@ -55,6 +56,14 @@ internal sealed class PublishGradesHandler(
             "New grades are available in your results.",
             "تم نشر درجات جديدة في نتائجك.",
             "/grades"));
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            now,
+            command.Caller.UserId,
+            AuditActions.GradesPublished,
+            AuditEntities.Term,
+            termId,
+            $"{confirmed.Count} grade(s) published{(command.SubjectId is null ? "" : " for one subject")}{(command.GroupId is null ? "" : " for one group")}."));
 
         return new PublishResultDto(confirmed.Count);
     }
