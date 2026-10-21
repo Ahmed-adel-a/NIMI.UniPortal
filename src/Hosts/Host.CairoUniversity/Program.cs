@@ -4,10 +4,12 @@ using Host.CairoUniversity;
 using Host.CairoUniversity.Errors;
 using Host.CairoUniversity.Health;
 using Host.CairoUniversity.Security;
+using Host.CairoUniversity.Storage;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Attendance.Api;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
+using NIMI.UniPortal.Modules.Materials.Api;
 using NIMI.UniPortal.Modules.Notifications.Api;
 using NIMI.UniPortal.Modules.Payments.Api;
 using NIMI.UniPortal.Modules.Platform.Api;
@@ -27,6 +29,7 @@ builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true)
 builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower)));
 builder.AddPortalAuthentication();                                        // JWT validation + policies (Security/)
+builder.Services.AddFileStorage(builder.Configuration, builder.Environment); // uploads on local disk (Storage/)
 
 // ── Core modules ───────────────────────────────────────────────
 builder.Services.AddPlatformModule();
@@ -34,6 +37,7 @@ builder.Services.AddUsersModule();
 builder.Services.AddNotificationsModule();
 builder.Services.AddSchedulingModule();
 builder.Services.AddAttendanceModule();
+builder.Services.AddMaterialsModule();
 builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
 builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
 
@@ -59,6 +63,7 @@ app.MapUsersEndpoints();
 app.MapNotificationsEndpoints();
 app.MapSchedulingEndpoints();
 app.MapAttendanceEndpoints();
+app.MapMaterialsEndpoints();
 app.MapPaymentsEndpoints();
 app.MapCreditHoursEndpoints();
 

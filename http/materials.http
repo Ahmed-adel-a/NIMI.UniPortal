@@ -1,0 +1,55 @@
+# Materials module (P7) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development) is the same as users.http. Uploaded files go to App_Data/files next to the host
+# (Storage:RootPath); that folder is git-ignored.
+# Prerequisites: scheduling.http + lifecycle.http (active term, a subject the professor teaches, a registered student).
+
+@host = http://localhost:5080
+@adminToken = paste-the-admin-token-here
+@professorToken = paste-the-teaching-professors-token-here
+@studentToken = paste-a-registered-students-token-here
+@subjectId = paste-a-subject-id-here
+@materialId = paste-the-id-from-the-upload-here
+
+### Professor: upload a PDF (multipart) → 201 (allowed: pdf ppt pptx doc docx xls xlsx zip png jpg jpeg mp4, ≤ 50 MB)
+POST {{host}}/api/materials
+Authorization: Bearer {{professorToken}}
+Content-Type: multipart/form-data; boundary=NIMI
+
+--NIMI
+Content-Disposition: form-data; name="subjectId"
+
+{{subjectId}}
+--NIMI
+Content-Disposition: form-data; name="title"
+
+Lecture 3 — Graphs
+--NIMI
+Content-Disposition: form-data; name="weekNumber"
+
+3
+--NIMI
+Content-Disposition: form-data; name="file"; filename="graphs.pdf"
+Content-Type: application/pdf
+
+%PDF-1.7 demo
+--NIMI--
+
+### Student (registered) or professor (teaching) or admin: the subject's materials this term
+GET {{host}}/api/materials?subjectId={{subjectId}}&weekNumber=3
+Authorization: Bearer {{studentToken}}
+
+### Download (counts the download; invisible or deleted → 404)
+GET {{host}}/api/materials/{{materialId}}/download
+Authorization: Bearer {{studentToken}}
+
+### Uploader / teacher: edit the metadata (the file never changes)
+PUT {{host}}/api/materials/{{materialId}}
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{ "title": "Lecture 3 — Graphs (updated)", "description": "With exercises", "weekNumber": 3 }
+
+### Uploader / teacher: soft delete → 204 (the stored file is kept)
+DELETE {{host}}/api/materials/{{materialId}}
+Authorization: Bearer {{professorToken}}

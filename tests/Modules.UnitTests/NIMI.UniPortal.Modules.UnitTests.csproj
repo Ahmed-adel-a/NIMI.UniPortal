@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\src\Modules\Lifecycle.CreditHours\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Payments\NIMI.UniPortal.Modules.Payments.Domain\NIMI.UniPortal.Modules.Payments.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Attendance\NIMI.UniPortal.Modules.Attendance.Domain\NIMI.UniPortal.Modules.Attendance.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Materials\NIMI.UniPortal.Modules.Materials.Domain\NIMI.UniPortal.Modules.Materials.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
