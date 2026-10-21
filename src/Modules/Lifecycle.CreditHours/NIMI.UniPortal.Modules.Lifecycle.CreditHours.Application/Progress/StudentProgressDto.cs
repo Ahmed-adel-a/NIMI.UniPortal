@@ -1,8 +1,9 @@
 namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Progress;
 
 /// <summary>
-/// P4.6 — credits earned (grade ledger, empty until P9), credits in progress (the active term's registrations),
-/// GPA (null until P9) and the graduation requirements still outstanding.
+/// P4.6 / P9.3b — credits earned (distinct passed subjects in the grade ledger), credits in progress (the active
+/// term's registrations), the cumulative GPA (latest snapshot; null without credit-bearing grades) and the
+/// graduation requirements still outstanding.
 /// </summary>
 public sealed record StudentProgressDto(
     Guid StudentId,

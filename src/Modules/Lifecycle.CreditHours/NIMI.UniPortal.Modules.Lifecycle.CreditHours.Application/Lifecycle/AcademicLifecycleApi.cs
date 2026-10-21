@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Results;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Registration;
 using NIMI.UniPortal.Modules.Scheduling.Contracts;
 
@@ -53,14 +54,19 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
     public async Task<StudentProgress> GetProgressAsync(
         Guid studentId, CancellationToken cancellationToken = default)
     {
-        // P9 writes the ledger; until then these reads return nothing/zero.
+        // P9.3b: the ledger is written from GradesPublished; GPA is the latest term snapshot's cumulative GPA.
         var passed = await db.CreditLedger.AsNoTracking()
             .Where(e => e.StudentId == studentId && e.Passed)
-            .Select(e => new { e.SubjectId, e.CreditHours })
+            .Select(e => new PassedSubject(e.StudentId, e.SubjectId, e.CreditHours, e.RecordedAt))
             .ToListAsync(cancellationToken);
 
-        var creditsEarned = passed.Sum(p => p.CreditHours);
+        var creditsEarned = EarnedCredits.Of(passed);
         var passedSubjectIds = passed.Select(p => p.SubjectId).ToHashSet();
+        var cumulativeGpa = await db.GpaSnapshots.AsNoTracking()
+            .Where(s => s.StudentId == studentId)
+            .OrderByDescending(s => s.TermStartsOn)
+            .Select(s => s.CumulativeGpa)
+            .FirstOrDefaultAsync(cancellationToken);
 
         var term = await scheduling.GetCurrentTermAsync(cancellationToken);
         var creditsInProgress = term is null
@@ -77,6 +83,6 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
             .Select(s => s.Id)
             .ToList();
 
-        return new StudentProgress(studentId, creditsEarned, creditsInProgress, null, outstanding);
+        return new StudentProgress(studentId, creditsEarned, creditsInProgress, cumulativeGpa, outstanding);
     }
 }
