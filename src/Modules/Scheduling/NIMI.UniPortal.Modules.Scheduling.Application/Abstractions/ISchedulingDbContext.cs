@@ -11,5 +11,9 @@ public interface ISchedulingDbContext
 
     DbSet<Subject> Subjects { get; }
 
+    DbSet<SubjectGroup> SubjectGroups { get; }
+
+    DbSet<TeachingAssignment> TeachingAssignments { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

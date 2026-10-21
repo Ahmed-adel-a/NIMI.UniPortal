@@ -23,6 +23,8 @@ public static class SchedulingModule
     {
         TermEndpoints.Map(endpoints);
         SubjectEndpoints.Map(endpoints);
+        GroupEndpoints.Map(endpoints);
+        TeachingAssignmentEndpoints.Map(endpoints);
         return endpoints;
     }
 }

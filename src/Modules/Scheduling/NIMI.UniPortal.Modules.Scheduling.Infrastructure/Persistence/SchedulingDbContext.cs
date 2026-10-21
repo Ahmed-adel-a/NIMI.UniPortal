@@ -14,6 +14,10 @@ public sealed class SchedulingDbContext(DbContextOptions<SchedulingDbContext> op
 
     public DbSet<Subject> Subjects => Set<Subject>();
 
+    public DbSet<SubjectGroup> SubjectGroups => Set<SubjectGroup>();
+
+    public DbSet<TeachingAssignment> TeachingAssignments => Set<TeachingAssignment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
