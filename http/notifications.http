@@ -1,0 +1,31 @@
+# Notifications module — demo requests (VS / Rider / VS Code REST Client).
+#
+# Setup: run the host (http://localhost:5080) and get a signed-in token:
+#   - a student / professor token from http/users.http (steps 1, 6, 12–13), or
+#   - the seeded admin token (admins have notifications too).
+# Rows appear when a producer publishes Notifications.Contracts.NotificationRequested — P2's integration
+# tests publish it through the test factory; later phases add the real producers (schedule, grades, …).
+
+@host = http://localhost:5080
+@token = paste-a-signed-in-token-here
+@notificationId = paste-a-notification-id-here
+
+### 1. My notifications — newest first, paged (default page size 20, max 100)
+GET {{host}}/api/notifications/mine?page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### 2. Only the unread ones
+GET {{host}}/api/notifications/mine?unreadOnly=true
+Authorization: Bearer {{token}}
+
+### 3. Unread badge — { "count": n }
+GET {{host}}/api/notifications/mine/unread-count
+Authorization: Bearer {{token}}
+
+### 4. Mark one read (204; someone else's id or unknown → 404; marking twice keeps the first readAt)
+POST {{host}}/api/notifications/{{notificationId}}/read
+Authorization: Bearer {{token}}
+
+### 5. Mark all of mine read (204, also when nothing is left)
+POST {{host}}/api/notifications/read-all
+Authorization: Bearer {{token}}

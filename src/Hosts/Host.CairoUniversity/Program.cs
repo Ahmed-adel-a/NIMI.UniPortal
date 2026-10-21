@@ -48,5 +48,6 @@ app.MapHealthChecks("/api/health/db", new HealthCheckOptions { Predicate = c => 
 
 app.MapPlatformEndpoints();
 app.MapUsersEndpoints();
+app.MapNotificationsEndpoints();
 
 app.Run();
