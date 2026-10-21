@@ -34,6 +34,7 @@ internal static class SubmissionEndpoints
             .WithTags("Assignments")
             .RequireAuthorization();
         submissions.MapGet("/{id:guid}/file", Download).WithName("DownloadSubmission");
+        submissions.MapPut("/{id:guid}/review", Review).WithName("ReviewSubmission");
     }
 
     private static async Task<Ok<PagedResult<SubmissionDto>>> List(
@@ -46,6 +47,12 @@ internal static class SubmissionEndpoints
         var file = await sender.Send(new DownloadSubmissionQuery(id, CallerViewer.From(caller)), cancellationToken);
         return TypedResults.File(file.Content, file.ContentType, file.FileName);
     }
+
+    private static async Task<Ok<SubmissionDto>> Review(
+        Guid id, ReviewRequest request, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new ReviewSubmissionCommand(id, request.Decision, request.Grade, request.Feedback, request.RejectionReason, CallerViewer.From(caller)),
+            cancellationToken));
 
     private static async Task<Created<SubmissionReceiptDto>> Submit(
         Guid id, IFormFile? file, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
