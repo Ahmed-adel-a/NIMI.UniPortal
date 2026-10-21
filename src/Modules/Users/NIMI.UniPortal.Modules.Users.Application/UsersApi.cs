@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
 using NIMI.UniPortal.Modules.Users.Contracts;
+using NIMI.UniPortal.Modules.Users.Domain.Accounts;
 
 namespace NIMI.UniPortal.Modules.Users.Application;
 
@@ -27,5 +28,41 @@ internal sealed class UsersApi(IUsersDbContext db) : IUsersApi
             : new UserRef(
                 user.Id, user.FullName, user.Role.ToString().ToLowerInvariant(), user.DepartmentId, user.StudentCode,
                 user.AcademicTitle?.ToString().ToLowerInvariant(), user.IsActive);
+    }
+
+    public Task<int> CountActiveStudentsAsync(
+        Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default)
+    {
+        var students = db.Users.AsNoTracking()
+            .Where(u => u.Role == UserRole.Student && u.IsActive);
+
+        if (departmentId is { } department)
+            students = students.Where(u => u.DepartmentId == department);
+        else if (facultyId is { } faculty)
+            students = students.Where(u => db.Departments.Any(d => d.Id == u.DepartmentId && d.FacultyId == faculty));
+
+        return students.CountAsync(cancellationToken);
+    }
+
+    public async Task<StudentPlacementRef?> GetStudentPlacementAsync(
+        Guid studentId, CancellationToken cancellationToken = default)
+    {
+        var placement = await db.Users.AsNoTracking()
+            .Where(u => u.Id == studentId && u.Role == UserRole.Student && u.DepartmentId != null)
+            .Join(
+                db.Departments.AsNoTracking(),
+                u => u.DepartmentId,
+                d => (Guid?)d.Id,
+                (u, d) => new { u.Id, u.DepartmentId, d.FacultyId, u.EnrollmentYear, u.IsActive })
+            .SingleOrDefaultAsync(cancellationToken);
+
+        return placement is null
+            ? null
+            : new StudentPlacementRef(
+                placement.Id,
+                placement.DepartmentId!.Value,
+                placement.FacultyId,
+                placement.EnrollmentYear!.Value,
+                placement.IsActive);
     }
 }
