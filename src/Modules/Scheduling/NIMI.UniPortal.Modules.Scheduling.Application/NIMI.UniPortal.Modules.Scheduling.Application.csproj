@@ -7,6 +7,7 @@
     <!-- Cross-module: Contracts only (departments/faculties/staff and effective settings) -->
     <ProjectReference Include="..\..\Users\NIMI.UniPortal.Modules.Users.Contracts\NIMI.UniPortal.Modules.Users.Contracts.csproj" />
     <ProjectReference Include="..\..\Platform\NIMI.UniPortal.Modules.Platform.Contracts\NIMI.UniPortal.Modules.Platform.Contracts.csproj" />
+    <ProjectReference Include="..\..\Audit\NIMI.UniPortal.Modules.Audit.Contracts\NIMI.UniPortal.Modules.Audit.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
