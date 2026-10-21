@@ -27,6 +27,7 @@ public static class CreditHoursModule
         PrerequisiteEndpoints.Map(endpoints);
         RegistrationEndpoints.Map(endpoints);
         RosterEndpoints.Map(endpoints);
+        StudentScheduleEndpoints.Map(endpoints);
         return endpoints;
     }
 }
