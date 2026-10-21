@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.Modules.Scheduling.Domain.Catalog;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Terms;
 
 namespace NIMI.UniPortal.Modules.Scheduling.Application.Abstractions;
@@ -7,6 +8,8 @@ namespace NIMI.UniPortal.Modules.Scheduling.Application.Abstractions;
 public interface ISchedulingDbContext
 {
     DbSet<Term> Terms { get; }
+
+    DbSet<Subject> Subjects { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -22,6 +22,7 @@ public static class SchedulingModule
     public static IEndpointRouteBuilder MapSchedulingEndpoints(this IEndpointRouteBuilder endpoints)
     {
         TermEndpoints.Map(endpoints);
+        SubjectEndpoints.Map(endpoints);
         return endpoints;
     }
 }
