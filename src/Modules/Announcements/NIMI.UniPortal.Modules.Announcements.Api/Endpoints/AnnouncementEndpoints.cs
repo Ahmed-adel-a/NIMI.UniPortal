@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Announcements.Application;
+using NIMI.UniPortal.Modules.Announcements.Application.Browse;
 using NIMI.UniPortal.Modules.Announcements.Application.Manage;
 using NIMI.UniPortal.Modules.Announcements.Application.Post;
 using NIMI.UniPortal.Modules.Announcements.Domain;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Paging;
 
 namespace NIMI.UniPortal.Modules.Announcements.Api.Endpoints;
 
@@ -23,7 +25,19 @@ internal static class AnnouncementEndpoints
         group.MapPost("/", Post).WithName("PostAnnouncement");
         group.MapPut("/{id:guid}", Edit).WithName("EditAnnouncement");
         group.MapDelete("/{id:guid}", Delete).WithName("DeleteAnnouncement");
+        group.MapGet("/", List).WithName("ListAnnouncements");
+        group.MapGet("/feed", Feed).WithName("GetAnnouncementFeed");
     }
+
+    private static async Task<Ok<PagedResult<AnnouncementDto>>> List(
+        Guid? subjectId, int? page, int? pageSize, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new ListAnnouncementsQuery(subjectId, CallerViewer.From(caller), new PageRequest(page, pageSize)), cancellationToken));
+
+    private static async Task<Ok<PagedResult<AnnouncementDto>>> Feed(
+        int? page, int? pageSize, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new GetFeedQuery(CallerViewer.From(caller), new PageRequest(page, pageSize)), cancellationToken));
 
     private static async Task<Created<AnnouncementDto>> Post(
         AnnouncementRequest request, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
