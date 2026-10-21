@@ -132,12 +132,12 @@ public sealed partial class SystemSettings
         PrimaryColor = HexColor(primaryColor, nameof(primaryColor));
         SecondaryColor = HexColor(secondaryColor, nameof(secondaryColor));
         TimeZone = IanaTimeZone(timeZone, nameof(timeZone));
-        WeekStartDay = DayOfWeekNumber(weekStartDay, nameof(weekStartDay));
-        WorkingDays = Days(workingDays, nameof(workingDays));
-        AttendanceThreshold = InRange(attendanceThreshold, 0m, 100m, nameof(attendanceThreshold));
-        LateGraceMinutes = (int)InRange(lateGraceMinutes, 0, 180, nameof(lateGraceMinutes));
-        GradingScale = Scale(gradingScale, nameof(gradingScale));
-        StudentCodeFormat = CodeFormat(studentCodeFormat, nameof(studentCodeFormat));
+        WeekStartDay = AcademicRules.WeekStartDay(weekStartDay, nameof(weekStartDay));
+        WorkingDays = AcademicRules.WorkingDays(workingDays, nameof(workingDays));
+        AttendanceThreshold = AcademicRules.AttendanceThreshold(attendanceThreshold, nameof(attendanceThreshold));
+        LateGraceMinutes = AcademicRules.LateGraceMinutes(lateGraceMinutes, nameof(lateGraceMinutes));
+        GradingScale = AcademicRules.GradingScale(gradingScale, nameof(gradingScale));
+        StudentCodeFormat = AcademicRules.StudentCodeFormat(studentCodeFormat, nameof(studentCodeFormat));
         MilitaryEducationPolicy = militaryEducationPolicy ?? throw new ArgumentNullException(nameof(militaryEducationPolicy));
     }
 
@@ -154,52 +154,6 @@ public sealed partial class SystemSettings
         if (string.IsNullOrWhiteSpace(value) || !TimeZoneInfo.TryFindSystemTimeZoneById(value, out var zone) || !zone.HasIanaId)
             throw new ArgumentException("Must be an IANA timezone id, e.g. Africa/Cairo.", name);
         return value;
-    }
-
-    private static int DayOfWeekNumber(int value, string name) =>
-        value is >= 0 and <= 6 ? value : throw new ArgumentOutOfRangeException(name, value, "0 = Saturday … 6 = Friday.");
-
-    private static int[] Days(IReadOnlyCollection<int> values, string name)
-    {
-        if (values is null || values.Count == 0)
-            throw new ArgumentException("At least one working day.", name);
-        foreach (var day in values)
-            DayOfWeekNumber(day, name);
-        if (values.Distinct().Count() != values.Count)
-            throw new ArgumentException("Working days must not repeat.", name);
-        return [.. values.Order()];
-    }
-
-    private static decimal InRange(decimal value, decimal min, decimal max, string name) =>
-        value >= min && value <= max ? value : throw new ArgumentOutOfRangeException(name, value, $"Must be between {min} and {max}.");
-
-    private static IReadOnlyList<GradeBand> Scale(IReadOnlyList<GradeBand> bands, string name)
-    {
-        if (bands is null || bands.Count == 0)
-            throw new ArgumentException("The grading scale needs at least one band.", name);
-        foreach (var band in bands)
-        {
-            Required(band.Grade, name);
-            InRange(band.MinScore, 0m, 100m, name);
-            InRange(band.Points, 0m, 5m, name);
-        }
-
-        if (bands.Select(b => b.Grade.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Count() != bands.Count)
-            throw new ArgumentException("Grades must be unique.", name);
-        if (bands.Select(b => b.MinScore).Distinct().Count() != bands.Count)
-            throw new ArgumentException("Two bands share the same minimum score.", name);
-        if (!bands.Any(b => b.MinScore == 0m))
-            throw new ArgumentException("One band must start at 0 so every score gets a grade.", name);
-
-        return [.. bands.OrderByDescending(b => b.MinScore).Select(b => b with { Grade = b.Grade.Trim() })];
-    }
-
-    private static string CodeFormat(string value, string name)
-    {
-        var format = Required(value, name);
-        return format.Contains("{SEQ", StringComparison.Ordinal)
-            ? format
-            : throw new ArgumentException("The student-code format must contain a {SEQ} token so codes are unique.", name);
     }
 
     [GeneratedRegex("^#[0-9A-Fa-f]{6}$")]

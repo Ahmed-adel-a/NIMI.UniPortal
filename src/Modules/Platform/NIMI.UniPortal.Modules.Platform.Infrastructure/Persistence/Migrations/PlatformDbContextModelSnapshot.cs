@@ -23,6 +23,79 @@ namespace NIMI.UniPortal.Modules.Platform.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NIMI.UniPortal.Modules.Platform.Domain.Settings.FacultySettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal?>("AttendanceThreshold")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("attendance_threshold");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("FacultyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("faculty_id");
+
+                    b.Property<string>("GradingScale")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("grading_scale");
+
+                    b.Property<int?>("LateGraceMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("late_grace_minutes");
+
+                    b.Property<string>("MilitaryEducationPolicy")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("military_education_policy");
+
+                    b.Property<string>("StudentCodeFormat")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("student_code_format");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<int?>("WeekStartDay")
+                        .HasColumnType("integer")
+                        .HasColumnName("week_start_day");
+
+                    b.PrimitiveCollection<int[]>("WorkingDays")
+                        .HasColumnType("integer[]")
+                        .HasColumnName("working_days");
+
+                    b.HasKey("Id")
+                        .HasName("pk_faculty_settings");
+
+                    b.HasIndex("FacultyId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_faculty_settings_faculty_id");
+
+                    b.ToTable("faculty_settings", "platform", t =>
+                        {
+                            t.HasCheckConstraint("ck_faculty_settings_attendance_threshold", "attendance_threshold BETWEEN 0 AND 100");
+
+                            t.HasCheckConstraint("ck_faculty_settings_late_grace_minutes", "late_grace_minutes BETWEEN 0 AND 180");
+
+                            t.HasCheckConstraint("ck_faculty_settings_week_start_day", "week_start_day BETWEEN 0 AND 6");
+                        });
+                });
+
             modelBuilder.Entity("NIMI.UniPortal.Modules.Platform.Domain.Settings.SystemSettings", b =>
                 {
                     b.Property<Guid>("Id")

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
-using NIMI.UniPortal.Modules.Users.Application.Validation;
 using NIMI.UniPortal.Modules.Users.Domain.Organization;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Validation;
 
 namespace NIMI.UniPortal.Modules.Users.Application.Organization.CreateDepartment;
 
