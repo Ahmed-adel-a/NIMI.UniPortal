@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Materials.Application;
+using NIMI.UniPortal.Modules.Materials.Application.Browse;
 using NIMI.UniPortal.Modules.Materials.Application.Upload;
 using NIMI.UniPortal.Modules.Materials.Domain;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Paging;
 
 namespace NIMI.UniPortal.Modules.Materials.Api.Endpoints;
 
@@ -28,6 +30,31 @@ internal static class MaterialEndpoints
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });
+        group.MapGet("/", List).WithName("ListMaterials");
+        group.MapGet("/{id:guid}/download", Download).WithName("DownloadMaterial");
+    }
+
+    private static async Task<Ok<PagedResult<MaterialDto>>> List(
+        Guid? subjectId,
+        int? weekNumber,
+        string? type,
+        int? page,
+        int? pageSize,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new ListMaterialsQuery(subjectId, weekNumber, type, CallerViewer.From(caller), new PageRequest(page, pageSize)),
+            cancellationToken));
+
+    private static async Task<FileStreamHttpResult> Download(
+        Guid id,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var file = await sender.Send(new DownloadMaterialCommand(id, CallerViewer.From(caller)), cancellationToken);
+        return TypedResults.File(file.Content, file.ContentType, file.FileName);
     }
 
     private static async Task<Created<MaterialDto>> Upload(
