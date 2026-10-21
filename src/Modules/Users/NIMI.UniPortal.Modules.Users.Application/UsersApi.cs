@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
 using NIMI.UniPortal.Modules.Users.Contracts;
 using NIMI.UniPortal.Modules.Users.Domain.Accounts;
+using NIMI.UniPortal.SharedKernel.Paging;
 
 namespace NIMI.UniPortal.Modules.Users.Application;
 
@@ -31,17 +32,34 @@ internal sealed class UsersApi(IUsersDbContext db) : IUsersApi
     }
 
     public Task<int> CountActiveStudentsAsync(
-        Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default)
+        Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default) =>
+        ActiveStudents(facultyId, departmentId).CountAsync(cancellationToken);
+
+    public async Task<PagedResult<StudentRef>> GetStudentsAsync(
+        Guid? facultyId, Guid? departmentId, PageRequest paging, CancellationToken cancellationToken = default)
     {
-        var students = db.Users.AsNoTracking()
-            .Where(u => u.Role == UserRole.Student && u.IsActive);
+        var students = ActiveStudents(facultyId, departmentId)
+            .Where(u => u.DepartmentId != null && u.StudentCode != null && u.EnrollmentYear != null);
 
-        if (departmentId is { } department)
-            students = students.Where(u => u.DepartmentId == department);
-        else if (facultyId is { } faculty)
-            students = students.Where(u => db.Departments.Any(d => d.Id == u.DepartmentId && d.FacultyId == faculty));
+        var total = await students.CountAsync(cancellationToken);
+        var items = await students
+            .Join(
+                db.Departments.AsNoTracking(),
+                u => u.DepartmentId,
+                d => (Guid?)d.Id,
+                (u, d) => new { u.Id, u.FullName, u.StudentCode, u.DepartmentId, d.FacultyId, u.EnrollmentYear })
+            .OrderBy(s => s.StudentCode)
+            .ThenBy(s => s.Id)
+            .Skip(paging.Skip)
+            .Take(paging.PageSize)
+            .ToListAsync(cancellationToken);
 
-        return students.CountAsync(cancellationToken);
+        return new PagedResult<StudentRef>(
+            [.. items.Select(s => new StudentRef(
+                s.Id, s.FullName, s.StudentCode!, s.DepartmentId!.Value, s.FacultyId, s.EnrollmentYear!.Value))],
+            paging.Page,
+            paging.PageSize,
+            total);
     }
 
     public async Task<StudentPlacementRef?> GetStudentPlacementAsync(
@@ -64,5 +82,18 @@ internal sealed class UsersApi(IUsersDbContext db) : IUsersApi
                 placement.FacultyId,
                 placement.EnrollmentYear!.Value,
                 placement.IsActive);
+    }
+
+    private IQueryable<User> ActiveStudents(Guid? facultyId, Guid? departmentId)
+    {
+        var students = db.Users.AsNoTracking()
+            .Where(u => u.Role == UserRole.Student && u.IsActive);
+
+        if (departmentId is { } department)
+            students = students.Where(u => u.DepartmentId == department);
+        else if (facultyId is { } faculty)
+            students = students.Where(u => db.Departments.Any(d => d.Id == u.DepartmentId && d.FacultyId == faculty));
+
+        return students;
     }
 }
