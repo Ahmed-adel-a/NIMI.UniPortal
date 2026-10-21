@@ -59,6 +59,22 @@ public sealed class TermTests(PortalWebAppFactory factory) : PortalTest(factory)
     }
 
     [Fact]
+    public async Task Activating_an_older_term_while_a_newer_one_is_active_also_works()
+    {
+        // Created first = smaller Guid v7. The swap must not depend on the order the database applies the two updates.
+        var older = await CreateTermAsync(Admin(), number: "summer", startsOn: "2026-07-04", endsOn: "2026-08-28", weekCount: 8);
+        var newer = await CreateTermAsync(Admin());
+        await Admin().PostAsync($"/api/admin/terms/{newer}/activate", null);
+
+        var response = await Admin().PostAsync($"/api/admin/terms/{older}/activate", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(older, (Guid)(await Student().GetFromJsonAsync<JsonObject>("/api/terms/current"))!["id"]!);
+        var terms = (await Student().GetFromJsonAsync<JsonObject>("/api/terms"))!["items"]!.AsArray();
+        Assert.Equal("closed", (string?)terms.Single(t => (Guid)t!["id"]! == newer)!["status"]);
+    }
+
+    [Fact]
     public async Task A_planned_term_can_be_edited_but_an_active_one_cannot()
     {
         var termId = await CreateTermAsync(Admin());

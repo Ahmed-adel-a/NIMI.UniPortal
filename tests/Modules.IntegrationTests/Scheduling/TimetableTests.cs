@@ -169,6 +169,22 @@ public sealed class TimetableTests(PortalWebAppFactory factory) : PortalTest(fac
     }
 
     [Fact]
+    public async Task Only_an_active_professor_can_be_named_as_staff_on_a_slot()
+    {
+        var w = await World();
+        var departmentId = (Guid)(await BodyOf(await Admin().GetAsync("/api/subjects?search=CS301")))["items"]![0]!["departmentId"]!;
+        var (studentId, _) = await AccountSetup.CreateStudentWithTokenAsync(Factory, Admin(), departmentId, "ahmed@cu.edu.eg");
+
+        var student = await PostSlotAsync(Admin(), w.Cs301Group1, w.HallA, studentId, Sunday, "09:00:00", "10:30:00");
+        var unknown = await PostSlotAsync(Admin(), w.Cs301Group1, w.HallA, Guid.CreateVersion7(), Sunday, "09:00:00", "10:30:00");
+
+        Assert.Equal(HttpStatusCode.BadRequest, student.StatusCode);
+        Assert.Contains("staffId", await FieldsOf(student));
+        Assert.Equal(HttpStatusCode.BadRequest, unknown.StatusCode);
+        Assert.Contains("staffId", await FieldsOf(unknown));
+    }
+
+    [Fact]
     public async Task Moving_a_slot_rechecks_conflicts_but_never_against_itself()
     {
         var w = await World();
