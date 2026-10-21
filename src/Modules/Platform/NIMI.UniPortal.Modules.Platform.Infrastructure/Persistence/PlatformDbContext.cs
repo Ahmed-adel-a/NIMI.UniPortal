@@ -10,6 +10,8 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
 
     public DbSet<SystemSettings> SystemSettings => Set<SystemSettings>();
 
+    public DbSet<FacultySettings> FacultySettings => Set<FacultySettings>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);

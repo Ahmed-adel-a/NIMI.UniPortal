@@ -8,6 +8,7 @@ using NIMI.UniPortal.Modules.Platform.Application;
 using NIMI.UniPortal.Modules.Platform.Application.Settings.GetAdminSettings;
 using NIMI.UniPortal.Modules.Platform.Application.Settings.GetPublicSettings;
 using NIMI.UniPortal.Modules.Platform.Application.Settings.UpdateSettings;
+using NIMI.UniPortal.Modules.Platform.Api.Endpoints;
 using NIMI.UniPortal.Modules.Platform.Infrastructure;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Persistence;
@@ -41,6 +42,9 @@ public static class PlatformModule
 
         admin.MapGet("/", GetAdminSettings).WithName("GetAdminSettings");
         admin.MapPut("/", UpdateSettings).WithName("UpdateSettings");
+
+        // Per-faculty overrides (P1.4) — Student Affairs only, like the university settings above.
+        FacultySettingsEndpoints.Map(endpoints);
 
         return endpoints;
     }

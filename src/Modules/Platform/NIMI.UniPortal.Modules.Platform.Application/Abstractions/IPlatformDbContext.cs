@@ -9,6 +9,8 @@ public interface IPlatformDbContext
 {
     DbSet<SystemSettings> SystemSettings { get; }
 
+    DbSet<FacultySettings> FacultySettings { get; }
+
     /// <summary>Needed to set the expected row version (optimistic concurrency) before saving.</summary>
     EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
 
