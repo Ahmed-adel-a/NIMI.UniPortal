@@ -1,0 +1,200 @@
+# Payments module (P5) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development), same as users.http:
+#   dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=<password>" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-secrets set SEED_ADMIN_EMAIL "admin@cu.edu.eg" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-secrets set SEED_ADMIN_PASSWORD "<a password>" --project src/Hosts/Host.CairoUniversity
+# Run:  dotnet run --project src/Hosts/Host.CairoUniversity          (migrations apply on startup in Development)
+#
+# Prerequisites: run users.http for an admin + a student, then paste the ids/tokens below.
+# The mock gateway is the Development default; its signing key is Payments:Mock:Secret (default "nimi-mock-secret").
+
+@host = http://localhost:5080
+@adminEmail = admin@cu.edu.eg
+@adminPassword = paste-SEED_ADMIN_PASSWORD-here
+
+@facultyId = paste-faculty-id
+@departmentId = paste-department-id
+@termId = paste-term-id
+@studentId = paste-student-id
+@studentToken = paste-student-access-token
+
+### 1. Log in as the seeded admin → copy "accessToken" into @token
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{adminEmail}}", "password": "{{adminPassword}}" }
+
+###
+@token = {{login.response.body.$.accessToken}}
+
+### 2. Define the term's tuition fee for the whole university
+# @name tuition
+POST {{host}}/api/admin/fee-items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Tuition",
+  "nameAr": "المصروفات الدراسية",
+  "description": "First-term tuition",
+  "category": "tuition",
+  "amount": 5000,
+  "termId": "{{termId}}",
+  "facultyId": null,
+  "departmentId": null,
+  "dueOn": "2026-11-30"
+}
+
+### 3. A faculty fee and a department activity fee (department implies its faculty)
+# @name labFee
+POST {{host}}/api/admin/fee-items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Lab fee",
+  "nameAr": "رسوم المعامل",
+  "description": null,
+  "category": "other",
+  "amount": 300,
+  "termId": "{{termId}}",
+  "facultyId": "{{facultyId}}",
+  "departmentId": null,
+  "dueOn": "2026-10-01"
+}
+
+###
+# @name csClub
+POST {{host}}/api/admin/fee-items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "CS club",
+  "nameAr": "نادي الحاسب",
+  "description": null,
+  "category": "activity",
+  "amount": 100,
+  "termId": null,
+  "facultyId": null,
+  "departmentId": "{{departmentId}}",
+  "dueOn": "2026-12-31"
+}
+
+### 4. List and filter the catalog (an inactive fee is kept, never deleted)
+GET {{host}}/api/admin/fee-items?termId={{termId}}&category=tuition&includeInactive=false&page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### 5. Update an item (deactivate it instead of deleting: paid history never changes)
+PUT {{host}}/api/admin/fee-items/{{labFee.response.body.$.id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Lab fee",
+  "nameAr": "رسوم المعامل",
+  "description": null,
+  "amount": 300,
+  "dueOn": "2026-10-01",
+  "isActive": true
+}
+
+### 6. What the student owes this term (applicable fees + annual fees; balances are computed)
+GET {{host}}/api/payments/fees?termId={{termId}}
+Authorization: Bearer {{studentToken}}
+
+### 7. Office payment: partial cash first, then the rest by bank transfer.
+# @name firstPayment
+POST {{host}}/api/admin/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "studentId": "{{studentId}}",
+  "feeItemId": "{{tuition.response.body.$.id}}",
+  "amount": 2000,
+  "method": "cash",
+  "reference": null,
+  "paidAt": "2026-10-21T09:00:00Z"
+}
+
+###
+POST {{host}}/api/admin/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "studentId": "{{studentId}}",
+  "feeItemId": "{{tuition.response.body.$.id}}",
+  "amount": 3000,
+  "method": "bank_transfer",
+  "reference": "TRX-889",
+  "paidAt": "2026-10-21T10:00:00Z"
+}
+
+### 8. Receipt JSON (the frontend prints it) — owner or admin; others get 404
+GET {{host}}/api/payments/{{firstPayment.response.body.$.id}}/receipt
+Authorization: Bearer {{studentToken}}
+
+### 9. Student payment history, newest first
+GET {{host}}/api/payments/history?page=1&pageSize=20
+Authorization: Bearer {{studentToken}}
+
+### 10. Student Affairs lists payments and tracks expected vs collected
+GET {{host}}/api/admin/payments?studentId={{studentId}}&page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/admin/payments/report?termId={{termId}}&facultyId={{facultyId}}&departmentId={{departmentId}}
+Authorization: Bearer {{token}}
+
+### 11. Online: start a checkout for the remaining lab-fee balance (mock redirect)
+# @name checkout
+POST {{host}}/api/payments/checkout
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "feeItemId": "{{labFee.response.body.$.id}}", "amount": 300 }
+
+### 12. The mock return page calls complete; it signs a callback and runs the real callback handler
+POST {{host}}/api/payments/mock/{{checkout.response.body.$.paymentIntentId}}/complete
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "outcome": "success" }
+
+### 13. The intent status (with receiptNumber after success; expired after 30 minutes)
+GET {{host}}/api/payments/intents/{{checkout.response.body.$.paymentIntentId}}
+Authorization: Bearer {{studentToken}}
+
+### 14. A raw provider callback — signature = lower-case hex HMAC-SHA256 of the raw body.
+# The body bytes below (exactly, no re-serialisation) are signed with "nimi-mock-secret" in Development.
+# PowerShell: $body = '{"providerReference":"mock-...","succeeded":true,"amount":300,"failureReason":null}';
+#   [Convert]::ToHexString([Security.Cryptography.HMACSHA256]::HashData(
+#     [Text.Encoding]::UTF8.GetBytes($body), [Text.Encoding]::UTF8.GetBytes('nimi-mock-secret'))).ToLowerInvariant()
+POST {{host}}/api/payments/callbacks/mock
+Content-Type: application/json
+X-Mock-Signature: paste-lower-case-hex-signature
+
+{ "providerReference": "mock-paste-intent-id", "succeeded": true, "amount": 300, "failureReason": null }
+
+### 15. A failed online attempt: intent failed + the student gets a payment notification
+# @name failingCheckout
+POST {{host}}/api/payments/checkout
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "feeItemId": "{{csClub.response.body.$.id}}", "amount": 100 }
+
+###
+POST {{host}}/api/payments/mock/{{failingCheckout.response.body.$.paymentIntentId}}/complete
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "outcome": "fail" }
+
+###
+GET {{host}}/api/notifications/mine/unread-count
+Authorization: Bearer {{studentToken}}
