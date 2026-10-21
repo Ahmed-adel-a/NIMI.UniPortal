@@ -26,6 +26,7 @@ public static class SchedulingModule
         GroupEndpoints.Map(endpoints);
         TeachingAssignmentEndpoints.Map(endpoints);
         FacilityEndpoints.Map(endpoints);
+        ScheduleEndpoints.Map(endpoints);
         return endpoints;
     }
 }

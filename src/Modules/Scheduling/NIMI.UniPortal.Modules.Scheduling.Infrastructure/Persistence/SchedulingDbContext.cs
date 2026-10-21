@@ -3,6 +3,7 @@ using NIMI.UniPortal.Modules.Scheduling.Application.Abstractions;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Catalog;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Facilities;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Terms;
+using NIMI.UniPortal.Modules.Scheduling.Domain.Timetable;
 
 namespace NIMI.UniPortal.Modules.Scheduling.Infrastructure.Persistence;
 
@@ -20,6 +21,8 @@ public sealed class SchedulingDbContext(DbContextOptions<SchedulingDbContext> op
     public DbSet<TeachingAssignment> TeachingAssignments => Set<TeachingAssignment>();
 
     public DbSet<Facility> Facilities => Set<Facility>();
+
+    public DbSet<ScheduleSlot> ScheduleSlots => Set<ScheduleSlot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
