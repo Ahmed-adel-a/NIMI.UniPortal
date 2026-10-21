@@ -21,4 +21,17 @@ public interface IAcademicLifecycle
 
     /// <summary>Credits earned/in progress and outstanding graduation requirements (P4.6).</summary>
     Task<StudentProgress> GetProgressAsync(Guid studentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirmed registrations (registered/completed/failed) in a term, optionally only of the given students — the
+    /// Student Affairs dashboard (P10.6).
+    /// </summary>
+    Task<int> CountConfirmedRegistrationsAsync(
+        Guid termId, IReadOnlyCollection<Guid>? studentIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Active students (university, faculty or department) not yet eligible to graduate, by the variant's own rules —
+    /// the Student Affairs dashboard (P10.6).
+    /// </summary>
+    Task<int> CountGraduationBlockedAsync(Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default);
 }
