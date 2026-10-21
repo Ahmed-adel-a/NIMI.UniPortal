@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
+using NIMI.UniPortal.Modules.Attendance.Application.Reports.AtRisk;
 using NIMI.UniPortal.Modules.Attendance.Application.Reports.GroupSummary;
 using NIMI.UniPortal.Modules.Attendance.Application.Reports.History;
 using NIMI.UniPortal.SharedKernel.Messaging;
@@ -22,7 +23,26 @@ internal static class AttendanceReportEndpoints
 
         group.MapGet("/history", GetHistory).WithName("GetAttendanceHistory");
         group.MapGet("/groups/{groupId:guid}/summary", GetGroupSummary).WithName("GetAttendanceGroupSummary");
+        group.MapGet("/at-risk", GetAtRisk).WithName("GetAttendanceAtRisk");
     }
+
+    private static async Task<Ok<PagedResult<AtRiskItemDto>>> GetAtRisk(
+        Guid? termId,
+        Guid? groupId,
+        int? page,
+        int? pageSize,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new GetAtRiskQuery(
+                caller.GetUserId(),
+                caller.IsInRole(PortalRoles.Admin),
+                caller.IsInRole(PortalRoles.Professor),
+                termId,
+                groupId,
+                new PageRequest(page, pageSize)),
+            cancellationToken));
 
     private static async Task<Ok<AttendanceHistoryDto>> GetHistory(
         Guid? subjectId,
