@@ -1,0 +1,93 @@
+# Assignments module (P8) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development) is the same as users.http. Submitted files go to App_Data/files next to the host
+# (Storage:RootPath); that folder is git-ignored.
+# Prerequisites: scheduling.http + lifecycle.http (active term, a subject the professor teaches, a registered student).
+
+@host = http://localhost:5080
+@adminToken = paste-the-admin-token-here
+@professorToken = paste-the-teaching-professors-token-here
+@studentToken = paste-a-registered-students-token-here
+@subjectId = paste-a-subject-id-here
+@assignmentId = paste-the-id-from-the-create-here
+@submissionId = paste-the-id-from-the-submit-here
+
+### Professor (teaching the subject): create → 201 (whole subject, or one group via subjectGroupId; defaults pdf,docx,zip and 10 MB)
+POST {{host}}/api/assignments
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{
+  "subjectId": "{{subjectId}}",
+  "title": "Assignment 2 — Shortest paths",
+  "instructions": "Implement Dijkstra and submit the report.",
+  "dueAt": "2026-12-01T21:59:00Z",
+  "maxGrade": 20,
+  "allowedExtensions": "pdf,zip",
+  "maxFileMb": 10
+}
+
+### Teacher / registered student / admin: this term's assignments (status=open|closed, paged)
+GET {{host}}/api/assignments?subjectId={{subjectId}}&status=open
+Authorization: Bearer {{studentToken}}
+
+### One assignment (invisible → 404)
+GET {{host}}/api/assignments/{{assignmentId}}
+Authorization: Bearer {{studentToken}}
+
+### Teacher: edit (subject and group never change; after the first submission only texts change and the deadline can only move later)
+PUT {{host}}/api/assignments/{{assignmentId}}
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{
+  "subjectId": "{{subjectId}}",
+  "title": "Assignment 2 — Shortest paths (updated)",
+  "instructions": "Implement Dijkstra and Bellman-Ford.",
+  "dueAt": "2026-12-03T21:59:00Z",
+  "maxGrade": 20,
+  "allowedExtensions": "pdf,zip",
+  "maxFileMb": 10
+}
+
+### Student: submit once before the deadline (multipart) → 201 with the receipt (SUB-yyyy-000001); a second try → 409
+POST {{host}}/api/assignments/{{assignmentId}}/submissions
+Authorization: Bearer {{studentToken}}
+Content-Type: multipart/form-data; boundary=NIMI
+
+--NIMI
+Content-Disposition: form-data; name="file"; filename="report.pdf"
+Content-Type: application/pdf
+
+%PDF-1.7 demo
+--NIMI--
+
+### Teacher: the assignment's submissions (status=submitted|approved|rejected, paged)
+GET {{host}}/api/assignments/{{assignmentId}}/submissions?status=submitted
+Authorization: Bearer {{professorToken}}
+
+### Teacher or the submitting student: download the file
+GET {{host}}/api/submissions/{{submissionId}}/file
+Authorization: Bearer {{professorToken}}
+
+### Teacher: approve with a grade (≤ max), once; the student is notified
+PUT {{host}}/api/submissions/{{submissionId}}/review
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{ "decision": "approve", "grade": 18, "feedback": "Clean implementation." }
+
+### Teacher: or reject with a reason
+# PUT {{host}}/api/submissions/{{submissionId}}/review
+# Authorization: Bearer {{professorToken}}
+# Content-Type: application/json
+#
+# { "decision": "reject", "rejectionReason": "Wrong file — please contact me." }
+
+### Student: my submissions with receipt, status, grade and feedback
+GET {{host}}/api/submissions/mine
+Authorization: Bearer {{studentToken}}
+
+### Teacher: delete → 204 (only while it has no submissions; otherwise 409)
+DELETE {{host}}/api/assignments/{{assignmentId}}
+Authorization: Bearer {{professorToken}}
