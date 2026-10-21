@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Platform.Domain.Settings;
 using NIMI.UniPortal.Modules.Platform.Infrastructure.Persistence;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
@@ -80,6 +81,17 @@ public sealed class PortalWebAppFactory : WebApplicationFactory<Program>, IAsync
         var response = await CreateClient().PostAsJsonAsync("/api/auth/login", new { email, password });
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<JsonObject>())!;
+    }
+
+    /// <summary>
+    /// Publishes an integration event through the real EventBus, exactly as a producer's commit would
+    /// (P2 test infrastructure — Notifications tests do not go through a producer module).
+    /// </summary>
+    public async Task PublishAsync(IIntegrationEvent integrationEvent)
+    {
+        await using var scope = Services.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<IEventPublisher>()
+            .PublishAsync(integrationEvent, CancellationToken.None);
     }
 
     /// <summary>
