@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Attendance.Application.Reports.AtRisk;
+using NIMI.UniPortal.Modules.Attendance.Application.Reports.Eligibility;
 using NIMI.UniPortal.Modules.Attendance.Application.Reports.Export;
 using NIMI.UniPortal.Modules.Attendance.Application.Reports.GroupSummary;
 using NIMI.UniPortal.Modules.Attendance.Application.Reports.History;
@@ -15,7 +16,7 @@ using NIMI.UniPortal.SharedKernel.Text;
 
 namespace NIMI.UniPortal.Modules.Attendance.Api.Endpoints;
 
-/// <summary>P6.6–P6.7: attendance history, group summaries and the at-risk list; P10.4: the CSV sheet.</summary>
+/// <summary>P6.6–P6.7: attendance history, group summaries and the at-risk list; P10.4–P10.5: CSV sheet and finals eligibility.</summary>
 internal static class AttendanceReportEndpoints
 {
     public static void Map(IEndpointRouteBuilder endpoints)
@@ -28,7 +29,30 @@ internal static class AttendanceReportEndpoints
         group.MapGet("/groups/{groupId:guid}/summary", GetGroupSummary).WithName("GetAttendanceGroupSummary");
         group.MapGet("/at-risk", GetAtRisk).WithName("GetAttendanceAtRisk");
         group.MapGet("/groups/{groupId:guid}/export", ExportGroup).WithName("ExportGroupAttendance");
+        group.MapGet("/eligibility", GetEligibility).WithName("GetFinalsEligibility");
     }
+
+    private static async Task<Ok<PagedResult<FinalsEligibilityItemDto>>> GetEligibility(
+        Guid? termId,
+        Guid? groupId,
+        Guid? facultyId,
+        bool? barredOnly,
+        int? page,
+        int? pageSize,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new GetFinalsEligibilityQuery(
+                caller.GetUserId(),
+                caller.IsInRole(PortalRoles.Admin),
+                caller.IsInRole(PortalRoles.Professor),
+                termId,
+                groupId,
+                facultyId,
+                barredOnly ?? false,
+                new PageRequest(page, pageSize)),
+            cancellationToken));
 
     private static async Task<FileContentHttpResult> ExportGroup(
         Guid groupId, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
