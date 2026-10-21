@@ -26,4 +26,11 @@ public interface IUsersApi
     /// </summary>
     Task<PagedResult<StudentRef>> GetStudentsAsync(
         Guid? facultyId, Guid? departmentId, PageRequest paging, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Ids of every active student in the scope (P10.6 dashboard filters); department wins over faculty, both null
+    /// means the university.
+    /// </summary>
+    Task<IReadOnlyList<Guid>> GetActiveStudentIdsAsync(
+        Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default);
 }
