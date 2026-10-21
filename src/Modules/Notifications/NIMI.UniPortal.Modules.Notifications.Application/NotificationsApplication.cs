@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Notifications.Application.Behaviors;
+using NIMI.UniPortal.Modules.Notifications.Contracts;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Notifications.Application;
@@ -14,6 +15,7 @@ public static class NotificationsApplication
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(NotificationsUnitOfWorkBehavior<,>));
         services.AddIntegrationEventHandlers(assembly);   // NotificationRequested → stored notifications
+        services.AddScoped<INotificationsApi, NotificationsApi>();
         return services;
     }
 }
