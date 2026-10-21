@@ -42,6 +42,8 @@ internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) :
 
             ConflictException conflict => (StatusCodes.Status409Conflict, new ApiError("conflict", conflict.Message, [])),
 
+            ForbiddenException forbidden => (StatusCodes.Status403Forbidden, new ApiError("forbidden", forbidden.Message, [])),
+
             // Backstop for races the handlers' duplicate checks can't see (two admins at the same moment).
             DbUpdateException { InnerException: PostgresException { SqlState: UniqueViolation } } =>
                 (StatusCodes.Status409Conflict, new ApiError("conflict", "A record with the same unique value already exists.", [])),

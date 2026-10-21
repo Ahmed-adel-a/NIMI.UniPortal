@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Notifications.Api;
 using NIMI.UniPortal.Modules.Platform.Api;
+using NIMI.UniPortal.Modules.Scheduling.Api;
 using NIMI.UniPortal.Modules.Users.Api;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
@@ -28,6 +29,7 @@ builder.AddPortalAuthentication();                                        // JWT
 builder.Services.AddPlatformModule();
 builder.Services.AddUsersModule();
 builder.Services.AddNotificationsModule();
+builder.Services.AddSchedulingModule();
 
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database", tags: [DatabaseHealthCheck.Tag], timeout: TimeSpan.FromSeconds(5));
@@ -49,5 +51,6 @@ app.MapHealthChecks("/api/health/db", new HealthCheckOptions { Predicate = c => 
 app.MapPlatformEndpoints();
 app.MapUsersEndpoints();
 app.MapNotificationsEndpoints();
+app.MapSchedulingEndpoints();
 
 app.Run();
