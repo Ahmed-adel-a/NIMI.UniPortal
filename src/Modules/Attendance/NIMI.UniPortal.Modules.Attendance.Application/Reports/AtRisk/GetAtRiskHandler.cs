@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.Modules.Attendance.Application.Abstractions;
 using NIMI.UniPortal.Modules.Attendance.Application.Common;
@@ -27,7 +26,8 @@ internal sealed class GetAtRiskHandler(
         if (!query.IsAdmin && !query.IsProfessor)
             throw new ForbiddenException("Only teaching staff and Student Affairs see the at-risk list.");
 
-        var groups = await VisibleGroupsAsync(query, cancellationToken);
+        var groups = await ReportGroups.LoadAsync(
+            db, scheduling, query.CallerId, query.IsAdmin, query.TermId, query.GroupId, cancellationToken);
 
         var items = new List<AtRiskItemDto>();
         foreach (var group in groups)
@@ -67,32 +67,5 @@ internal sealed class GetAtRiskHandler(
             query.Paging.Page,
             query.Paging.PageSize,
             ordered.Count);
-    }
-
-    private async Task<IReadOnlyList<GroupRef>> VisibleGroupsAsync(GetAtRiskQuery query, CancellationToken cancellationToken)
-    {
-        if (query.GroupId is { } groupId)
-            return [await GroupAccess.EnsureCanSeeAsync(scheduling, groupId, query.CallerId, query.IsAdmin, cancellationToken)];
-
-        var termId = query.TermId ?? (await scheduling.GetCurrentTermAsync(cancellationToken))?.Id;
-        if (termId is null)
-            return [];
-
-        var groupIds = query.IsAdmin
-            ? await db.AttendanceSessions.AsNoTracking()
-                .Where(s => s.TermId == termId)
-                .Select(s => s.SubjectGroupId)
-                .Distinct()
-                .ToListAsync(cancellationToken)
-            : [.. await scheduling.GetGroupIdsTaughtByAsync(query.CallerId, termId.Value, cancellationToken)];
-
-        var groups = new List<GroupRef>(groupIds.Count);
-        foreach (var id in groupIds)
-        {
-            if (await scheduling.GetGroupAsync(id, cancellationToken) is { } group)
-                groups.Add(group);
-        }
-
-        return groups;
     }
 }
