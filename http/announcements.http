@@ -1,0 +1,44 @@
+# Announcements module (P7) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development) is the same as users.http.
+# Prerequisites: scheduling.http + lifecycle.http (active term, a subject the professor teaches, a registered student).
+# Decision ANN: professors only, scoped to a subject (all groups or one group). Only "urgent" notifies students.
+
+@host = http://localhost:5080
+@professorToken = paste-the-teaching-professors-token-here
+@studentToken = paste-a-registered-students-token-here
+@subjectId = paste-a-subject-id-here
+@announcementId = paste-the-id-from-the-post-here
+
+### Professor: post an urgent, pinned announcement → 201 (students of the subject get a notification)
+POST {{host}}/api/announcements
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{
+  "subjectId": "{{subjectId}}",
+  "title": "Midterm moved",
+  "body": "الامتحان يوم الأحد في القاعة ٣٠٢",
+  "priority": "urgent",
+  "isPinned": true,
+  "expiresAt": null
+}
+
+### Student (registered) / professor (teaching) / admin: the subject's announcements — pinned first, then newest
+GET {{host}}/api/announcements?subjectId={{subjectId}}
+Authorization: Bearer {{studentToken}}
+
+### Student: the feed across every registered subject (expired ones hidden)
+GET {{host}}/api/announcements/feed
+Authorization: Bearer {{studentToken}}
+
+### Author / teacher: edit
+PUT {{host}}/api/announcements/{{announcementId}}
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{ "subjectId": "{{subjectId}}", "title": "Midterm moved to Monday", "body": "Hall 302, 10:00", "priority": "high", "isPinned": false }
+
+### Author / teacher: soft delete → 204
+DELETE {{host}}/api/announcements/{{announcementId}}
+Authorization: Bearer {{professorToken}}
