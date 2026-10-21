@@ -22,3 +22,6 @@ obj/
 /user-stories.md
 /project-map.json
 /docs/
+
+# Uploaded files on local disk (Storage:RootPath default) — never committed
+App_Data/

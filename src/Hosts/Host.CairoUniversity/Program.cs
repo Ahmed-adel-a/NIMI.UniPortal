@@ -4,6 +4,7 @@ using Host.CairoUniversity;
 using Host.CairoUniversity.Errors;
 using Host.CairoUniversity.Health;
 using Host.CairoUniversity.Security;
+using Host.CairoUniversity.Storage;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Attendance.Api;
@@ -27,6 +28,7 @@ builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true)
 builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower)));
 builder.AddPortalAuthentication();                                        // JWT validation + policies (Security/)
+builder.Services.AddFileStorage(builder.Configuration, builder.Environment); // uploads on local disk (Storage/)
 
 // ── Core modules ───────────────────────────────────────────────
 builder.Services.AddPlatformModule();

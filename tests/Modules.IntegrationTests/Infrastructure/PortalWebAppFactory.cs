@@ -36,6 +36,7 @@ public sealed class PortalWebAppFactory : WebApplicationFactory<Program>, IAsync
 
     private readonly TestDatabase _database = new();
     private readonly string _signingKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+    private readonly string _storageRoot = Path.Combine(Path.GetTempPath(), "nimi-test-files-" + Guid.CreateVersion7().ToString("N"));
     private Respawner? _respawner;
 
     public string ConnectionString => _database.ConnectionString;
@@ -128,6 +129,8 @@ public sealed class PortalWebAppFactory : WebApplicationFactory<Program>, IAsync
         // Every module's migrations run when the host starts, against the throwaway database.
         builder.UseSetting("Database:ApplyMigrationsOnStartup", "true");
         builder.UseSetting("Auth:Jwt:SigningKey", _signingKey);
+        // Uploads (P7) go to a throwaway folder, removed with the database at the end of the run.
+        builder.UseSetting("Storage:RootPath", _storageRoot);
 
         builder.ConfigureTestServices(services =>
         {
@@ -156,5 +159,7 @@ public sealed class PortalWebAppFactory : WebApplicationFactory<Program>, IAsync
     {
         await DisposeAsync();
         await _database.DropAsync();
+        if (Directory.Exists(_storageRoot))
+            Directory.Delete(_storageRoot, recursive: true);
     }
 }

@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\NIMI.UniPortal.EventBus\NIMI.UniPortal.EventBus.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\NIMI.UniPortal.Abstractions\NIMI.UniPortal.Abstractions.csproj" />
     <ProjectReference Include="..\..\Modules\Platform\NIMI.UniPortal.Modules.Platform.Api\NIMI.UniPortal.Modules.Platform.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Users\NIMI.UniPortal.Modules.Users.Api\NIMI.UniPortal.Modules.Users.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Notifications\NIMI.UniPortal.Modules.Notifications.Api\NIMI.UniPortal.Modules.Notifications.Api.csproj" />
