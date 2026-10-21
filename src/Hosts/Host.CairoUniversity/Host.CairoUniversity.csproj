@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\Modules\Users\NIMI.UniPortal.Modules.Users.Api\NIMI.UniPortal.Modules.Users.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Notifications\NIMI.UniPortal.Modules.Notifications.Api\NIMI.UniPortal.Modules.Notifications.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Scheduling\NIMI.UniPortal.Modules.Scheduling.Api\NIMI.UniPortal.Modules.Scheduling.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Payments\NIMI.UniPortal.Modules.Payments.Api\NIMI.UniPortal.Modules.Payments.Api.csproj" />
     <!-- Decision LIFECYCLE: this deployment composes exactly one lifecycle variant (rule: HostCompositionTests). -->
     <ProjectReference Include="..\..\Modules\Lifecycle.CreditHours\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api.csproj" />
   </ItemGroup>
