@@ -1,0 +1,108 @@
+# Lifecycle.CreditHours module (P4.A) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development), same as users.http:
+#   dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=<password>" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-secrets set SEED_ADMIN_EMAIL "admin@cu.edu.eg" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-secrets set SEED_ADMIN_PASSWORD "<a password>" --project src/Hosts/Host.CairoUniversity
+# Run:  dotnet run --project src/Hosts/Host.CairoUniversity          (migrations apply on startup in Development)
+#
+# Prerequisites: run scheduling.http first (faculty, department, term, CS301/CS303, groups, slots).
+# Paste the ids/tokens it produced into the variables below; log in a student and a professor for their tokens.
+# Calendar: first term 2026/2027 runs Saturday 2026-09-19 → Friday 2027-01-15. Product days: 0 = Saturday … 6 = Friday.
+# Registration: decision D2 — auto-approved, every rule enforced; seats are an atomic counter (a full group is a 409).
+
+@host = http://localhost:5080
+@adminEmail = admin@cu.edu.eg
+@adminPassword = paste-SEED_ADMIN_PASSWORD-here
+
+@termId = paste-term-id
+@cs301 = paste-CS301-subject-id
+@cs303 = paste-CS303-subject-id
+@cs303GroupId = paste-CS303-group-id
+@studentToken = paste-student-access-token
+@professorToken = paste-professor-access-token
+
+### 1. Log in as the seeded admin → copy "accessToken" into @token
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{adminEmail}}", "password": "{{adminPassword}}" }
+
+###
+@token = {{login.response.body.$.accessToken}}
+
+### 2. Open the term's registration window (one per term; credit limits default to 12/21)
+# @name window
+POST {{host}}/api/admin/registration-windows
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "termId": "{{termId}}",
+  "opensAt": "2026-09-15T08:00:00Z",
+  "closesAt": "2027-01-14T18:00:00Z",
+  "minCredits": 12,
+  "maxCredits": 21
+}
+
+###
+# @name windows
+GET {{host}}/api/admin/registration-windows?page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### Move it (or close it) while keeping the term:
+PUT {{host}}/api/admin/registration-windows/{{windows.response.body.$.items[0].id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "opensAt": "2026-09-15T08:00:00Z",
+  "closesAt": "2027-01-14T18:00:00Z",
+  "minCredits": 12,
+  "maxCredits": 21
+}
+
+### 3. Prerequisites: CS303 requires CS301 (send the whole list; empty [] clears it)
+PUT {{host}}/api/admin/registration/prerequisites/{{cs303}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "prerequisiteSubjectIds": ["{{cs301}}"] }
+
+###
+GET {{host}}/api/admin/registration/prerequisites/{{cs303}}
+Authorization: Bearer {{token}}
+
+### 4. What the student can register this term (seats, slots, reasons; 404 without an active term)
+GET {{host}}/api/registration/offerings?pageSize=100
+Authorization: Bearer {{studentToken}}
+
+### 5. Register a group, then read it back (409 when the group is full or the subject is already taken)
+# @name registration
+POST {{host}}/api/registration
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "subjectGroupId": "{{cs303GroupId}}" }
+
+###
+GET {{host}}/api/registration/mine
+Authorization: Bearer {{studentToken}}
+
+### 6. Drop it while the window is open (204; the seat goes back)
+DELETE {{host}}/api/registration/{{registration.response.body.$.id}}
+Authorization: Bearer {{studentToken}}
+
+### 7. Roster for the teaching professor (admin can read any group's roster at /api/admin/groups/{id}/roster)
+# Replace the id with the group's id; the professor must be assigned to the subject (or that group).
+GET {{host}}/api/teaching/groups/{{cs303GroupId}}/roster?page=1&pageSize=20
+Authorization: Bearer {{professorToken}}
+
+### 8. The student's own week (same range rules and item shape as the teaching schedule)
+GET {{host}}/api/schedule?from=2026-09-19&to=2026-09-25
+Authorization: Bearer {{studentToken}}
+
+### 9. Progress: credits earned (empty until P9), in progress now, outstanding graduation requirements
+GET {{host}}/api/registration/progress
+Authorization: Bearer {{studentToken}}
