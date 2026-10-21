@@ -23,6 +23,33 @@ namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Infrastructure.Persistenc
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Graduation.GraduationRequirement", b =>
+                {
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("department_id");
+
+                    b.Property<int>("RequiredCredits")
+                        .HasColumnType("integer")
+                        .HasColumnName("required_credits");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("DepartmentId")
+                        .HasName("pk_graduation_requirements");
+
+                    b.ToTable("graduation_requirements", "lifecycle_credit", t =>
+                        {
+                            t.HasCheckConstraint("ck_graduation_requirements_credits", "required_credits > 0 AND required_credits <= 400");
+                        });
+                });
+
             modelBuilder.Entity("NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Registration.CourseRegistration", b =>
                 {
                     b.Property<Guid>("Id")
@@ -239,6 +266,59 @@ namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Infrastructure.Persistenc
                     b.ToTable("subject_prerequisites", "lifecycle_credit", t =>
                         {
                             t.HasCheckConstraint("ck_subject_prerequisites_not_self", "subject_id <> prerequisite_subject_id");
+                        });
+                });
+
+            modelBuilder.Entity("NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Results.GpaSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("ComputedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("computed_at");
+
+                    b.Property<int>("CreditsAttempted")
+                        .HasColumnType("integer")
+                        .HasColumnName("credits_attempted");
+
+                    b.Property<int>("CreditsEarned")
+                        .HasColumnType("integer")
+                        .HasColumnName("credits_earned");
+
+                    b.Property<decimal?>("CumulativeGpa")
+                        .HasPrecision(4, 3)
+                        .HasColumnType("numeric(4,3)")
+                        .HasColumnName("cumulative_gpa");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<decimal?>("TermGpa")
+                        .HasPrecision(4, 3)
+                        .HasColumnType("numeric(4,3)")
+                        .HasColumnName("term_gpa");
+
+                    b.Property<Guid>("TermId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("term_id");
+
+                    b.Property<DateOnly>("TermStartsOn")
+                        .HasColumnType("date")
+                        .HasColumnName("term_starts_on");
+
+                    b.HasKey("Id")
+                        .HasName("pk_gpa_snapshots");
+
+                    b.HasIndex("StudentId", "TermId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_gpa_snapshots_student_id_term_id");
+
+                    b.ToTable("gpa_snapshots", "lifecycle_credit", t =>
+                        {
+                            t.HasCheckConstraint("ck_gpa_snapshots_credits", "credits_attempted >= 0 AND credits_earned >= 0");
                         });
                 });
 #pragma warning restore 612, 618

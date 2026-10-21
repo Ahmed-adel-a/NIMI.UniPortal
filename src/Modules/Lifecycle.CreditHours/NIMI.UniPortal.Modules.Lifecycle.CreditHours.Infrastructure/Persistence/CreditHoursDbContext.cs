@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Graduation;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Registration;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Results;
 
 namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Infrastructure.Persistence;
 
@@ -24,6 +26,10 @@ public sealed class CreditHoursDbContext(DbContextOptions<CreditHoursDbContext> 
     public DbSet<CourseRegistration> CourseRegistrations => Set<CourseRegistration>();
 
     public DbSet<CreditLedgerEntry> CreditLedger => Set<CreditLedgerEntry>();
+
+    public DbSet<GpaSnapshot> GpaSnapshots => Set<GpaSnapshot>();
+
+    public DbSet<GraduationRequirement> GraduationRequirements => Set<GraduationRequirement>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

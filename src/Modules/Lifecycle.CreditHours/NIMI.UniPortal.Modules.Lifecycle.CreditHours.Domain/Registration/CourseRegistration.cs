@@ -80,6 +80,19 @@ public sealed class CourseRegistration
         UpdatedAt = now;
     }
 
+    /// <summary>
+    /// P9.3b — a published grade completes or fails a confirmed registration; a corrected grade may flip it back.
+    /// Pending and dropped rows never receive results.
+    /// </summary>
+    public void RecordResult(bool passed, DateTimeOffset now)
+    {
+        if (Status is not (RegistrationStatus.Registered or RegistrationStatus.Completed or RegistrationStatus.Failed))
+            throw new InvalidOperationException("Only a confirmed registration receives a result.");
+
+        Status = passed ? RegistrationStatus.Completed : RegistrationStatus.Failed;
+        UpdatedAt = now;
+    }
+
     private static CourseRegistration Create(
         Guid studentId,
         Guid termId,

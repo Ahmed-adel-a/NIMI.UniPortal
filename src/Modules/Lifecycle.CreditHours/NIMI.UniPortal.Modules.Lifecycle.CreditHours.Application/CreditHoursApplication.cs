@@ -3,6 +3,7 @@ using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Behaviors;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Lifecycle;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Results;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application;
@@ -16,7 +17,8 @@ public static class CreditHoursApplication
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CreditHoursUnitOfWorkBehavior<,>));
         services.AddScoped<IAcademicLifecycle, AcademicLifecycleApi>();
-        services.AddIntegrationEventHandlers(assembly);   // PaymentCompleted → confirm military education
+        services.AddScoped<StudentResults>();
+        services.AddIntegrationEventHandlers(assembly);   // PaymentCompleted → military education; GradesPublished → ledger
         return services;
     }
 }

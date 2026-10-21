@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Graduation;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Registration;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Results;
 
 namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
 
@@ -18,6 +20,10 @@ public interface ICreditHoursDbContext
     DbSet<CourseRegistration> CourseRegistrations { get; }
 
     DbSet<CreditLedgerEntry> CreditLedger { get; }
+
+    DbSet<GpaSnapshot> GpaSnapshots { get; }
+
+    DbSet<GraduationRequirement> GraduationRequirements { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
