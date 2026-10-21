@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Announcements.Api;
 using NIMI.UniPortal.Modules.Assignments.Api;
+using NIMI.UniPortal.Modules.Grades.Api;
 using NIMI.UniPortal.Modules.Attendance.Api;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
 using NIMI.UniPortal.Modules.Materials.Api;
@@ -42,6 +43,7 @@ builder.Services.AddAttendanceModule();
 builder.Services.AddMaterialsModule();
 builder.Services.AddAnnouncementsModule();
 builder.Services.AddAssignmentsModule();
+builder.Services.AddGradesModule();
 builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
 builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
 
@@ -70,6 +72,7 @@ app.MapAttendanceEndpoints();
 app.MapMaterialsEndpoints();
 app.MapAnnouncementsEndpoints();
 app.MapAssignmentsEndpoints();
+app.MapGradesEndpoints();
 app.MapPaymentsEndpoints();
 app.MapCreditHoursEndpoints();
 
