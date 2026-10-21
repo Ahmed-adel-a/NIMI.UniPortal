@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using NIMI.UniPortal.Modules.Assignments.Application.Review;
 using NIMI.UniPortal.Modules.Assignments.Application.Submit;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Paging;
 
 namespace NIMI.UniPortal.Modules.Assignments.Api.Endpoints;
 
@@ -24,6 +26,25 @@ internal static class SubmissionEndpoints
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });
+
+        endpoints.MapGet("/api/assignments/{id:guid}/submissions", List)
+            .WithTags("Assignments").RequireAuthorization().WithName("ListSubmissions");
+
+        var submissions = endpoints.MapGroup("/api/submissions")
+            .WithTags("Assignments")
+            .RequireAuthorization();
+        submissions.MapGet("/{id:guid}/file", Download).WithName("DownloadSubmission");
+    }
+
+    private static async Task<Ok<PagedResult<SubmissionDto>>> List(
+        Guid id, string? status, int? page, int? pageSize, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new ListSubmissionsQuery(id, status, CallerViewer.From(caller), new PageRequest(page, pageSize)), cancellationToken));
+
+    private static async Task<FileStreamHttpResult> Download(Guid id, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
+    {
+        var file = await sender.Send(new DownloadSubmissionQuery(id, CallerViewer.From(caller)), cancellationToken);
+        return TypedResults.File(file.Content, file.ContentType, file.FileName);
     }
 
     private static async Task<Created<SubmissionReceiptDto>> Submit(
