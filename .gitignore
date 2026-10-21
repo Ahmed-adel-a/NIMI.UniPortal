@@ -10,6 +10,9 @@ obj/
 .env
 *.env
 
+# opencode config — local only (handbook README §6)
+/opencode.json
+
 # Internal docs & planning - local only, never committed (decision 2026-10-19)
 /architecture.md
 /decisions.md
