@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Infrastructure.Persistence;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Infrastructure.Seats;
 using NIMI.UniPortal.SharedKernel.Persistence;
 
 namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Infrastructure;
@@ -14,6 +15,7 @@ public static class CreditHoursInfrastructure
     {
         services.AddDbContext<CreditHoursDbContext>((provider, options) => Configure(options, connectionString(provider)));
         services.AddScoped<ICreditHoursDbContext>(provider => provider.GetRequiredService<CreditHoursDbContext>());
+        services.AddScoped<ISeatCounter, SeatCounter>();
         services.AddScoped<IModuleDatabase, CreditHoursDatabase>();
         return services;
     }
