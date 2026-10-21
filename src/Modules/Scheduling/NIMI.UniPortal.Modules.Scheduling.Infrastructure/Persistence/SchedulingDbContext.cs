@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Scheduling.Application.Abstractions;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Catalog;
+using NIMI.UniPortal.Modules.Scheduling.Domain.Facilities;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Terms;
 
 namespace NIMI.UniPortal.Modules.Scheduling.Infrastructure.Persistence;
@@ -17,6 +18,8 @@ public sealed class SchedulingDbContext(DbContextOptions<SchedulingDbContext> op
     public DbSet<SubjectGroup> SubjectGroups => Set<SubjectGroup>();
 
     public DbSet<TeachingAssignment> TeachingAssignments => Set<TeachingAssignment>();
+
+    public DbSet<Facility> Facilities => Set<Facility>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

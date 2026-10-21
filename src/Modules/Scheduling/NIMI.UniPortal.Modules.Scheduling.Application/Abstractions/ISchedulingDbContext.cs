@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Catalog;
+using NIMI.UniPortal.Modules.Scheduling.Domain.Facilities;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Terms;
 
 namespace NIMI.UniPortal.Modules.Scheduling.Application.Abstractions;
@@ -14,6 +15,8 @@ public interface ISchedulingDbContext
     DbSet<SubjectGroup> SubjectGroups { get; }
 
     DbSet<TeachingAssignment> TeachingAssignments { get; }
+
+    DbSet<Facility> Facilities { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
