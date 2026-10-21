@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
 using NIMI.UniPortal.Modules.Notifications.Api;
+using NIMI.UniPortal.Modules.Payments.Api;
 using NIMI.UniPortal.Modules.Platform.Api;
 using NIMI.UniPortal.Modules.Scheduling.Api;
 using NIMI.UniPortal.Modules.Users.Api;
@@ -31,6 +32,7 @@ builder.Services.AddPlatformModule();
 builder.Services.AddUsersModule();
 builder.Services.AddNotificationsModule();
 builder.Services.AddSchedulingModule();
+builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
 builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
 
 builder.Services.AddHealthChecks()
@@ -54,6 +56,7 @@ app.MapPlatformEndpoints();
 app.MapUsersEndpoints();
 app.MapNotificationsEndpoints();
 app.MapSchedulingEndpoints();
+app.MapPaymentsEndpoints();
 app.MapCreditHoursEndpoints();
 
 app.Run();
