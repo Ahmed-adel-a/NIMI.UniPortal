@@ -17,6 +17,7 @@ internal sealed class UpdateScheduleSlotHandler(
     IPlatformSettingsApi platform,
     IEventCollector events,
     ICurrentUser currentUser,
+    SlotChangeNotifier notifier,
     TimeProvider clock) : IRequestHandler<UpdateScheduleSlotCommand, ScheduleSlotDto>
 {
     public async Task<ScheduleSlotDto> Handle(
@@ -25,6 +26,12 @@ internal sealed class UpdateScheduleSlotHandler(
         var slot = await db.ScheduleSlots
             .FirstOrDefaultAsync(s => s.Id == command.Id, cancellationToken)
             ?? throw new NotFoundException($"No timetable slot with id '{command.Id}'.");
+
+        var oldFacilityName = await db.Facilities
+            .Where(f => f.Id == slot.FacilityId)
+            .Select(f => f.Name)
+            .SingleAsync(cancellationToken);
+        var before = SlotSnapshot.Of(slot, oldFacilityName);
 
         var group = await db.SubjectGroups
             .Include(g => g.Subject)
@@ -78,6 +85,8 @@ internal sealed class UpdateScheduleSlotHandler(
             AuditEntities.ScheduleSlot,
             slot.Id,
             $"Slot of {group.Subject.Code} group {group.GroupNumber} set to day {slot.DayOfWeek}, {slot.StartTime:HH:mm}–{slot.EndTime:HH:mm}, {facility.Name}."));
+        await notifier.MovedAsync(
+            before, SlotSnapshot.Of(slot, facility.Name), group.Subject.Code, group.GroupNumber, clock.GetUtcNow(), cancellationToken);
 
         return ScheduleSlotDto.From(slot, group, facility);
     }
