@@ -9,7 +9,7 @@ namespace NIMI.UniPortal.Modules.Platform.Application.Behaviors;
 
 /// <summary>Commits Platform commands — and only Platform commands — with exactly one SaveChangesAsync.</summary>
 internal sealed class PlatformUnitOfWorkBehavior<TRequest, TResponse>(IServiceProvider services)
-    : ModuleUnitOfWorkBehavior<TRequest, TResponse>
+    : ModuleUnitOfWorkBehavior<TRequest, TResponse>(services)
     where TRequest : IRequest<TResponse>
 {
     protected override Assembly ModuleAssembly => typeof(PlatformApplication).Assembly;
@@ -17,7 +17,7 @@ internal sealed class PlatformUnitOfWorkBehavior<TRequest, TResponse>(IServicePr
     protected override async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         // Resolved lazily: other modules' requests pass through without ever creating a PlatformDbContext.
-        var db = services.GetRequiredService<IPlatformDbContext>();
+        var db = Services.GetRequiredService<IPlatformDbContext>();
         try
         {
             await db.SaveChangesAsync(cancellationToken);

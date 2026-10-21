@@ -5,6 +5,8 @@ using Host.CairoUniversity.Errors;
 using Host.CairoUniversity.Health;
 using Host.CairoUniversity.Security;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Notifications.Api;
 using NIMI.UniPortal.Modules.Platform.Api;
 using NIMI.UniPortal.Modules.Users.Api;
 using NIMI.UniPortal.SharedKernel.Messaging;
@@ -14,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 // ── Cross-cutting ──────────────────────────────────────────────
 builder.Services.AddSingleton(TimeProvider.System);                       // the only clock (DateTime.Now is banned)
 builder.Services.AddMessaging();                                          // before modules: validation runs outermost
+builder.Services.AddEventBus();                                           // publish-after-commit; modules register their handlers
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 builder.Services.AddProblemDetails();   // required by UseExceptionHandler(); our handler writes the actual envelope
 builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);   // malformed bodies → our envelope
@@ -24,6 +27,7 @@ builder.AddPortalAuthentication();                                        // JWT
 // ── Core modules ───────────────────────────────────────────────
 builder.Services.AddPlatformModule();
 builder.Services.AddUsersModule();
+builder.Services.AddNotificationsModule();
 
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database", tags: [DatabaseHealthCheck.Tag], timeout: TimeSpan.FromSeconds(5));
@@ -44,5 +48,6 @@ app.MapHealthChecks("/api/health/db", new HealthCheckOptions { Predicate = c => 
 
 app.MapPlatformEndpoints();
 app.MapUsersEndpoints();
+app.MapNotificationsEndpoints();
 
 app.Run();
