@@ -11,4 +11,10 @@ public interface IUsersApi
     Task<DepartmentRef?> GetDepartmentAsync(Guid departmentId, CancellationToken cancellationToken = default);
 
     Task<UserRef?> GetUserAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>Active students only; a department filter wins over a faculty filter, both null means the university.</summary>
+    Task<int> CountActiveStudentsAsync(Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default);
+
+    /// <summary>The student's department/faculty/year, or null when the user is not a student.</summary>
+    Task<StudentPlacementRef?> GetStudentPlacementAsync(Guid studentId, CancellationToken cancellationToken = default);
 }
