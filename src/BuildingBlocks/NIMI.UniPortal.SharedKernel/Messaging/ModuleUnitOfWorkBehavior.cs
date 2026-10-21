@@ -56,8 +56,9 @@ public abstract class ModuleUnitOfWorkBehavior<TRequest, TResponse> : IPipelineB
         if (collector is null || publisher is null)
             return response;
 
+        // Already committed: a client disconnect must not cancel the handlers — nothing can be rolled back now.
         foreach (var integrationEvent in collector.Drain())
-            await publisher.PublishAsync(integrationEvent, cancellationToken);
+            await publisher.PublishAsync(integrationEvent, CancellationToken.None);
 
         return response;
     }
