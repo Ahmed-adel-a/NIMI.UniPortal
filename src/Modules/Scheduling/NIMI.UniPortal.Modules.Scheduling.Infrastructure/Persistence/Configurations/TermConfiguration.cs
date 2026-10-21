@@ -33,8 +33,5 @@ internal sealed class TermConfiguration : IEntityTypeConfiguration<Term>
         builder.Property(t => t.UpdatedAt);
 
         builder.HasIndex(t => new { t.AcademicYear, t.Number }).IsUnique();
-
-        // Rule R1: at most one active term per deployment.
-        builder.HasIndex(t => t.Status).IsUnique().HasFilter("status = 'active'");
     }
 }

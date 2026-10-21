@@ -363,11 +363,6 @@ namespace NIMI.UniPortal.Modules.Scheduling.Infrastructure.Persistence.Migration
                     b.HasKey("Id")
                         .HasName("pk_terms");
 
-                    b.HasIndex("Status")
-                        .IsUnique()
-                        .HasDatabaseName("ix_terms_status")
-                        .HasFilter("status = 'active'");
-
                     b.HasIndex("AcademicYear", "Number")
                         .IsUnique()
                         .HasDatabaseName("ix_terms_academic_year_number");
