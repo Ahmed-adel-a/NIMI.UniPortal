@@ -1,3 +1,5 @@
+using NIMI.UniPortal.SharedKernel.Paging;
+
 namespace NIMI.UniPortal.Modules.Users.Contracts;
 
 /// <summary>
@@ -17,4 +19,11 @@ public interface IUsersApi
 
     /// <summary>The student's department/faculty/year, or null when the user is not a student.</summary>
     Task<StudentPlacementRef?> GetStudentPlacementAsync(Guid studentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Active students ordered by student code (P9.0); a department filter wins over a faculty filter, both null
+    /// means the university.
+    /// </summary>
+    Task<PagedResult<StudentRef>> GetStudentsAsync(
+        Guid? facultyId, Guid? departmentId, PageRequest paging, CancellationToken cancellationToken = default);
 }
