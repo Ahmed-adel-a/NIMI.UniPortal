@@ -43,7 +43,10 @@ internal sealed class CloseSessionHandler(
 
         if (session.IsOpen)
         {
-            var now = clock.GetUtcNow();
+            // PostgreSQL keeps microseconds; trimming the 100 ns ticks makes the first close report exactly the
+            // closedAt every later read (and a repeated close) returns.
+            var exact = clock.GetUtcNow();
+            var now = exact.AddTicks(-(exact.Ticks % TimeSpan.TicksPerMicrosecond));
             session.Close(now);
 
             var recorded = records.Select(r => r.StudentId).ToHashSet();
