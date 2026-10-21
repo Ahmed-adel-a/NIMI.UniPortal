@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Attendance.Application.Behaviors;
+using NIMI.UniPortal.Modules.Attendance.Contracts;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Attendance.Application;
@@ -12,6 +13,7 @@ public static class AttendanceApplication
         services.AddRequestHandlers(assembly);
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(AttendanceUnitOfWorkBehavior<,>));
+        services.AddScoped<IAttendanceApi, AttendanceApi>();
         return services;
     }
 }
