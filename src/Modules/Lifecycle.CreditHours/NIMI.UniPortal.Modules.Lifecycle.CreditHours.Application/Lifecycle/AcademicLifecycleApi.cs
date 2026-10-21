@@ -12,10 +12,15 @@ namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Lifecycle;
 /// </summary>
 internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, ISchedulingApi scheduling) : IAcademicLifecycle
 {
+    // The confirmed-member predicate is written out in every query: EF Core can translate the enum comparisons,
+    // but it cannot translate a call to a C# helper method inside a Where clause.
     public async Task<IReadOnlyList<Guid>> GetStudentsInGroupAsync(
         Guid subjectGroupId, CancellationToken cancellationToken = default) =>
         await db.CourseRegistrations.AsNoTracking()
-            .Where(r => r.SubjectGroupId == subjectGroupId && IsConfirmedMember(r.Status))
+            .Where(r => r.SubjectGroupId == subjectGroupId &&
+                        (r.Status == RegistrationStatus.Registered ||
+                         r.Status == RegistrationStatus.Completed ||
+                         r.Status == RegistrationStatus.Failed))
             .Select(r => r.StudentId)
             .Distinct()
             .OrderBy(id => id)
@@ -24,7 +29,11 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
     public async Task<IReadOnlyList<Guid>> GetGroupsForStudentAsync(
         Guid studentId, Guid termId, CancellationToken cancellationToken = default) =>
         await db.CourseRegistrations.AsNoTracking()
-            .Where(r => r.StudentId == studentId && r.TermId == termId && IsConfirmedMember(r.Status))
+            .Where(r => r.StudentId == studentId &&
+                        r.TermId == termId &&
+                        (r.Status == RegistrationStatus.Registered ||
+                         r.Status == RegistrationStatus.Completed ||
+                         r.Status == RegistrationStatus.Failed))
             .Select(r => r.SubjectGroupId)
             .Distinct()
             .OrderBy(id => id)
@@ -36,7 +45,9 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
             .AnyAsync(
                 r => r.StudentId == studentId &&
                      r.SubjectGroupId == subjectGroupId &&
-                     IsConfirmedMember(r.Status),
+                     (r.Status == RegistrationStatus.Registered ||
+                      r.Status == RegistrationStatus.Completed ||
+                      r.Status == RegistrationStatus.Failed),
                 cancellationToken);
 
     public async Task<StudentProgress> GetProgressAsync(
@@ -68,7 +79,4 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
 
         return new StudentProgress(studentId, creditsEarned, creditsInProgress, null, outstanding);
     }
-
-    private static bool IsConfirmedMember(RegistrationStatus status) =>
-        status is RegistrationStatus.Registered or RegistrationStatus.Completed or RegistrationStatus.Failed;
 }
