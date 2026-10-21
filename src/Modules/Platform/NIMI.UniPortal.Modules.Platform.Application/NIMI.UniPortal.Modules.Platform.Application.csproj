@@ -6,6 +6,7 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
     <!-- Cross-module: Contracts only (faculties live in Users) -->
     <ProjectReference Include="..\..\Users\NIMI.UniPortal.Modules.Users.Contracts\NIMI.UniPortal.Modules.Users.Contracts.csproj" />
+    <ProjectReference Include="..\..\Audit\NIMI.UniPortal.Modules.Audit.Contracts\NIMI.UniPortal.Modules.Audit.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

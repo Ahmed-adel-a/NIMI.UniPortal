@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Platform.Application.Abstractions;
 using NIMI.UniPortal.Modules.Platform.Domain.Settings;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Security;
 
 namespace NIMI.UniPortal.Modules.Platform.Application.Settings.UpdateSettings;
 
-internal sealed class UpdateSettingsHandler(IPlatformDbContext db, TimeProvider clock) : IRequestHandler<UpdateSettingsCommand, Unit>
+internal sealed class UpdateSettingsHandler(IPlatformDbContext db, IEventCollector events, ICurrentUser currentUser, TimeProvider clock)
+    : IRequestHandler<UpdateSettingsCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateSettingsCommand command, CancellationToken cancellationToken)
     {
@@ -30,6 +34,15 @@ internal sealed class UpdateSettingsHandler(IPlatformDbContext db, TimeProvider 
             command.StudentCodeFormat,
             new MilitaryEducationPolicy(command.MilitaryEducationPolicy.Mode),
             clock.GetUtcNow());
+
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            clock.GetUtcNow(),
+            currentUser.UserId,
+            AuditActions.SettingsUpdated,
+            AuditEntities.SystemSettings,
+            settings.Id,
+            "University settings updated."));
 
         return Unit.Value;   // no SaveChanges here — the UnitOfWork behavior commits once
     }

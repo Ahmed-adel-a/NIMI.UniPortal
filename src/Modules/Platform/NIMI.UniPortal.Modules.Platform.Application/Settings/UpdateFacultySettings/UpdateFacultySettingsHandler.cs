@@ -1,20 +1,24 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Platform.Application.Abstractions;
 using NIMI.UniPortal.Modules.Platform.Domain.Settings;
 using NIMI.UniPortal.Modules.Users.Contracts;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Security;
 using NIMI.UniPortal.SharedKernel.Validation;
 
 namespace NIMI.UniPortal.Modules.Platform.Application.Settings.UpdateFacultySettings;
 
-internal sealed class UpdateFacultySettingsHandler(IPlatformDbContext db, IUsersApi users, TimeProvider clock)
+internal sealed class UpdateFacultySettingsHandler(
+    IPlatformDbContext db, IUsersApi users, IEventCollector events, ICurrentUser currentUser, TimeProvider clock)
     : IRequestHandler<UpdateFacultySettingsCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateFacultySettingsCommand command, CancellationToken cancellationToken)
     {
         // R1: overrides are only stored for a faculty that exists.
-        _ = await users.GetFacultyAsync(command.FacultyId, cancellationToken)
+        var faculty = await users.GetFacultyAsync(command.FacultyId, cancellationToken)
             ?? throw new NotFoundException("Faculty not found.");
 
         var settings = await db.FacultySettings
@@ -51,6 +55,15 @@ internal sealed class UpdateFacultySettingsHandler(IPlatformDbContext db, IUsers
         // R4: clearing every override deletes the row instead of storing an empty one.
         if (!settings.HasOverrides)
             db.FacultySettings.Remove(settings);
+
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            clock.GetUtcNow(),
+            currentUser.UserId,
+            AuditActions.FacultySettingsUpdated,
+            AuditEntities.Faculty,
+            faculty.Id,
+            $"Academic-rule overrides of faculty {faculty.Code} updated."));
 
         return Unit.Value;
     }
