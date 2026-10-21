@@ -6,6 +6,7 @@ using Host.CairoUniversity.Health;
 using Host.CairoUniversity.Security;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
 using NIMI.UniPortal.Modules.Notifications.Api;
 using NIMI.UniPortal.Modules.Platform.Api;
 using NIMI.UniPortal.Modules.Scheduling.Api;
@@ -30,6 +31,7 @@ builder.Services.AddPlatformModule();
 builder.Services.AddUsersModule();
 builder.Services.AddNotificationsModule();
 builder.Services.AddSchedulingModule();
+builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
 
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database", tags: [DatabaseHealthCheck.Tag], timeout: TimeSpan.FromSeconds(5));
@@ -52,5 +54,6 @@ app.MapPlatformEndpoints();
 app.MapUsersEndpoints();
 app.MapNotificationsEndpoints();
 app.MapSchedulingEndpoints();
+app.MapCreditHoursEndpoints();
 
 app.Run();
