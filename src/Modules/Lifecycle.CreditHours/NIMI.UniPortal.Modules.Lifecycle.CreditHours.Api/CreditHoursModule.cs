@@ -28,6 +28,7 @@ public static class CreditHoursModule
         RegistrationEndpoints.Map(endpoints);
         RosterEndpoints.Map(endpoints);
         StudentScheduleEndpoints.Map(endpoints);
+        MilitaryEducationEndpoints.Map(endpoints);
         return endpoints;
     }
 }

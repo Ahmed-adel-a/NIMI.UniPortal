@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Abstractions.Lifecycle;
+using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Behaviors;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Lifecycle;
 using NIMI.UniPortal.SharedKernel.Messaging;
@@ -15,6 +16,7 @@ public static class CreditHoursApplication
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CreditHoursUnitOfWorkBehavior<,>));
         services.AddScoped<IAcademicLifecycle, AcademicLifecycleApi>();
+        services.AddIntegrationEventHandlers(assembly);   // PaymentCompleted → confirm military education
         return services;
     }
 }

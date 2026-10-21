@@ -1,0 +1,104 @@
+# Military education (P5.5) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup and host start: see payments.http / users.http.
+# Prerequisites: an active term with a military_education subject + group (scheduling.http or lifecycle.http),
+# a student with the student role, and the admin login below.
+#
+# Flow: apply/assign → pending_payment registration → military fee appears → office/online payment
+#       → PaymentCompleted → registration becomes registered and the student appears in the roster.
+
+@host = http://localhost:5080
+@adminEmail = admin@cu.edu.eg
+@adminPassword = paste-SEED_ADMIN_PASSWORD-here
+
+@facultyId = paste-faculty-id
+@termId = paste-term-id
+@militaryGroupId = paste-military-subject-group-id
+@studentId = paste-student-id
+@studentToken = paste-student-access-token
+
+### 1. Log in as the seeded admin → copy "accessToken" into @token
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{adminEmail}}", "password": "{{adminPassword}}" }
+
+###
+@token = {{login.response.body.$.accessToken}}
+
+### 2. Define the term's military-education fee (once; also needed by apply)
+# @name militaryFee
+POST {{host}}/api/admin/fee-items
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Military education",
+  "nameAr": "التربية العسكرية",
+  "description": "Military-education registration fee",
+  "category": "military_education",
+  "amount": 500,
+  "termId": "{{termId}}",
+  "facultyId": null,
+  "departmentId": null,
+  "dueOn": "2099-12-31"
+}
+
+###
+@feeItemId = {{militaryFee.response.body.$.id}}
+
+### 3. Optional: switch the faculty to mandatory mode (then students cannot apply; use assign below)
+PUT {{host}}/api/admin/faculties/{{facultyId}}/settings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "militaryEducationPolicy": { "mode": "mandatory" } }
+
+### 4. Student applies (opt-in mode only) → 201 pending_payment
+# @name apply
+POST {{host}}/api/military-education/apply
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "subjectGroupId": "{{militaryGroupId}}" }
+
+### 5. The student sees the fee to pay
+GET {{host}}/api/payments/fees?termId={{termId}}
+Authorization: Bearer {{studentToken}}
+
+### 6. Student Affairs assigns students (works in any mode) → per-student outcomes
+POST {{host}}/api/admin/military-education/assign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "studentIds": ["{{studentId}}"],
+  "subjectGroupId": "{{militaryGroupId}}"
+}
+
+### 7. Resync pending fee requests of the term (safe to repeat; `republished` is the pending count)
+POST {{host}}/api/admin/military-education/resync?termId={{termId}}
+Authorization: Bearer {{token}}
+
+### 8. Record the office payment in full → registration confirmed
+POST {{host}}/api/admin/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "studentId": "{{studentId}}",
+  "feeItemId": "{{feeItemId}}",
+  "amount": 500,
+  "method": "cash",
+  "reference": "MIL-2026-0001",
+  "paidAt": null
+}
+
+### 9. The registration is now registered and the student is in the roster
+GET {{host}}/api/registration/mine?termId={{termId}}
+Authorization: Bearer {{studentToken}}
+
+###
+GET {{host}}/api/admin/groups/{{militaryGroupId}}/roster
+Authorization: Bearer {{token}}
