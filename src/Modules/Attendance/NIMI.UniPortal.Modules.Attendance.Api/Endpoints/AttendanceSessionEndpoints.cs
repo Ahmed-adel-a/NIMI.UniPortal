@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
+using NIMI.UniPortal.Modules.Attendance.Application.CheckIn;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.GetSessionQr;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.OpenSession;
@@ -22,6 +23,7 @@ internal static class AttendanceSessionEndpoints
 
         group.MapPost("/sessions", OpenSession).WithName("OpenAttendanceSession");
         group.MapGet("/sessions/{id:guid}/qr", GetSessionQr).WithName("GetAttendanceSessionQr");
+        group.MapPost("/check-in", CheckIn).WithName("CheckInAttendance");
     }
 
     private static async Task<Created<AttendanceSessionDto>> OpenSession(
@@ -42,4 +44,17 @@ internal static class AttendanceSessionEndpoints
         ISender sender,
         CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(new GetSessionQrQuery(id, caller.GetUserId()), cancellationToken));
+
+    private static async Task<Ok<CheckInResultDto>> CheckIn(
+        CheckInRequest request,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new CheckInCommand(
+                request.Token,
+                request.DeviceFingerprint,
+                caller.GetUserId(),
+                caller.IsInRole(PortalRoles.Student)),
+            cancellationToken));
 }
