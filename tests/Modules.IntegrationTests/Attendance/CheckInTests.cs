@@ -1,6 +1,7 @@
 // ACCEPTANCE TEST — written by the consultant for phase P06. Do not modify; report problems instead.
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json.Nodes;
 using NIMI.UniPortal.Modules.IntegrationTests.Infrastructure;
 using static NIMI.UniPortal.Modules.IntegrationTests.Attendance.AttendanceSetup;
 using static NIMI.UniPortal.Modules.IntegrationTests.Scheduling.SchedulingSetup;
@@ -44,8 +45,10 @@ public sealed class CheckInTests(PortalWebAppFactory factory) : PortalTest(facto
     public async Task The_grace_period_comes_from_the_faculty_settings()
     {
         var w = await Lecture();
-        var faculty = await Factory.CreateClientAs("admin").PutAsJsonAsync($"/api/admin/faculties/{w.FacultyId}/settings",
-            new { workingDays = new[] { 0, 1, 2, 3, 4, 5, 6 }, lateGraceMinutes = 30 });
+        var url = $"/api/admin/faculties/{w.FacultyId}/settings";
+        var current = (await Factory.CreateClientAs("admin").GetFromJsonAsync<JsonObject>(url))!;   // overrides exist → send the version
+        var faculty = await Factory.CreateClientAs("admin").PutAsJsonAsync(url,
+            new { workingDays = new[] { 0, 1, 2, 3, 4, 5, 6 }, lateGraceMinutes = 30, version = (uint)current["version"]! });
         Assert.Equal(HttpStatusCode.OK, faculty.StatusCode);
         var sessionId = await OpenedAsync(w.HanyClient, w.SlotId);
 

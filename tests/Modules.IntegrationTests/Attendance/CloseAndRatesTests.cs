@@ -97,8 +97,10 @@ public sealed class CloseAndRatesTests(PortalWebAppFactory factory) : PortalTest
     public async Task The_threshold_comes_from_the_faculty_settings()
     {
         var w = await Lecture();
-        var faculty = await Factory.CreateClientAs("admin").PutAsJsonAsync($"/api/admin/faculties/{w.FacultyId}/settings",
-            new { workingDays = new[] { 0, 1, 2, 3, 4, 5, 6 }, attendanceThreshold = 40 });
+        var url = $"/api/admin/faculties/{w.FacultyId}/settings";
+        var current = (await Factory.CreateClientAs("admin").GetFromJsonAsync<JsonObject>(url))!;   // overrides exist → send the version
+        var faculty = await Factory.CreateClientAs("admin").PutAsJsonAsync(url,
+            new { workingDays = new[] { 0, 1, 2, 3, 4, 5, 6 }, attendanceThreshold = 40, version = (uint)current["version"]! });
         Assert.Equal(HttpStatusCode.OK, faculty.StatusCode);
         await CloseAsync(w.HanyClient, await HeldSessionAsync(w));
         var nextWeek = await OpenedAsync(w.HanyClient, w.SlotId, w.Today.AddDays(7));
