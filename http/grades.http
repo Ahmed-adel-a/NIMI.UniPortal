@@ -1,0 +1,55 @@
+# Grades module (P9) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development) is the same as users.http.
+# Prerequisites: scheduling.http + lifecycle.http (active term, a group the professor teaches, registered students).
+# Workflow (decision D3): professor drafts → Student Affairs confirms the group → Student Affairs publishes the term.
+
+@host = http://localhost:5080
+@adminToken = paste-the-admin-token-here
+@professorToken = paste-the-teaching-professors-token-here
+@studentToken = paste-a-registered-students-token-here
+@termId = paste-the-active-term-id-here
+@groupId = paste-a-group-id-here
+@studentId = paste-a-roster-students-id-here
+@gradeId = paste-a-grade-id-from-the-group-view-here
+
+### Teacher or Student Affairs: the group's roster with each student's grade (null until drafted)
+GET {{host}}/api/grades/groups/{{groupId}}
+Authorization: Bearer {{professorToken}}
+
+### Teacher: draft scores (0–100, 2 decimals); letters come from the subject faculty's scale.
+### Roster students only, each once (400 entries[i].studentId); confirmed/published rows → 409.
+PUT {{host}}/api/grades/groups/{{groupId}}
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{ "entries": [ { "studentId": "{{studentId}}", "score": 87.5 } ] }
+
+### Student Affairs: confirm the group (every roster student needs a grade, else 400 listing missingStudentIds)
+POST {{host}}/api/admin/grades/confirm
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "groupId": "{{groupId}}" }
+
+### Student Affairs: publish the term's confirmed grades (optionally subjectId / groupId) → { published: n }; students are notified
+POST {{host}}/api/admin/grades/publish
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "termId": "{{termId}}" }
+
+### Student: published grades per term with term GPA and cumulative GPA (optional ?termId=)
+GET {{host}}/api/grades/mine
+Authorization: Bearer {{studentToken}}
+
+### Student Affairs: correct a published grade (reason required; drafts/confirmed → 409); the student is notified
+POST {{host}}/api/admin/grades/{{gradeId}}/correct
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "score": 91, "reason": "Exam re-marked after an addition error." }
+
+### Student Affairs: the grade's correction history
+GET {{host}}/api/admin/grades/{{gradeId}}/corrections
+Authorization: Bearer {{adminToken}}

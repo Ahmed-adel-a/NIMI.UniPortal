@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\Modules\Materials\NIMI.UniPortal.Modules.Materials.Api\NIMI.UniPortal.Modules.Materials.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Announcements\NIMI.UniPortal.Modules.Announcements.Api\NIMI.UniPortal.Modules.Announcements.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Assignments\NIMI.UniPortal.Modules.Assignments.Api\NIMI.UniPortal.Modules.Assignments.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Grades\NIMI.UniPortal.Modules.Grades.Api\NIMI.UniPortal.Modules.Grades.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Payments\NIMI.UniPortal.Modules.Payments.Api\NIMI.UniPortal.Modules.Payments.Api.csproj" />
     <!-- Decision LIFECYCLE: this deployment composes exactly one lifecycle variant (rule: HostCompositionTests). -->
     <ProjectReference Include="..\..\Modules\Lifecycle.CreditHours\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api.csproj" />
