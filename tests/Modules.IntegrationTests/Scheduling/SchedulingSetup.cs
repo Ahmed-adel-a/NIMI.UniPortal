@@ -82,8 +82,9 @@ internal static class SchedulingSetup
         string recurrence = "weekly", string validFrom = TermStart, string? validUntil = null) =>
         new { subjectGroupId = groupId, facilityId, staffId, dayOfWeek, startTime, endTime, recurrence, validFrom, validUntil };
 
+    /// <summary>Parses the body; <c>ReadAsStringAsync</c> buffers it, so a test may read the same response more than once.</summary>
     public static async Task<JsonObject> BodyOf(HttpResponseMessage response) =>
-        (await response.Content.ReadFromJsonAsync<JsonObject>())!;
+        JsonNode.Parse(await response.Content.ReadAsStringAsync())!.AsObject();
 
     public static async Task<List<string?>> FieldsOf(HttpResponseMessage response) =>
         (await BodyOf(response))["details"]!.AsArray().Select(d => (string?)d!["field"]).ToList();
