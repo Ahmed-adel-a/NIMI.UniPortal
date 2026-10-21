@@ -1,0 +1,79 @@
+# Attendance module (P6) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development) is the same as users.http (connection string + seeded admin in user secrets).
+# Run:  dotnet run --project src/Hosts/Host.CairoUniversity          (migrations apply on startup in Development)
+#
+# Prerequisites: scheduling.http + lifecycle.http (a slot for today's weekday in the active term, a professor who
+# teaches its group, and students registered in that group). Paste the ids/tokens below.
+# A QR token lives 20 seconds: fetch a fresh one right before each check-in.
+
+@host = http://localhost:5080
+@adminToken = paste-the-admin-token-here
+@professorToken = paste-the-teaching-professors-token-here
+@studentToken = paste-a-registered-students-token-here
+@studentId = paste-that-students-id-here
+@slotId = paste-a-slot-id-here
+@groupId = paste-that-slots-group-id-here
+@sessionId = paste-the-session-id-from-the-open-call-here
+@qrToken = paste-the-token-from-the-qr-call-here
+@deviceChangeId = paste-a-device-change-id-here
+
+### Professor: open today's session for the slot → 201 (date defaults to today; any occurrence of the slot is allowed)
+POST {{host}}/api/attendance/sessions
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{ "slotId": "{{slotId}}" }
+
+### Professor: the rotating QR → 200 { token, expiresAt } (closed session → 409)
+GET {{host}}/api/attendance/sessions/{{sessionId}}/qr
+Authorization: Bearer {{professorToken}}
+
+### Student: check in with the QR → 200 { status: present | late } (expired 400, outsider 403, other phone 403, twice 409)
+POST {{host}}/api/attendance/check-in
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "token": "{{qrToken}}", "deviceFingerprint": "android-demo-7f3a9c21" }
+
+### Professor: audited manual entry (present/late → manual_audit, absent → absent); the note is required
+POST {{host}}/api/attendance/sessions/{{sessionId}}/manual
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{ "studentId": "{{studentId}}", "status": "present", "note": "هاتفه تعطل — حاضر في القاعة" }
+
+### Professor: live roster → everyone with present / late / manual_audit / absent / not_yet + counts
+GET {{host}}/api/attendance/sessions/{{sessionId}}/live
+Authorization: Bearer {{professorToken}}
+
+### Professor: close → absents filled in, summary; closing again returns the same summary
+POST {{host}}/api/attendance/sessions/{{sessionId}}/close
+Authorization: Bearer {{professorToken}}
+
+### Student: own history + percentage per subject (closed sessions only)
+GET {{host}}/api/attendance/history
+Authorization: Bearer {{studentToken}}
+
+### Professor (own group) or admin: percentage per student
+GET {{host}}/api/attendance/groups/{{groupId}}/summary
+Authorization: Bearer {{professorToken}}
+
+### Professor (own groups) or admin (all): students below the faculty's effective threshold
+GET {{host}}/api/attendance/at-risk?groupId={{groupId}}
+Authorization: Bearer {{professorToken}}
+
+### Student: ask to move attendance to a new phone → 201 pending (one pending at a time, one approved per term)
+POST {{host}}/api/attendance/device-change
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "newFingerprint": "iphone-demo-0b44e1aa", "reason": "My phone was stolen" }
+
+### Admin: the request queue
+GET {{host}}/api/admin/attendance/device-changes?status=pending
+Authorization: Bearer {{adminToken}}
+
+### Admin: approve (old phone revoked, new one registered) — or POST …/reject
+POST {{host}}/api/admin/attendance/device-changes/{{deviceChangeId}}/approve
+Authorization: Bearer {{adminToken}}

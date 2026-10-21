@@ -1,0 +1,95 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Routing;
+using NIMI.UniPortal.Modules.Attendance.Application.CheckIn;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions.CloseSession;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions.GetSessionQr;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions.LiveRoster;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions.ManualEntry;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions.OpenSession;
+using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Security;
+
+namespace NIMI.UniPortal.Modules.Attendance.Api.Endpoints;
+
+/// <summary>P6.1: the professor opens a lecture session and shows its rotating QR code.</summary>
+internal static class AttendanceSessionEndpoints
+{
+    public static void Map(IEndpointRouteBuilder endpoints)
+    {
+        var group = endpoints.MapGroup("/api/attendance")
+            .WithTags("Attendance")
+            .RequireAuthorization();
+
+        group.MapPost("/sessions", OpenSession).WithName("OpenAttendanceSession");
+        group.MapGet("/sessions/{id:guid}/qr", GetSessionQr).WithName("GetAttendanceSessionQr");
+        group.MapPost("/check-in", CheckIn).WithName("CheckInAttendance");
+        group.MapPost("/sessions/{id:guid}/manual", ManualEntry).WithName("ManualAttendanceEntry");
+        group.MapGet("/sessions/{id:guid}/live", GetLiveRoster).WithName("GetLiveAttendanceRoster");
+        group.MapPost("/sessions/{id:guid}/close", CloseSession).WithName("CloseAttendanceSession");
+    }
+
+    private static async Task<Ok<CloseSummaryDto>> CloseSession(
+        Guid id,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(new CloseSessionCommand(id, caller.GetUserId()), cancellationToken));
+
+    private static async Task<Ok<LiveRosterDto>> GetLiveRoster(
+        Guid id,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(new GetLiveRosterQuery(id, caller.GetUserId()), cancellationToken));
+
+    private static async Task<Created<AttendanceSessionDto>> OpenSession(
+        OpenAttendanceSessionRequest request,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var session = await sender.Send(
+            new OpenSessionCommand(request.SlotId, request.Date, caller.GetUserId()),
+            cancellationToken);
+        return TypedResults.Created($"/api/attendance/sessions/{session.Id}", session);
+    }
+
+    private static async Task<Ok<SessionQrDto>> GetSessionQr(
+        Guid id,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(new GetSessionQrQuery(id, caller.GetUserId()), cancellationToken));
+
+    private static async Task<Ok<CheckInResultDto>> CheckIn(
+        CheckInRequest request,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new CheckInCommand(
+                request.Token,
+                request.DeviceFingerprint,
+                caller.GetUserId(),
+                caller.IsInRole(PortalRoles.Student)),
+            cancellationToken));
+
+    private static async Task<Ok<ManualEntryDto>> ManualEntry(
+        Guid id,
+        ManualEntryRequest request,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new ManualEntryCommand(
+                id,
+                request.StudentId,
+                request.Status ?? string.Empty,
+                request.Note ?? string.Empty,
+                caller.GetUserId()),
+            cancellationToken));
+}

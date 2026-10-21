@@ -1,0 +1,98 @@
+using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.Abstractions.Lifecycle;
+using NIMI.UniPortal.Modules.Attendance.Application.Abstractions;
+using NIMI.UniPortal.Modules.Attendance.Application.Common;
+using NIMI.UniPortal.Modules.Platform.Contracts;
+using NIMI.UniPortal.Modules.Scheduling.Contracts;
+using NIMI.UniPortal.Modules.Users.Contracts;
+using NIMI.UniPortal.SharedKernel;
+using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Paging;
+
+namespace NIMI.UniPortal.Modules.Attendance.Application.Reports.AtRisk;
+
+/// <summary>
+/// P6.7 — for each visible group with at least one closed session, the members whose rate is below the effective
+/// threshold of the subject's faculty. Ordered by subject code, group number, then student code.
+/// </summary>
+internal sealed class GetAtRiskHandler(
+    IAttendanceDbContext db,
+    IAcademicLifecycle lifecycle,
+    ISchedulingApi scheduling,
+    IUsersApi users,
+    IPlatformSettingsApi platform) : IRequestHandler<GetAtRiskQuery, PagedResult<AtRiskItemDto>>
+{
+    public async Task<PagedResult<AtRiskItemDto>> Handle(GetAtRiskQuery query, CancellationToken cancellationToken)
+    {
+        if (!query.IsAdmin && !query.IsProfessor)
+            throw new ForbiddenException("Only teaching staff and Student Affairs see the at-risk list.");
+
+        var groups = await VisibleGroupsAsync(query, cancellationToken);
+
+        var items = new List<AtRiskItemDto>();
+        foreach (var group in groups)
+        {
+            var rates = await GroupRates.LoadAsync(db, group.Id, cancellationToken);
+            if (rates.Held == 0)
+                continue;
+
+            var subject = await scheduling.GetSubjectAsync(group.SubjectId, cancellationToken);
+            if (subject is null)
+                continue;
+
+            var settings = await AttendanceSettings.ForDepartmentAsync(users, platform, subject.DepartmentId, cancellationToken);
+            var members = await GroupMembers.LoadAsync(lifecycle, users, group.Id, cancellationToken);
+            items.AddRange(members
+                .Select(m => (Member: m, Percentage: rates.PercentageOf(m.StudentId)))
+                .Where(x => x.Percentage < settings.AttendanceThreshold)
+                .Select(x => new AtRiskItemDto(
+                    x.Member.StudentId,
+                    x.Member.FullName,
+                    x.Member.StudentCode,
+                    group.Id,
+                    subject.Code,
+                    group.GroupNumber,
+                    x.Percentage,
+                    settings.AttendanceThreshold)));
+        }
+
+        var ordered = items
+            .OrderBy(i => i.SubjectCode, StringComparer.Ordinal)
+            .ThenBy(i => i.GroupNumber)
+            .ThenBy(i => i.StudentCode, StringComparer.Ordinal)
+            .ToList();
+
+        return new PagedResult<AtRiskItemDto>(
+            [.. ordered.Skip(query.Paging.Skip).Take(query.Paging.PageSize)],
+            query.Paging.Page,
+            query.Paging.PageSize,
+            ordered.Count);
+    }
+
+    private async Task<IReadOnlyList<GroupRef>> VisibleGroupsAsync(GetAtRiskQuery query, CancellationToken cancellationToken)
+    {
+        if (query.GroupId is { } groupId)
+            return [await GroupAccess.EnsureCanSeeAsync(scheduling, groupId, query.CallerId, query.IsAdmin, cancellationToken)];
+
+        var termId = query.TermId ?? (await scheduling.GetCurrentTermAsync(cancellationToken))?.Id;
+        if (termId is null)
+            return [];
+
+        var groupIds = query.IsAdmin
+            ? await db.AttendanceSessions.AsNoTracking()
+                .Where(s => s.TermId == termId)
+                .Select(s => s.SubjectGroupId)
+                .Distinct()
+                .ToListAsync(cancellationToken)
+            : [.. await scheduling.GetGroupIdsTaughtByAsync(query.CallerId, termId.Value, cancellationToken)];
+
+        var groups = new List<GroupRef>(groupIds.Count);
+        foreach (var id in groupIds)
+        {
+            if (await scheduling.GetGroupAsync(id, cancellationToken) is { } group)
+                groups.Add(group);
+        }
+
+        return groups;
+    }
+}

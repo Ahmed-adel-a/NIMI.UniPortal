@@ -6,6 +6,7 @@ using Host.CairoUniversity.Health;
 using Host.CairoUniversity.Security;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Attendance.Api;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
 using NIMI.UniPortal.Modules.Notifications.Api;
 using NIMI.UniPortal.Modules.Payments.Api;
@@ -32,6 +33,7 @@ builder.Services.AddPlatformModule();
 builder.Services.AddUsersModule();
 builder.Services.AddNotificationsModule();
 builder.Services.AddSchedulingModule();
+builder.Services.AddAttendanceModule();
 builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
 builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
 
@@ -56,6 +58,7 @@ app.MapPlatformEndpoints();
 app.MapUsersEndpoints();
 app.MapNotificationsEndpoints();
 app.MapSchedulingEndpoints();
+app.MapAttendanceEndpoints();
 app.MapPaymentsEndpoints();
 app.MapCreditHoursEndpoints();
 
