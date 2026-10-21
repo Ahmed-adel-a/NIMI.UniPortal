@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Attendance.Application.CheckIn;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.GetSessionQr;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions.ManualEntry;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.OpenSession;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Security;
@@ -24,6 +25,7 @@ internal static class AttendanceSessionEndpoints
         group.MapPost("/sessions", OpenSession).WithName("OpenAttendanceSession");
         group.MapGet("/sessions/{id:guid}/qr", GetSessionQr).WithName("GetAttendanceSessionQr");
         group.MapPost("/check-in", CheckIn).WithName("CheckInAttendance");
+        group.MapPost("/sessions/{id:guid}/manual", ManualEntry).WithName("ManualAttendanceEntry");
     }
 
     private static async Task<Created<AttendanceSessionDto>> OpenSession(
@@ -56,5 +58,20 @@ internal static class AttendanceSessionEndpoints
                 request.DeviceFingerprint,
                 caller.GetUserId(),
                 caller.IsInRole(PortalRoles.Student)),
+            cancellationToken));
+
+    private static async Task<Ok<ManualEntryDto>> ManualEntry(
+        Guid id,
+        ManualEntryRequest request,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(
+            new ManualEntryCommand(
+                id,
+                request.StudentId,
+                request.Status ?? string.Empty,
+                request.Note ?? string.Empty,
+                caller.GetUserId()),
             cancellationToken));
 }
