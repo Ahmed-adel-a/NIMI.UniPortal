@@ -22,6 +22,7 @@ public static class AttendanceModule
     public static IEndpointRouteBuilder MapAttendanceEndpoints(this IEndpointRouteBuilder endpoints)
     {
         AttendanceSessionEndpoints.Map(endpoints);
+        AttendanceReportEndpoints.Map(endpoints);
         return endpoints;
     }
 }
