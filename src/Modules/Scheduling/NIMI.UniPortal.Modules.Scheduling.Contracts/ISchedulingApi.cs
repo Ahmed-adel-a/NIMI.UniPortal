@@ -16,7 +16,7 @@ public interface ISchedulingApi
 
     Task<GroupRef?> GetGroupAsync(Guid groupId, CancellationToken cancellationToken = default);
 
-    /// <summary>Active groups of a term with their subject and slots (P4 registration).</summary>
+    /// <summary>Active groups of a term with their subject and non-cancelled slots (P4 registration).</summary>
     Task<IReadOnlyList<OfferingRef>> GetOfferingsAsync(Guid termId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<SlotRef>> GetSlotsForGroupsAsync(
@@ -37,8 +37,8 @@ public interface ISchedulingApi
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Ids of the groups this staff member teaches in a term: assignment rows naming a group, plus every group of a
-    /// subject they are assigned to without a group.
+    /// Ids of the active groups this staff member teaches in a term: assignment rows naming a group, plus every
+    /// active group of a subject they are assigned to without a group.
     /// </summary>
     Task<IReadOnlyList<Guid>> GetGroupIdsTaughtByAsync(
         Guid staffId,

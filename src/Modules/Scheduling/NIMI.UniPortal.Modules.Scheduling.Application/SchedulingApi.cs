@@ -54,7 +54,7 @@ internal sealed class SchedulingApi(ISchedulingDbContext db) : ISchedulingApi
         var groupIds = groups.Select(g => g.Id).ToList();
         var slots = await db.ScheduleSlots.AsNoTracking()
             .Include(s => s.Facility)
-            .Where(s => groupIds.Contains(s.SubjectGroupId))
+            .Where(s => groupIds.Contains(s.SubjectGroupId) && !s.IsCancelled)
             .OrderBy(s => s.DayOfWeek)
             .ThenBy(s => s.StartTime)
             .ThenBy(s => s.Id)
@@ -134,7 +134,7 @@ internal sealed class SchedulingApi(ISchedulingDbContext db) : ISchedulingApi
             .ToHashSet();
 
         var groups = await db.SubjectGroups.AsNoTracking()
-            .Where(g => g.TermId == termId &&
+            .Where(g => g.TermId == termId && g.IsActive &&
                         (namedGroups.Contains(g.Id) || wholeSubjects.Contains(g.SubjectId)))
             .OrderBy(g => g.SubjectId)
             .ThenBy(g => g.GroupNumber)
