@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\Modules\Platform\NIMI.UniPortal.Modules.Platform.Api\NIMI.UniPortal.Modules.Platform.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Users\NIMI.UniPortal.Modules.Users.Api\NIMI.UniPortal.Modules.Users.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Notifications\NIMI.UniPortal.Modules.Notifications.Api\NIMI.UniPortal.Modules.Notifications.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Scheduling\NIMI.UniPortal.Modules.Scheduling.Api\NIMI.UniPortal.Modules.Scheduling.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

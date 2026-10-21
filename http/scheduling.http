@@ -1,0 +1,211 @@
+# Scheduling module (P3) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development), same as users.http:
+#   dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=<password>" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-secrets set SEED_ADMIN_EMAIL "admin@cu.edu.eg" --project src/Hosts/Host.CairoUniversity
+#   dotnet user-secrets set SEED_ADMIN_PASSWORD "<a password>" --project src/Hosts/Host.CairoUniversity
+# Run:  dotnet run --project src/Hosts/Host.CairoUniversity          (migrations apply on startup in Development)
+#
+# Calendar used below: first term 2026/2027 runs Saturday 2026-09-19 → Friday 2027-01-15.
+# Product days: 0 = Saturday, 1 = Sunday … 5 = Thursday, 6 = Friday.
+
+@host = http://localhost:5080
+@adminEmail = admin@cu.edu.eg
+@adminPassword = paste-SEED_ADMIN_PASSWORD-here
+
+### 1. Log in as the seeded admin → copy "accessToken" into @token
+# @name login
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "{{adminEmail}}", "password": "{{adminPassword}}" }
+
+###
+@token = {{login.response.body.$.accessToken}}
+
+### 2. Organization (faculty + department)
+# @name faculty
+POST {{host}}/api/admin/faculties
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "code": "ENG", "name": "Engineering", "nameAr": "الهندسة" }
+
+###
+# @name department
+POST {{host}}/api/admin/departments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "facultyId": "{{faculty.response.body.$.id}}", "code": "CS", "name": "Computer Science", "nameAr": "علوم الحاسب" }
+
+### 3. Create the first term and make it the active one (activation closes any previous active term)
+# @name term
+POST {{host}}/api/admin/terms
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "academicYear": 2026,
+  "number": "first",
+  "startsOn": "2026-09-19",
+  "endsOn": "2027-01-15",
+  "weekCount": 17
+}
+
+###
+POST {{host}}/api/admin/terms/{{term.response.body.$.id}}/activate
+Authorization: Bearer {{token}}
+
+### 4. Current term (404 when none is active) and the paged list (newest startsOn first)
+GET {{host}}/api/terms/current
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/terms?page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### 5. Subject catalog
+# @name subject
+POST {{host}}/api/admin/subjects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "departmentId": "{{department.response.body.$.id}}",
+  "code": "CS301",
+  "name": "Algorithms",
+  "nameAr": "الخوارزميات",
+  "description": null,
+  "creditHours": 3,
+  "category": "regular",
+  "isGraduationRequirement": true
+}
+
+###
+GET {{host}}/api/subjects?departmentId={{department.response.body.$.id}}&search=CS
+Authorization: Bearer {{token}}
+
+### 6. Group 1 of CS301 in the active term
+# @name group
+POST {{host}}/api/admin/subjects/{{subject.response.body.$.id}}/groups
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "termId": "{{term.response.body.$.id}}", "groupNumber": 1, "targetDepartmentId": null, "capacity": 60 }
+
+###
+GET {{host}}/api/subjects/{{subject.response.body.$.id}}/groups?termId={{term.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### 7. Facility (faculty hall; omit facultyId for a university-shared one)
+# @name hall
+POST {{host}}/api/admin/facilities
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "facultyId": "{{faculty.response.body.$.id}}",
+  "name": "Hall A",
+  "type": "lecture_hall",
+  "capacity": 120,
+  "building": "Main building",
+  "floor": "1"
+}
+
+###
+# facultyId returns that faculty's halls plus the shared ones; type = lecture_hall | lab | auditorium | classroom | workshop
+GET {{host}}/api/facilities?facultyId={{faculty.response.body.$.id}}&type=lecture_hall
+Authorization: Bearer {{token}}
+
+### 8. A professor (response carries a one-time "temporaryPassword")
+# @name professor
+POST {{host}}/api/admin/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "role": "professor",
+  "fullName": "د. هاني",
+  "email": "hany@cu.edu.eg",
+  "departmentId": "{{department.response.body.$.id}}",
+  "academicTitle": "professor"
+}
+
+### 9. Assign the professor to all CS301 groups of the term (role: lecturer | lab | tutorial)
+# @name assignment
+POST {{host}}/api/admin/teaching-assignments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "staffId": "{{professor.response.body.$.user.id}}",
+  "subjectId": "{{subject.response.body.$.id}}",
+  "termId": "{{term.response.body.$.id}}",
+  "subjectGroupId": null,
+  "role": "lecturer"
+}
+
+###
+GET {{host}}/api/admin/teaching-assignments?termId={{term.response.body.$.id}}&staffId={{professor.response.body.$.user.id}}
+Authorization: Bearer {{token}}
+
+### 10. Timetable slot: Sunday 09:00–10:30, weekly, until the end of the term
+# @name slot
+POST {{host}}/api/admin/schedules
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "subjectGroupId": "{{group.response.body.$.id}}",
+  "facilityId": "{{hall.response.body.$.id}}",
+  "staffId": "{{professor.response.body.$.user.id}}",
+  "dayOfWeek": 1,
+  "startTime": "09:00:00",
+  "endTime": "10:30:00",
+  "recurrence": "weekly",
+  "validFrom": "2026-09-20",
+  "validUntil": null
+}
+
+### 11. Same hall + same time → 409 conflict naming the kinds (facility/group/staff) and the other slot id
+POST {{host}}/api/admin/schedules
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "subjectGroupId": "{{group.response.body.$.id}}",
+  "facilityId": "{{hall.response.body.$.id}}",
+  "staffId": null,
+  "dayOfWeek": 1,
+  "startTime": "10:00:00",
+  "endTime": "11:00:00",
+  "recurrence": "weekly",
+  "validFrom": "2026-09-20",
+  "validUntil": null
+}
+
+### 12. Admin timetable (day then start time); a missing validUntil means "until the term ends"
+GET {{host}}/api/admin/schedules?termId={{term.response.body.$.id}}&groupId={{group.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### 13. Cancel a slot (204; cancelled slots never conflict and disappear from teaching schedules)
+POST {{host}}/api/admin/schedules/{{slot.response.body.$.id}}/cancel
+Authorization: Bearer {{token}}
+
+### 14. The professor's own occurrences (only professors: a student or admin token → 403; range ≤ 31 days)
+# First login with the temporaryPassword from step 8, change it, then use the fresh accessToken below.
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "hany@cu.edu.eg", "password": "paste-temporaryPassword-here" }
+
+###
+@professorToken = paste-the-accessToken-from-the-change-password-response-here
+
+GET {{host}}/api/teaching/schedule?from=2026-09-19&to=2026-09-25
+Authorization: Bearer {{professorToken}}
+
+### 15. Admin term lifecycle: only a planned term is editable (409 otherwise); close ends the term
+POST {{host}}/api/admin/terms/{{term.response.body.$.id}}/close
+Authorization: Bearer {{token}}

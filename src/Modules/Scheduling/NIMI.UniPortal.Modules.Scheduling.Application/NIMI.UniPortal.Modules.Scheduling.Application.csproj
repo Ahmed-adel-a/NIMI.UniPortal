@@ -4,6 +4,13 @@
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Scheduling.Domain\NIMI.UniPortal.Modules.Scheduling.Domain.csproj" />
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Scheduling.Contracts\NIMI.UniPortal.Modules.Scheduling.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
+    <!-- Cross-module: Contracts only (departments/faculties/staff and effective settings) -->
+    <ProjectReference Include="..\..\Users\NIMI.UniPortal.Modules.Users.Contracts\NIMI.UniPortal.Modules.Users.Contracts.csproj" />
+    <ProjectReference Include="..\..\Platform\NIMI.UniPortal.Modules.Platform.Contracts\NIMI.UniPortal.Modules.Platform.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 
 </Project>
