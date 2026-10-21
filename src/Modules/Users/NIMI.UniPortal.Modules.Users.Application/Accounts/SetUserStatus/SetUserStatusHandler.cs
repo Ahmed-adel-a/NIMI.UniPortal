@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Security;
 using NIMI.UniPortal.SharedKernel.Validation;
 
 namespace NIMI.UniPortal.Modules.Users.Application.Accounts.SetUserStatus;
 
-internal sealed class SetUserStatusHandler(IUsersDbContext db, TimeProvider clock) : IRequestHandler<SetUserStatusCommand, Unit>
+internal sealed class SetUserStatusHandler(IUsersDbContext db, IEventCollector events, ICurrentUser currentUser, TimeProvider clock)
+    : IRequestHandler<SetUserStatusCommand, Unit>
 {
     public async Task<Unit> Handle(SetUserStatusCommand command, CancellationToken cancellationToken)
     {
@@ -17,6 +21,14 @@ internal sealed class SetUserStatusHandler(IUsersDbContext db, TimeProvider cloc
             ?? throw new NotFoundException("User not found.");
 
         user.SetActive(command.IsActive, clock.GetUtcNow());
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            clock.GetUtcNow(),
+            currentUser.UserId,
+            AuditActions.UserStatusChanged,
+            AuditEntities.User,
+            user.Id,
+            $"Account of {user.FullName} {(command.IsActive ? "activated" : "deactivated")}."));
         return Unit.Value;
     }
 }

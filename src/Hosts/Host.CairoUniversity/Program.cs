@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Announcements.Api;
 using NIMI.UniPortal.Modules.Assignments.Api;
+using NIMI.UniPortal.Modules.Audit.Api;
 using NIMI.UniPortal.Modules.Grades.Api;
 using NIMI.UniPortal.Modules.Attendance.Api;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
@@ -20,6 +21,7 @@ using NIMI.UniPortal.Modules.Platform.Api;
 using NIMI.UniPortal.Modules.Scheduling.Api;
 using NIMI.UniPortal.Modules.Users.Api;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,8 @@ builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true)
 builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower)));
 builder.AddPortalAuthentication();                                        // JWT validation + policies (Security/)
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();              // who acted, for the activity log (P10.2)
 builder.Services.AddFileStorage(builder.Configuration, builder.Environment); // uploads on local disk (Storage/)
 
 // ── Core modules ───────────────────────────────────────────────
@@ -45,6 +49,7 @@ builder.Services.AddMaterialsModule();
 builder.Services.AddAnnouncementsModule();
 builder.Services.AddAssignmentsModule();
 builder.Services.AddGradesModule();
+builder.Services.AddAuditModule();
 builder.Services.AddDashboards();                // P10: host-level dashboards over module contracts
 builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
 builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
@@ -75,6 +80,7 @@ app.MapMaterialsEndpoints();
 app.MapAnnouncementsEndpoints();
 app.MapAssignmentsEndpoints();
 app.MapGradesEndpoints();
+app.MapAuditEndpoints();
 app.MapPaymentsEndpoints();
 app.MapCreditHoursEndpoints();
 app.MapDashboardEndpoints();

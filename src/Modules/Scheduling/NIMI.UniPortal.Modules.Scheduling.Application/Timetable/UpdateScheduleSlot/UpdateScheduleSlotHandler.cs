@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Platform.Contracts;
 using NIMI.UniPortal.Modules.Scheduling.Application.Abstractions;
 using NIMI.UniPortal.Modules.Users.Contracts;
@@ -13,6 +15,8 @@ internal sealed class UpdateScheduleSlotHandler(
     ISchedulingDbContext db,
     IUsersApi users,
     IPlatformSettingsApi platform,
+    IEventCollector events,
+    ICurrentUser currentUser,
     TimeProvider clock) : IRequestHandler<UpdateScheduleSlotCommand, ScheduleSlotDto>
 {
     public async Task<ScheduleSlotDto> Handle(
@@ -65,6 +69,15 @@ internal sealed class UpdateScheduleSlotHandler(
         var conflict = await ScheduleSlotConflicts.FindAsync(db, slot, slot.Id, cancellationToken);
         if (conflict is not null)
             throw new ConflictException(ScheduleSlotConflicts.Describe(slot, conflict));
+
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            clock.GetUtcNow(),
+            currentUser.UserId,
+            AuditActions.ScheduleSlotUpdated,
+            AuditEntities.ScheduleSlot,
+            slot.Id,
+            $"Slot of {group.Subject.Code} group {group.GroupNumber} set to day {slot.DayOfWeek}, {slot.StartTime:HH:mm}–{slot.EndTime:HH:mm}, {facility.Name}."));
 
         return ScheduleSlotDto.From(slot, group, facility);
     }

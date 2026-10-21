@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Attendance.Application.Abstractions;
 using NIMI.UniPortal.Modules.Attendance.Application.Common;
 using NIMI.UniPortal.Modules.Attendance.Domain.Devices;
@@ -11,7 +13,7 @@ namespace NIMI.UniPortal.Modules.Attendance.Application.Devices.Decide;
 /// P6.8 — decides a pending request once (409 otherwise). Approving revokes the student's active phone and registers
 /// the new one in the same save (the revoke is an UPDATE and runs before the INSERT, so the one-active-device index holds).
 /// </summary>
-internal sealed class DecideDeviceChangeHandler(IAttendanceDbContext db, TimeProvider clock)
+internal sealed class DecideDeviceChangeHandler(IAttendanceDbContext db, IEventCollector events, TimeProvider clock)
     : IRequestHandler<DecideDeviceChangeCommand, DeviceChangeDto>
 {
     public async Task<DeviceChangeDto> Handle(DecideDeviceChangeCommand command, CancellationToken cancellationToken)
@@ -24,6 +26,14 @@ internal sealed class DecideDeviceChangeHandler(IAttendanceDbContext db, TimePro
             throw new ConflictException("This device change request has already been decided.");
 
         var now = clock.GetUtcNow();
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            now,
+            command.DecidedBy,
+            AuditActions.DeviceChangeDecided,
+            AuditEntities.DeviceChangeRequest,
+            request.Id,
+            command.Approve ? "Device change approved: the new phone replaces the registered one." : "Device change rejected."));
         if (!command.Approve)
         {
             request.Reject(command.DecidedBy, now);

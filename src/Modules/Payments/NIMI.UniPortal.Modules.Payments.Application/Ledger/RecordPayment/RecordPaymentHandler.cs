@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Payments.Application.Abstractions;
 using NIMI.UniPortal.Modules.Payments.Application.Common;
 using NIMI.UniPortal.Modules.Payments.Contracts;
@@ -87,6 +88,14 @@ internal sealed class RecordPaymentHandler(
             FeeCategoryNames.ToWire(item.Category),
             command.Amount,
             fee.IsFullyPaid));
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            now,
+            command.RecordedBy,
+            AuditActions.PaymentRecorded,
+            AuditEntities.Payment,
+            payment.Id,
+            $"{PaymentMethodNames.ToWire(method)} payment of {command.Amount:0.00} for {item.Name} recorded for {student.FullName} (receipt {receiptNumber})."));
 
         return new PaymentRecordDto(
             payment.Id,

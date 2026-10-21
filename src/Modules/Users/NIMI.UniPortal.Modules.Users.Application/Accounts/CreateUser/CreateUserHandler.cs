@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using NIMI.UniPortal.EventBus;
+using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Platform.Contracts;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
 using NIMI.UniPortal.Modules.Users.Domain.Accounts;
 using NIMI.UniPortal.Modules.Users.Domain.Organization;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Security;
 using NIMI.UniPortal.SharedKernel.Validation;
 
 namespace NIMI.UniPortal.Modules.Users.Application.Accounts.CreateUser;
@@ -14,6 +17,8 @@ internal sealed class CreateUserHandler(
     IPasswordHasher hasher,
     IStudentCodeAllocator codes,
     IPlatformSettingsApi platform,
+    IEventCollector events,
+    ICurrentUser currentUser,
     TimeProvider clock) : IRequestHandler<CreateUserCommand, CreatedUserDto>
 {
     public async Task<CreatedUserDto> Handle(CreateUserCommand command, CancellationToken cancellationToken)
@@ -48,6 +53,14 @@ internal sealed class CreateUserHandler(
         };
 
         db.Users.Add(user);
+        events.Add(new AuditableActionPerformed(
+            Guid.CreateVersion7(),
+            clock.GetUtcNow(),
+            currentUser.UserId,
+            AuditActions.UserCreated,
+            AuditEntities.User,
+            user.Id,
+            $"{user.Role} account created: {user.FullName}{(user.StudentCode is null ? "" : $" ({user.StudentCode})")}."));
 
         return new CreatedUserDto(
             new UserDto(
