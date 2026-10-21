@@ -17,6 +17,9 @@ internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) :
     /// <summary>PostgreSQL error code for a unique-constraint violation.</summary>
     private const string UniqueViolation = "23505";
 
+    /// <summary>PostgreSQL error code for an exclusion-constraint violation (checked at COMMIT when deferred).</summary>
+    private const string ExclusionViolation = "23P01";
+
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         var (status, error) = exception switch
@@ -47,6 +50,13 @@ internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) :
             // Backstop for races the handlers' duplicate checks can't see (two admins at the same moment).
             DbUpdateException { InnerException: PostgresException { SqlState: UniqueViolation } } =>
                 (StatusCodes.Status409Conflict, new ApiError("conflict", "A record with the same unique value already exists.", [])),
+
+            // Rule R1 races: the deferrable exclusion constraint fails at COMMIT, so EF may not wrap it.
+            DbUpdateException { InnerException: PostgresException { SqlState: ExclusionViolation } } =>
+                (StatusCodes.Status409Conflict, new ApiError("conflict", "The change conflicts with an existing record.", [])),
+
+            PostgresException { SqlState: ExclusionViolation } =>
+                (StatusCodes.Status409Conflict, new ApiError("conflict", "The change conflicts with an existing record.", [])),
 
             _ => (StatusCodes.Status500InternalServerError, new ApiError("server_error", "An unexpected error occurred.", [])),
         };
