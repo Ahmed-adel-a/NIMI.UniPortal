@@ -45,7 +45,7 @@ public sealed class FacultySettingsTests
             now: Later);
 
         Assert.Equal(1, settings.WeekStartDay);
-        Assert.Equal([1, 3, 5], settings.WorkingDays);                          // sorted, like the university settings
+        Assert.Equal([1, 3, 5], settings.WorkingDays!);                         // sorted, like the university settings
         Assert.Equal(60m, settings.AttendanceThreshold);
         Assert.Equal(15, settings.LateGraceMinutes);
         Assert.Equal(["P", "F"], settings.GradingScale!.Select(b => b.Grade));  // highest band first, trimmed
