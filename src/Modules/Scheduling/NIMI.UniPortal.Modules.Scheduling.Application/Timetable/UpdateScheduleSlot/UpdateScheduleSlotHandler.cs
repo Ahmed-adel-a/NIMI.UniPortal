@@ -4,6 +4,7 @@ using NIMI.UniPortal.Modules.Scheduling.Application.Abstractions;
 using NIMI.UniPortal.Modules.Users.Contracts;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Security;
 using NIMI.UniPortal.SharedKernel.Validation;
 
 namespace NIMI.UniPortal.Modules.Scheduling.Application.Timetable.UpdateScheduleSlot;
@@ -35,8 +36,11 @@ internal sealed class UpdateScheduleSlotHandler(
             ?? throw ValidationErrors.For(nameof(command.SubjectGroupId), "The group's term is missing.");
 
         if (command.StaffId is { } staffId)
-            _ = await users.GetUserAsync(staffId, cancellationToken)
-                ?? throw ValidationErrors.For(nameof(command.StaffId), "Unknown staff member.");
+        {
+            var staff = await users.GetUserAsync(staffId, cancellationToken);
+            if (staff is null || !staff.IsActive || staff.Role != PortalRoles.Professor)
+                throw ValidationErrors.For(nameof(command.StaffId), "Must be an active professor.");
+        }
 
         var department = await users.GetDepartmentAsync(group.Subject.DepartmentId, cancellationToken)
             ?? throw ValidationErrors.For(nameof(command.SubjectGroupId), "The subject's department is missing.");
