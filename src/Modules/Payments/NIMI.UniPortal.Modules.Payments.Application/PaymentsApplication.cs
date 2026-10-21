@@ -3,6 +3,7 @@ using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Payments.Application.Abstractions;
 using NIMI.UniPortal.Modules.Payments.Application.Behaviors;
 using NIMI.UniPortal.Modules.Payments.Application.Online;
+using NIMI.UniPortal.Modules.Payments.Contracts;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Payments.Application;
@@ -16,6 +17,7 @@ public static class PaymentsApplication
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PaymentsUnitOfWorkBehavior<,>));
         services.AddScoped<IMockPaymentCompleter, MockPaymentCompleter>();
+        services.AddScoped<IPaymentsApi, PaymentsApi>();
         services.AddIntegrationEventHandlers(assembly);   // MilitaryEducationRequested → student fee + notification
         return services;
     }
