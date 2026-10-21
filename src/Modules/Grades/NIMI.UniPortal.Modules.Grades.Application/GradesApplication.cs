@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Grades.Application.Behaviors;
 using NIMI.UniPortal.Modules.Grades.Application.Common;
+using NIMI.UniPortal.Modules.Grades.Contracts;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Grades.Application;
@@ -16,6 +17,7 @@ public static class GradesApplication
         services.AddScoped<GradingAccess>();
         services.AddScoped<GradeScales>();
         services.AddScoped<GroupGradesPresenter>();
+        services.AddScoped<IGradesApi, GradesApi>();
         return services;
     }
 }
