@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Attendance.Application.CheckIn;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.GetSessionQr;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions.LiveRoster;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.ManualEntry;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.OpenSession;
 using NIMI.UniPortal.SharedKernel.Messaging;
@@ -26,7 +27,15 @@ internal static class AttendanceSessionEndpoints
         group.MapGet("/sessions/{id:guid}/qr", GetSessionQr).WithName("GetAttendanceSessionQr");
         group.MapPost("/check-in", CheckIn).WithName("CheckInAttendance");
         group.MapPost("/sessions/{id:guid}/manual", ManualEntry).WithName("ManualAttendanceEntry");
+        group.MapGet("/sessions/{id:guid}/live", GetLiveRoster).WithName("GetLiveAttendanceRoster");
     }
+
+    private static async Task<Ok<LiveRosterDto>> GetLiveRoster(
+        Guid id,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(new GetLiveRosterQuery(id, caller.GetUserId()), cancellationToken));
 
     private static async Task<Created<AttendanceSessionDto>> OpenSession(
         OpenAttendanceSessionRequest request,
