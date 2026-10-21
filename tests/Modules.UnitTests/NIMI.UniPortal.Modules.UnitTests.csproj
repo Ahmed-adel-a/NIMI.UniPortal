@@ -8,6 +8,7 @@
     <ProjectReference Include="..\..\src\Modules\Notifications\NIMI.UniPortal.Modules.Notifications.Domain\NIMI.UniPortal.Modules.Notifications.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Scheduling\NIMI.UniPortal.Modules.Scheduling.Domain\NIMI.UniPortal.Modules.Scheduling.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Lifecycle.CreditHours\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Payments\NIMI.UniPortal.Modules.Payments.Domain\NIMI.UniPortal.Modules.Payments.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
