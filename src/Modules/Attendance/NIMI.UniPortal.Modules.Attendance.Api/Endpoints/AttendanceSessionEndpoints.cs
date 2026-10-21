@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Attendance.Application.CheckIn;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions;
+using NIMI.UniPortal.Modules.Attendance.Application.Sessions.CloseSession;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.GetSessionQr;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.LiveRoster;
 using NIMI.UniPortal.Modules.Attendance.Application.Sessions.ManualEntry;
@@ -28,7 +29,15 @@ internal static class AttendanceSessionEndpoints
         group.MapPost("/check-in", CheckIn).WithName("CheckInAttendance");
         group.MapPost("/sessions/{id:guid}/manual", ManualEntry).WithName("ManualAttendanceEntry");
         group.MapGet("/sessions/{id:guid}/live", GetLiveRoster).WithName("GetLiveAttendanceRoster");
+        group.MapPost("/sessions/{id:guid}/close", CloseSession).WithName("CloseAttendanceSession");
     }
+
+    private static async Task<Ok<CloseSummaryDto>> CloseSession(
+        Guid id,
+        ClaimsPrincipal caller,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+        TypedResults.Ok(await sender.Send(new CloseSessionCommand(id, caller.GetUserId()), cancellationToken));
 
     private static async Task<Ok<LiveRosterDto>> GetLiveRoster(
         Guid id,
