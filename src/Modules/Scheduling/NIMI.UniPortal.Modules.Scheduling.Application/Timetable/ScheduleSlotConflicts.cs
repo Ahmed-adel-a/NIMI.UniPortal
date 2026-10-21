@@ -17,6 +17,7 @@ internal static class ScheduleSlotConflicts
         var candidates = await db.ScheduleSlots.AsNoTracking()
             .Where(s => !s.IsCancelled)
             .Where(s => s.DayOfWeek == candidate.DayOfWeek)
+            .Where(s => s.ValidUntil >= candidate.ValidFrom && s.ValidFrom <= candidate.ValidUntil)
             .Where(s => excludeId == null || s.Id != excludeId)
             .Where(s =>
                 s.FacilityId == candidate.FacilityId ||
