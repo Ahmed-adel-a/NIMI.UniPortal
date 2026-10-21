@@ -23,6 +23,7 @@ public static class GradesModule
     {
         GroupGradeEndpoints.Map(endpoints);
         PublishingEndpoints.Map(endpoints);
+        MyGradesEndpoints.Map(endpoints);
         return endpoints;
     }
 }
