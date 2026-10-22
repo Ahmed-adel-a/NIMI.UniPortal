@@ -1,0 +1,80 @@
+# Events (P11, premium — Cairo bought it) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development) is the same as users.http. Student Affairs runs events; members (students and
+# teaching staff) of the event's audience register themselves.
+
+@host = http://localhost:5080
+@adminToken = paste-the-admin-token-here
+@studentToken = paste-a-students-token-here
+@eventId = paste-the-id-from-the-create-here
+@userId = paste-a-registered-members-id-here
+
+### Student Affairs: draft an event (facultyId null = whole university; capacity null = unlimited)
+POST {{host}}/api/admin/events
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "Career fair",
+  "description": "Meet 40 companies.",
+  "facultyId": null,
+  "venue": "Main hall",
+  "startsAt": "2026-11-20T08:00:00Z",
+  "endsAt": "2026-11-20T12:00:00Z",
+  "capacity": 300,
+  "registrationDeadline": "2026-11-19T20:00:00Z"
+}
+
+### Publish it (no notification — the event list is the channel)
+POST {{host}}/api/admin/events/{{eventId}}/publish
+Authorization: Bearer {{adminToken}}
+
+### Members: upcoming events of their audience, with seats left and their own status
+GET {{host}}/api/events
+Authorization: Bearer {{studentToken}}
+
+### Register (409 when full, closed or already registered) — and cancel until the start
+POST {{host}}/api/events/{{eventId}}/registrations
+Authorization: Bearer {{studentToken}}
+
+###
+DELETE {{host}}/api/events/{{eventId}}/registrations/mine
+Authorization: Bearer {{studentToken}}
+
+### My events
+GET {{host}}/api/events/mine
+Authorization: Bearer {{studentToken}}
+
+### Student Affairs: move it (a new time or venue notifies registrants)
+PUT {{host}}/api/admin/events/{{eventId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "Career fair",
+  "description": "Meet 40 companies.",
+  "facultyId": null,
+  "venue": "Hall 7",
+  "startsAt": "2026-11-20T08:00:00Z",
+  "endsAt": "2026-11-20T12:00:00Z",
+  "capacity": 300,
+  "registrationDeadline": "2026-11-19T20:00:00Z"
+}
+
+### Attendees, and check-in (from an hour before the start until the end)
+GET {{host}}/api/admin/events/{{eventId}}/registrations
+Authorization: Bearer {{adminToken}}
+
+###
+POST {{host}}/api/admin/events/{{eventId}}/check-in
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "userId": "{{userId}}" }
+
+### Cancel the event (registrants are notified with the reason)
+POST {{host}}/api/admin/events/{{eventId}}/cancel
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "reason": "Venue unavailable" }
