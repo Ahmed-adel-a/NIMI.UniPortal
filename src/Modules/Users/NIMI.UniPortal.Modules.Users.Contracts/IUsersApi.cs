@@ -12,6 +12,12 @@ public interface IUsersApi
 
     Task<DepartmentRef?> GetDepartmentAsync(Guid departmentId, CancellationToken cancellationToken = default);
 
+    /// <summary>Every faculty, ordered by code (decision LIFECYCLEDEPT: academic systems per faculty).</summary>
+    Task<IReadOnlyList<FacultyRef>> GetFacultiesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Every department, or those of one faculty, ordered by code.</summary>
+    Task<IReadOnlyList<DepartmentRef>> GetDepartmentsAsync(Guid? facultyId, CancellationToken cancellationToken = default);
+
     Task<UserRef?> GetUserAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>Active students only; a department filter wins over a faculty filter, both null means the university.</summary>

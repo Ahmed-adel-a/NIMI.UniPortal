@@ -14,4 +14,5 @@ public static class AuditEntities
     public const string ScheduleSlot = "schedule_slot";
     public const string Department = "department";
     public const string PromotionPolicy = "promotion_policy";
+    public const string AcademicSystemRule = "academic_system_rule";
 }

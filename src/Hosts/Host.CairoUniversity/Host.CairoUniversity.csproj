@@ -8,8 +8,6 @@
   <ItemGroup>
     <!-- Shared plumbing + the core modules + dashboards (every deployment). -->
     <ProjectReference Include="..\NIMI.UniPortal.Hosting\NIMI.UniPortal.Hosting.csproj" />
-    <!-- Decision LIFECYCLE: this deployment composes exactly one lifecycle variant (rule: HostCompositionTests). -->
-    <ProjectReference Include="..\..\Modules\Lifecycle.CreditHours\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api.csproj" />
     <!-- Premium modules Cairo bought (P11): Forum + Events. Library is not referenced. -->
     <ProjectReference Include="..\..\Modules\Forum\NIMI.UniPortal.Modules.Forum.Api\NIMI.UniPortal.Modules.Forum.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Events\NIMI.UniPortal.Modules.Events.Api\NIMI.UniPortal.Modules.Events.Api.csproj" />

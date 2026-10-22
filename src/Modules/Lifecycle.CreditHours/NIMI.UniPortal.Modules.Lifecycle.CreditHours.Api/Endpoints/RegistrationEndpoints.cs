@@ -8,8 +8,6 @@ using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Registration.Drop
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Registration.GetMyRegistrations;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Registration.GetOfferings;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Registration.RegisterForSubject;
-using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Progress;
-using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Progress.GetProgress;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Paging;
 using NIMI.UniPortal.SharedKernel.Security;
@@ -27,7 +25,6 @@ internal static class RegistrationEndpoints
 
         group.MapGet("/offerings", GetOfferings).WithName("GetRegistrationOfferings");
         group.MapGet("/mine", GetMyRegistrations).WithName("GetMyRegistrations");
-        group.MapGet("/progress", GetProgress).WithName("GetStudentProgress");
         group.MapPost("", Register).WithName("RegisterForSubject");
         group.MapDelete("/{registrationId:guid}", Drop).WithName("DropRegistration");
     }
@@ -55,15 +52,6 @@ internal static class RegistrationEndpoints
         TypedResults.Ok(await sender.Send(
             new GetMyRegistrationsQuery(
                 caller.GetUserId(), caller.IsInRole(PortalRoles.Student), termId),
-            cancellationToken));
-
-    private static async Task<Ok<StudentProgressDto>> GetProgress(
-        ClaimsPrincipal caller,
-        ISender sender,
-        CancellationToken cancellationToken) =>
-        TypedResults.Ok(await sender.Send(
-            new GetProgressQuery(
-                caller.GetUserId(), caller.IsInRole(PortalRoles.Student)),
             cancellationToken));
 
     private static async Task<Created<RegistrationDto>> Register(

@@ -8,7 +8,10 @@ using NIMI.UniPortal.SharedKernel.Persistence;
 
 namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
 
-/// <summary>Decision LIFECYCLE: the CreditHours variant composed by Host.CairoUniversity (one variant per host).</summary>
+/// <summary>
+/// Decision LIFECYCLEDEPT: the credit-hours variant, installed in every deployment next to the year-group one. The shared
+/// student routes (schedule, rosters, progress) live in the host and ask the lifecycle router.
+/// </summary>
 public static class CreditHoursModule
 {
     public static IServiceCollection AddCreditHoursModule(this IServiceCollection services)
@@ -26,8 +29,6 @@ public static class CreditHoursModule
         RegistrationWindowEndpoints.Map(endpoints);
         PrerequisiteEndpoints.Map(endpoints);
         RegistrationEndpoints.Map(endpoints);
-        RosterEndpoints.Map(endpoints);
-        StudentScheduleEndpoints.Map(endpoints);
         MilitaryEducationEndpoints.Map(endpoints);
         GraduationEndpoints.Map(endpoints);
         return endpoints;

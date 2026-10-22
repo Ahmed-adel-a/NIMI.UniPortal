@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Platform.Application.AcademicSystems;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -21,6 +22,12 @@ public static class PlatformModule
     public static IServiceCollection AddPlatformModule(this IServiceCollection services)
     {
         services.AddPlatformApplication();
+        // Decision LIFECYCLEDEPT: the academic system where Student Affairs set none (Platform:DefaultAcademicSystem).
+        services.AddOptions<AcademicSystemDefaults>().Configure<IConfiguration>((defaults, configuration) =>
+        {
+            if (!string.IsNullOrWhiteSpace(configuration["Platform:DefaultAcademicSystem"]))
+                defaults.Default = configuration["Platform:DefaultAcademicSystem"]!;
+        });
         services.AddPlatformInfrastructure(provider =>
             provider.GetRequiredService<IConfiguration>().GetConnectionString(PortalDatabase.ConnectionStringName)
             ?? throw new InvalidOperationException($"Connection string '{PortalDatabase.ConnectionStringName}' is not configured."));
@@ -48,6 +55,9 @@ public static class PlatformModule
 
         // Effective rules for any signed-in user (P1.4).
         EffectiveSettingsEndpoints.Map(endpoints);
+
+        // Academic system per department / faculty / university (decision LIFECYCLEDEPT).
+        AcademicSystemEndpoints.Map(endpoints);
 
         return endpoints;
     }

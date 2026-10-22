@@ -12,13 +12,16 @@ using NIMI.UniPortal.SharedKernel.Validation;
 namespace NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Standings;
 
 internal sealed class PlaceStudentHandler(
-    ISemesterDbContext db, IUsersApi users, IEventCollector events, ICurrentUser currentUser, TimeProvider clock)
+    ISemesterDbContext db, IUsersApi users, YearGroupStudents yearGroups, IEventCollector events, ICurrentUser currentUser,
+    TimeProvider clock)
     : IRequestHandler<PlaceStudentCommand, StandingDto>
 {
     public async Task<StandingDto> Handle(PlaceStudentCommand command, CancellationToken cancellationToken)
     {
         var placement = await users.GetStudentPlacementAsync(command.StudentId, cancellationToken)
             ?? throw new NotFoundException($"No student with id '{command.StudentId}'.");
+        if (!await yearGroups.IsYearGroupDepartmentAsync(placement.DepartmentId, cancellationToken))
+            throw ValidationErrors.For("studentId", "The student's department runs credit hours, not year groups.");
 
         var plan = await db.StudyPlans.AsNoTracking()
             .SingleOrDefaultAsync(p => p.DepartmentId == placement.DepartmentId, cancellationToken)

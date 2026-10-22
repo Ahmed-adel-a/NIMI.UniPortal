@@ -38,6 +38,9 @@
     <ProjectReference Include="..\..\Modules\Grades\NIMI.UniPortal.Modules.Grades.Api\NIMI.UniPortal.Modules.Grades.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Audit\NIMI.UniPortal.Modules.Audit.Api\NIMI.UniPortal.Modules.Audit.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Payments\NIMI.UniPortal.Modules.Payments.Api\NIMI.UniPortal.Modules.Payments.Api.csproj" />
+    <!-- Decision LIFECYCLEDEPT: both academic systems in every deployment; each department picks one. -->
+    <ProjectReference Include="..\..\Modules\Lifecycle.CreditHours\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Lifecycle.SemesterBased\NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Api\NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,8 +9,8 @@ using NIMI.UniPortal.SharedKernel.Persistence;
 namespace NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Api;
 
 /// <summary>
-/// Decision LIFECYCLE: the SemesterBased (نظام الفرق) variant, composed by the reference host. Student-facing routes
-/// (schedule, rosters, progress) are the same as CreditHours, so one frontend serves both variants.
+/// Decision LIFECYCLEDEPT: the year-group (نظام الفرق) variant, installed in every deployment next to the credit-hours one.
+/// The shared student routes (schedule, rosters, progress) live in the host and ask the lifecycle router.
 /// </summary>
 public static class SemesterModule
 {
@@ -31,9 +31,6 @@ public static class SemesterModule
         StandingEndpoints.Map(endpoints);
         TermEnrollmentEndpoints.Map(endpoints);
         PromotionEndpoints.Map(endpoints);
-        RosterEndpoints.Map(endpoints);
-        StudentScheduleEndpoints.Map(endpoints);
-        ProgressEndpoints.Map(endpoints);
         return endpoints;
     }
 }

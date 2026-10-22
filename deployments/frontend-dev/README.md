@@ -76,6 +76,11 @@ What the demo campus holds:
   `<frontend>/reset-password?token=…` (valid 30 minutes, once). Your page posts `{ "token", "newPassword" }` to
   `POST /api/auth/reset-password` (204). No real email is sent in this setup: read it as Student Affairs at
   `GET /api/admin/dev/emails?to=<address>`.
+- **Academic system:** `GET /api/auth/me` returns `academicSystem` for the signed-in user's department. With
+  `credit_hours` the student registers themselves (`/api/registration/offerings`, `POST /api/registration`); with
+  `year_groups` Student Affairs places them and they see their year at `GET /api/standing`. Schedule, progress and
+  rosters are the same for both. In the demo, Engineering runs credit hours and Commerce (Accounting: `sara.ali@…`)
+  runs year groups.
 - **Errors** always have the same shape: `{ "code", "message", "details": [{ "field", "error" }] }`. The codes are
   400 `validation_failed` / `invalid_value` / `bad_request`, 401 (`invalid_credentials` on login), 403 `forbidden` /
   `password_change_required`, 404 `not_found`, 409 `conflict`, 429 `rate_limited` and 500 `server_error`.

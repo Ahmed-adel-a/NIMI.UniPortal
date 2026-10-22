@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Platform.Domain.AcademicSystems;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NIMI.UniPortal.Modules.Platform.Domain.Settings;
@@ -10,6 +11,8 @@ public interface IPlatformDbContext
     DbSet<SystemSettings> SystemSettings { get; }
 
     DbSet<FacultySettings> FacultySettings { get; }
+
+    DbSet<AcademicSystemRule> AcademicSystemRules { get; }
 
     /// <summary>Needed to set the expected row version (optimistic concurrency) before saving.</summary>
     EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;

@@ -11,4 +11,10 @@ public interface IPlatformSettingsApi
 
     /// <summary>The rules that effectively apply to a faculty, or to the whole university when <paramref name="facultyId"/> is null.</summary>
     Task<EffectiveSettings> GetEffectiveSettingsAsync(Guid? facultyId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Decision LIFECYCLEDEPT: the academic system a department runs (<see cref="AcademicSystems"/>): its own rule, else its
+    /// faculty's, else the university's, else the deployment default. Null asks for the university-wide value.
+    /// </summary>
+    Task<string> GetAcademicSystemAsync(Guid? departmentId, CancellationToken cancellationToken = default);
 }

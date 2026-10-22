@@ -8,6 +8,7 @@ using NIMI.UniPortal.Hosting.Documents;
 using NIMI.UniPortal.Hosting.Errors;
 using NIMI.UniPortal.Hosting.FrontendAccess;
 using NIMI.UniPortal.Hosting.Health;
+using NIMI.UniPortal.Hosting.Lifecycle;
 using NIMI.UniPortal.Hosting.Security;
 using NIMI.UniPortal.Hosting.Storage;
 using NIMI.UniPortal.Modules.Announcements.Api;
@@ -27,9 +28,9 @@ using NIMI.UniPortal.SharedKernel.Security;
 namespace NIMI.UniPortal.Hosting;
 
 /// <summary>
-/// What every deployment composes: cross-cutting services, the core modules and the dashboards. A host's Program adds
-/// its one lifecycle variant and the premium modules it sells — between <see cref="AddPortalCore"/> and Build, and
-/// between <see cref="UsePortalCoreAsync"/> and Run.
+/// What every deployment composes: cross-cutting services, the core modules, both academic systems behind the lifecycle
+/// router (decision LIFECYCLEDEPT) and the dashboards. A host's Program adds the premium modules it sells — between
+/// <see cref="AddPortalCore"/> and Build, and between <see cref="UsePortalCoreAsync"/> and Run.
 /// </summary>
 public static class PortalCore
 {
@@ -63,6 +64,7 @@ public static class PortalCore
         builder.Services.AddGradesModule();
         builder.Services.AddAuditModule();
         builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
+        builder.Services.AddLifecycle();                 // both academic systems + the router (LIFECYCLEDEPT)
         builder.Services.AddDashboards();                // P10: host-level dashboards over module contracts
         builder.Services.AddDocuments();                 // printable PDFs over module queries (PDFDOCS)
         builder.Services.AddDemoData(builder.Configuration);   // Development only, Seed:DemoData (DEVDOCKER)
@@ -98,6 +100,7 @@ public static class PortalCore
         app.MapGradesEndpoints();
         app.MapAuditEndpoints();
         app.MapPaymentsEndpoints();
+        app.MapLifecycleEndpoints();
         app.MapDashboardEndpoints();
         app.MapDocumentEndpoints();
         app.MapApiDocs();

@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Common;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Results;
@@ -11,9 +12,11 @@ namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Graduation;
 /// <summary>
 /// P9.4 — rule R6 (MILEDU, GRADREQ): eligible ⇔ the department has a requirement, earned credits reach it, and
 /// every graduation-requirement subject (military education included) is passed. Students come from Users, one page
-/// at a time; ledger rows and requirements are read for that page only.
+/// at a time; ledger rows and requirements are read for that page only. Decision LIFECYCLEDEPT: only students of
+/// credit-hours departments are listed (year-group graduation is decided by promotion).
 /// </summary>
-internal sealed class GraduationEligibilityHandler(ICreditHoursDbContext db, IUsersApi users, ISchedulingApi scheduling)
+internal sealed class GraduationEligibilityHandler(
+    ICreditHoursDbContext db, IUsersApi users, ISchedulingApi scheduling, CreditHoursStudents creditHours)
     : IRequestHandler<GraduationEligibilityQuery, PagedResult<GraduationEligibilityDto>>
 {
     public const string NotConfigured = "requirement_not_configured";
@@ -22,7 +25,7 @@ internal sealed class GraduationEligibilityHandler(ICreditHoursDbContext db, IUs
 
     public async Task<PagedResult<GraduationEligibilityDto>> Handle(GraduationEligibilityQuery query, CancellationToken cancellationToken)
     {
-        var page = await users.GetStudentsAsync(query.FacultyId, query.DepartmentId, query.Paging, cancellationToken);
+        var page = await StudentsAsync(query, cancellationToken);
         var studentIds = page.Items.Select(s => s.StudentId).ToList();
         var departmentIds = page.Items.Select(s => s.DepartmentId).Distinct().ToList();
 
@@ -69,5 +72,41 @@ internal sealed class GraduationEligibilityHandler(ICreditHoursDbContext db, IUs
         }).ToList();
 
         return new PagedResult<GraduationEligibilityDto>(items, page.Page, page.PageSize, page.TotalCount);
+    }
+
+    /// <summary>
+    /// The scope's credit-hours students. When every department in scope runs credit hours (the usual case), Users
+    /// pages them directly; otherwise the credit-hours departments' students are gathered and paged here.
+    /// </summary>
+    private async Task<PagedResult<StudentRef>> StudentsAsync(GraduationEligibilityQuery query, CancellationToken cancellationToken)
+    {
+        IReadOnlyList<DepartmentRef> departments = query.DepartmentId is { } departmentId
+            ? [.. new[] { await users.GetDepartmentAsync(departmentId, cancellationToken) }.OfType<DepartmentRef>()]
+            : await users.GetDepartmentsAsync(query.FacultyId, cancellationToken);
+        var credit = new List<DepartmentRef>();
+        foreach (var department in departments)
+        {
+            if (await creditHours.IsCreditHoursDepartmentAsync(department.Id, cancellationToken))
+                credit.Add(department);
+        }
+
+        if (credit.Count == departments.Count)
+            return await users.GetStudentsAsync(query.FacultyId, query.DepartmentId, query.Paging, cancellationToken);
+
+        var all = new List<StudentRef>();
+        foreach (var department in credit)
+        {
+            for (var number = 1; ; number++)
+            {
+                var chunk = await users.GetStudentsAsync(null, department.Id, new PageRequest(number, PageRequest.MaxPageSize), cancellationToken);
+                all.AddRange(chunk.Items);
+                if (number >= chunk.TotalPages)
+                    break;
+            }
+        }
+
+        var ordered = all.OrderBy(s => s.StudentCode, StringComparer.Ordinal).ThenBy(s => s.StudentId).ToList();
+        return new PagedResult<StudentRef>(
+            [.. ordered.Skip(query.Paging.Skip).Take(query.Paging.PageSize)], query.Paging.Page, query.Paging.PageSize, ordered.Count);
     }
 }
