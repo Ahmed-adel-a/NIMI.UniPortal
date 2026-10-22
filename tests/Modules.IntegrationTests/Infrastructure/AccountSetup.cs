@@ -14,7 +14,7 @@ internal static class AccountSetup
     private const string NewPassword = "Portal!Pass2026";
 
     public static Task<(Guid Id, string Token)> CreateStudentWithTokenAsync(
-        PortalWebAppFactory factory, HttpClient admin, Guid departmentId, string email) =>
+        IPortalHost factory, HttpClient admin, Guid departmentId, string email) =>
         CreateWithTokenAsync(factory, admin, email, new
         {
             role = "student",
@@ -26,7 +26,7 @@ internal static class AccountSetup
         });
 
     public static Task<(Guid Id, string Token)> CreateProfessorWithTokenAsync(
-        PortalWebAppFactory factory, HttpClient admin, Guid departmentId, string email) =>
+        IPortalHost factory, HttpClient admin, Guid departmentId, string email) =>
         CreateWithTokenAsync(factory, admin, email, new
         {
             role = "professor",
@@ -37,7 +37,7 @@ internal static class AccountSetup
         });
 
     private static async Task<(Guid Id, string Token)> CreateWithTokenAsync(
-        PortalWebAppFactory factory, HttpClient admin, string email, object body)
+        IPortalHost factory, HttpClient admin, string email, object body)
     {
         var created = await admin.PostAsJsonAsync("/api/admin/users", body);
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
