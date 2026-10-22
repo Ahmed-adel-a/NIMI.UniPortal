@@ -4,6 +4,20 @@
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Domain\NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Domain.csproj" />
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Contracts\NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.EventBus\NIMI.UniPortal.EventBus.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.Abstractions\NIMI.UniPortal.Abstractions.csproj" />
+    <!-- Cross-module: Contracts only (terms/groups/offerings/slots, students and departments, balances, published grades,
+         notifications, audit). -->
+    <ProjectReference Include="..\..\Scheduling\NIMI.UniPortal.Modules.Scheduling.Contracts\NIMI.UniPortal.Modules.Scheduling.Contracts.csproj" />
+    <ProjectReference Include="..\..\Users\NIMI.UniPortal.Modules.Users.Contracts\NIMI.UniPortal.Modules.Users.Contracts.csproj" />
+    <ProjectReference Include="..\..\Payments\NIMI.UniPortal.Modules.Payments.Contracts\NIMI.UniPortal.Modules.Payments.Contracts.csproj" />
+    <ProjectReference Include="..\..\Grades\NIMI.UniPortal.Modules.Grades.Contracts\NIMI.UniPortal.Modules.Grades.Contracts.csproj" />
+    <ProjectReference Include="..\..\Notifications\NIMI.UniPortal.Modules.Notifications.Contracts\NIMI.UniPortal.Modules.Notifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\Audit\NIMI.UniPortal.Modules.Audit.Contracts\NIMI.UniPortal.Modules.Audit.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 
 </Project>

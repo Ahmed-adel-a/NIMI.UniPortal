@@ -16,4 +16,9 @@ public static class AuditActions
     public const string DeviceChangeDecided = "device_change.decided";
     public const string ScheduleSlotUpdated = "schedule_slot.updated";
     public const string ScheduleSlotCancelled = "schedule_slot.cancelled";
+    public const string StudyPlanSaved = "study_plan.saved";
+    public const string PromotionPolicyUpdated = "promotion_policy.updated";
+    public const string PromotionPolicyRemoved = "promotion_policy.removed";
+    public const string StandingPlaced = "standing.placed";
+    public const string PromotionOverridden = "promotion.overridden";
 }
