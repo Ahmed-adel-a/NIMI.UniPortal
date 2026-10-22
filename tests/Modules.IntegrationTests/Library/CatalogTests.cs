@@ -23,7 +23,8 @@ public sealed class CatalogTests(ReferenceHostFactory factory) : ReferenceHostTe
         var bookId = (Guid)book["id"]!;
         Assert.Equal(HttpStatusCode.Created, (await AddCopyAsync(Admin(), bookId, "LIB-0001")).StatusCode);
         Assert.Equal(HttpStatusCode.Created, (await AddCopyAsync(Admin(), bookId, "LIB-0002")).StatusCode);
-        await BookWithCopiesAsync(Admin(), "Database System Concepts", "9780078022159", "LIB-0100");
+        var other = await AddBookAsync(Admin(), "Database System Concepts", "9780078022159", authors: "Silberschatz, Korth, Sudarshan");
+        Assert.Equal(HttpStatusCode.Created, (await AddCopyAsync(Admin(), (Guid)(await BodyOf(other))["id"]!, "LIB-0100")).StatusCode);
 
         foreach (var search in new[] { "algorithms", "Leiserson", "9780262046305" })
         {
