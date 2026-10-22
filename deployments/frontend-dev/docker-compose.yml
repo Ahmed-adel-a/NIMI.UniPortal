@@ -1,0 +1,47 @@
+# The backend for frontend development (decision DEVDOCKER): the published API image + PostgreSQL 18.
+# Needs only Docker Desktop. Start:  docker compose up -d   ·   API: http://localhost:8080   ·   Docs: http://localhost:8080/docs
+# On first start the API creates its tables and fills a demo campus (see README.md for the accounts).
+# Everything here is for a local machine only — never use these values on a server.
+name: nimi-uniportal
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: portal
+      POSTGRES_PASSWORD: portal-local-only
+      POSTGRES_DB: nimi_portal
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portal -d nimi_portal"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  api:
+    image: ghcr.io/ahmed-adel-a/nimi-uniportal-cairo:${API_TAG:-dev}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development          # API docs, demo data, mock payment gateway
+      ConnectionStrings__Portal: Host=db;Port=5432;Database=nimi_portal;Username=portal;Password=portal-local-only
+      Database__ApplyMigrationsOnStartup: "true"
+      Seed__DemoData: "true"
+      Seed__DemoPassword: ${DEMO_PASSWORD:-Demo@2026}
+      Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN:-http://localhost:5173}
+      Cors__AllowedOrigins__1: http://localhost:3000
+      # Empty = a new random key on every start (sign in again after a restart). Set JWT_SIGNING_KEY in a .env
+      # file next to this one (≥ 32 bytes, base64) to keep tokens valid across restarts.
+      Auth__Jwt__SigningKey: ${JWT_SIGNING_KEY:-}
+    volumes:
+      - files:/data/files
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  files:
