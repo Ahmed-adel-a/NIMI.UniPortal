@@ -7,6 +7,9 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.EventBus\NIMI.UniPortal.EventBus.csproj" />
     <!-- Premium module: reads core Contracts only (members and faculties, notifications); core never references it. -->
     <ProjectReference Include="..\..\Users\NIMI.UniPortal.Modules.Users.Contracts\NIMI.UniPortal.Modules.Users.Contracts.csproj" />
+    <!-- Digital library (DIGILIB): e-book files in the host's file storage; books may name a catalog subject. -->
+    <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.Abstractions\NIMI.UniPortal.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Scheduling\NIMI.UniPortal.Modules.Scheduling.Contracts\NIMI.UniPortal.Modules.Scheduling.Contracts.csproj" />
     <ProjectReference Include="..\..\Notifications\NIMI.UniPortal.Modules.Notifications.Contracts\NIMI.UniPortal.Modules.Notifications.Contracts.csproj" />
   </ItemGroup>
 
