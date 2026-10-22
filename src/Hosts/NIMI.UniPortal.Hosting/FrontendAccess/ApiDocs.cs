@@ -24,5 +24,11 @@ internal static class ApiDocs
         app.MapScalarApiReference("/docs", options => options
             .WithTitle("NIMI UniPortal API")
             .AddPreferredSecuritySchemes(BearerSecuritySchemeTransformer.SchemeName));
+
+        // The bare address (e.g. http://localhost:8080) opens the docs.
+        app.MapGet("/", () => Results.Redirect("/docs")).ExcludeFromDescription();
+
+        app.Lifetime.ApplicationStarted.Register(() =>
+            app.Logger.LogInformation("API docs (Scalar): /docs, e.g. http://localhost:8080/docs with the frontend-dev compose file."));
     }
 }
