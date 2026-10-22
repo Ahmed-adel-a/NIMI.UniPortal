@@ -8,5 +8,7 @@ public interface INotificationsDbContext
 {
     DbSet<Notification> Notifications { get; }
 
+    DbSet<OutboundEmail> OutboundEmails { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

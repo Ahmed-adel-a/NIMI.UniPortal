@@ -135,6 +135,19 @@ public sealed class User
         UpdatedAt = now;
     }
 
+    /// <summary>
+    /// The user proved control of their email ("forgot password"): their own new password, no forced change, and the
+    /// lockout cleared.
+    /// </summary>
+    public void ResetPasswordByEmail(string newPasswordHash, DateTimeOffset now)
+    {
+        PasswordHash = RequiredHash(newPasswordHash);
+        MustChangePassword = false;
+        FailedLoginCount = 0;
+        LockedUntil = null;
+        UpdatedAt = now;
+    }
+
     /// <summary>Admin reset: a new temporary password, forced change, lockout cleared.</summary>
     public void ResetPassword(string temporaryPasswordHash, DateTimeOffset now)
     {

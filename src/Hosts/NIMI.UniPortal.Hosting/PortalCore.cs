@@ -53,7 +53,7 @@ public static class PortalCore
         // ── Core modules ───────────────────────────────────────────────
         builder.Services.AddPlatformModule();
         builder.Services.AddUsersModule();
-        builder.Services.AddNotificationsModule();
+        builder.Services.AddNotificationsModule(builder.Configuration, builder.Environment);
         builder.Services.AddSchedulingModule();
         builder.Services.AddAttendanceModule();
         builder.Services.AddMaterialsModule();

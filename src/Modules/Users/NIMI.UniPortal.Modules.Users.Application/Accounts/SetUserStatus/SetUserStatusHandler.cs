@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
+using NIMI.UniPortal.Modules.Users.Application.Auth;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Security;
@@ -21,6 +22,8 @@ internal sealed class SetUserStatusHandler(IUsersDbContext db, IEventCollector e
             ?? throw new NotFoundException("User not found.");
 
         user.SetActive(command.IsActive, clock.GetUtcNow());
+        if (!command.IsActive)
+            await Sessions.RevokeAllAsync(db, user.Id, clock.GetUtcNow(), cancellationToken);
         events.Add(new AuditableActionPerformed(
             Guid.CreateVersion7(),
             clock.GetUtcNow(),

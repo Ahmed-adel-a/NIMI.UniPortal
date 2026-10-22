@@ -35,6 +35,7 @@ services:
       Seed__DemoPassword: ${DEMO_PASSWORD:-Demo@2026}
       Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN:-http://localhost:5173}
       Cors__AllowedOrigins__1: http://localhost:3000
+      App__FrontendUrl: ${FRONTEND_ORIGIN:-http://localhost:5173}   # where emailed links point
       # Empty = a new random key on every start (sign in again after a restart). Set JWT_SIGNING_KEY in a .env
       # file next to this one (≥ 32 bytes, base64) to keep tokens valid across restarts.
       Auth__Jwt__SigningKey: ${JWT_SIGNING_KEY:-}

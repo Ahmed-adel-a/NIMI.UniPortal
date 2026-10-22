@@ -137,6 +137,8 @@ public abstract class PortalHostFactory<TEntryPoint> : WebApplicationFactory<TEn
         // The React dev server's origin and the API docs, as a frontend developer's container has them.
         builder.UseSetting("Cors:AllowedOrigins:0", "http://localhost:5173");
         builder.UseSetting("ApiDocs:Enabled", "true");
+        // Emails stay in the outbox (no mail server); tests read reset links from it (decision ACCOUNTX).
+        builder.UseSetting("Email:ExposeOutbox", "true");
 
         builder.ConfigureTestServices(services =>
         {
