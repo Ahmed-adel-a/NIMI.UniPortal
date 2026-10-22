@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Common;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.EventBus;
@@ -23,7 +24,8 @@ internal sealed class AssignMilitaryEducationHandler(
     ISchedulingApi scheduling,
     IUsersApi users,
     IEventCollector events,
-    TimeProvider clock)
+    TimeProvider clock,
+    CreditHoursStudents creditHours)
     : IRequestHandler<AssignMilitaryEducationCommand, MilitaryEducationAssignmentDto>
 {
     private const string Field = "subjectGroupId";
@@ -45,8 +47,13 @@ internal sealed class AssignMilitaryEducationHandler(
             throw ValidationErrors.For(Field, "This group is not a military-education group.");
 
         var students = new Dictionary<Guid, UserRef?>();
+        var onCreditHours = new HashSet<Guid>();
         foreach (var studentId in command.StudentIds.Distinct())
+        {
             students[studentId] = await users.GetUserAsync(studentId, cancellationToken);
+            if (await creditHours.IsOnCreditHoursAsync(studentId, cancellationToken))
+                onCreditHours.Add(studentId);
+        }
 
         var existing = await db.CourseRegistrations.AsNoTracking()
             .Where(r => command.StudentIds.Contains(r.StudentId) &&
@@ -72,6 +79,13 @@ internal sealed class AssignMilitaryEducationHandler(
                 if (student is null || student.Role != PortalRoles.Student || !student.IsActive)
                 {
                     results.Add(new MilitaryEducationAssignmentResultDto(studentId, "not_a_student", null));
+                    continue;
+                }
+
+                // Decision LIFECYCLEDEPT: military education is a credit-hours registration; year-group students are not assigned here.
+                if (!onCreditHours.Contains(studentId))
+                {
+                    results.Add(new MilitaryEducationAssignmentResultDto(studentId, "other_academic_system", null));
                     continue;
                 }
 

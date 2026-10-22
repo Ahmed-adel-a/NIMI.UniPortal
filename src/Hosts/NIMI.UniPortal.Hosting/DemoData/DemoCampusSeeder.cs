@@ -1,3 +1,12 @@
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Graduation;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Prerequisites.SetSubjectPrerequisites;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Registration.RegisterForSubject;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.RegistrationWindows.CreateRegistrationWindow;
+using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Enrollment;
+using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Plans;
+using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Domain.Plans;
+using NIMI.UniPortal.Modules.Platform.Application.AcademicSystems;
+using Systems = NIMI.UniPortal.Modules.Platform.Contracts.AcademicSystems;
 using System.Text;
 using NIMI.UniPortal.Modules.Announcements.Application.Post;
 using NIMI.UniPortal.Modules.Announcements.Domain;
@@ -36,8 +45,8 @@ namespace NIMI.UniPortal.Hosting.DemoData;
 /// professors and students (one demo password, one student still on a forced change), registrations, fees and a
 /// payment, announcements, an assignment and a material. Everything goes through the real commands, so every rule
 /// holds and the usual notifications and audit entries appear. Runs only on an empty campus (no term, no students).
-/// Enrolment belongs to the host's lifecycle variant: its <see cref="IDemoEnrollment"/> places the students (none
-/// registered = the campus stays without rosters).
+/// Decision LIFECYCLEDEPT: Engineering runs credit hours (students registered in an open window) and Commerce runs
+/// year groups (a study plan and a generated term), so both academic systems are on show.
 /// </summary>
 public sealed class DemoCampusSeeder(
     ISender sender,
@@ -46,8 +55,7 @@ public sealed class DemoCampusSeeder(
     TimeProvider clock,
     DemoDataOptions options,
     DemoCampus campus,
-    ILogger<DemoCampusSeeder> logger,
-    IDemoEnrollment? enrollment = null) : IModuleSeeder
+    ILogger<DemoCampusSeeder> logger) : IModuleSeeder
 {
     private const string Domain = "@demo.cu.edu.eg";
 
@@ -152,20 +160,29 @@ public sealed class DemoCampusSeeder(
         await SlotAsync(circuits1, hallA1.Id, karim, 2, "11:00", "12:30", Recurrence.Weekly, startsOn, admin, ct);
         await SlotAsync(principles1, hallB2.Id, salma, 1, "09:00", "10:30", Recurrence.Weekly, startsOn, admin, ct);
 
-        // ── Enrolment, by the host's lifecycle variant ────────────────────
-        campus.AdminId = admin;
-        campus.TermId = term.Id;
-        campus.ComputerDepartmentId = computer.Id;
-        // Nobody has passed CSE101 yet, so CSE301 shows up with a "Missing prerequisite" reason.
-        campus.Prerequisites = [(algorithms, programming)];
-        campus.Placements =
-        [
-            .. computerStudents.SelectMany(s => new[] { (s, programming1), (s, logic1) }),
-            .. powerStudents.SelectMany(s => new[] { (s, programming2), (s, circuits1) }),
-            .. accountingStudents.Select(s => (s, principles1)),
-        ];
-        if (enrollment is not null)
-            await enrollment.EnrollAsync(campus, ct);
+        // ── Academic systems: credit hours by default, year groups in Commerce ──
+        await sender.Send(new SetAcademicSystemCommand(null, null, Systems.CreditHours), ct);
+        await sender.Send(new SetAcademicSystemCommand(commerce.Id, null, Systems.YearGroups), ct);
+
+        // Credit hours (Engineering): students registered themselves in a window that is still open. Nobody has passed
+        // CSE101 yet, so CSE301 shows up with a "Missing prerequisite" reason.
+        await sender.Send(new SetSubjectPrerequisitesCommand(algorithms, [programming]), ct);
+        await sender.Send(new CreateRegistrationWindowCommand(term.Id, now.AddDays(-7), now.AddDays(30), 6, 18), ct);
+        foreach (var student in computerStudents)
+        {
+            await RegisterAsync(student, programming1, ct);
+            await RegisterAsync(student, logic1, ct);
+        }
+        foreach (var student in powerStudents)
+        {
+            await RegisterAsync(student, programming2, ct);
+            await RegisterAsync(student, circuits1, ct);
+        }
+        await sender.Send(new SetGraduationRequirementCommand(computer.Id, 160, admin), ct);
+
+        // Year groups (Commerce): the Accounting plan's first year, and the term generated from it.
+        await sender.Send(new SaveStudyPlanCommand(accounting.Id, 4, [new StudyPlanEntry(1, PlanTerm.First, principles)]), ct);
+        await sender.Send(new GenerateTermEnrollmentCommand(term.Id, accounting.Id), ct);
 
         // ── Fees: tuition for engineering, an activity fee for everyone; Omar paid his tuition ──
         var dueOn = startsOn.AddDays(30);
@@ -192,6 +209,8 @@ public sealed class DemoCampusSeeder(
         }
 
         campus.Seeded = true;
+        campus.AdminId = admin;
+        campus.TermId = term.Id;
         campus.EngineeringFacultyId = engineering.Id;
         campus.ProfessorId = hassan;
         campus.StudentId = omar;
@@ -211,6 +230,9 @@ public sealed class DemoCampusSeeder(
         await sender.Send(new ChangePasswordCommand(created.User.Id, created.TemporaryPassword!, options.Password!), ct);
         return created.User.Id;
     }
+
+    private Task RegisterAsync(Guid studentId, Guid groupId, CancellationToken ct) =>
+        sender.Send(new RegisterForSubjectCommand(studentId, IsStudent: true, groupId), ct);
 
     private async Task<Guid> SubjectAsync(Guid departmentId, string code, string name, string nameAr, CancellationToken ct) =>
         (await sender.Send(new CreateSubjectCommand(departmentId, code, name, nameAr, null, 3, SubjectCategory.Regular, true), ct)).Id;

@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Standings;
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.EventBus;
@@ -17,7 +18,8 @@ public static class SemesterApplication
         services.AddRequestHandlers(assembly);
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(SemesterUnitOfWorkBehavior<,>));
-        services.AddScoped<IAcademicLifecycle, AcademicLifecycleApi>();
+        services.AddScoped<ILifecycleVariant, AcademicLifecycleApi>();   // the router behind IAcademicLifecycle is in the host
+        services.AddScoped<YearGroupStudents>();
         services.AddScoped<EffectivePolicies>();
         services.AddScoped<PromotionService>();
         services.AddIntegrationEventHandlers(assembly);   // GradesPublished → results + promotion; PaymentCompleted → held decisions

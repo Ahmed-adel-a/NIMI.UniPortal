@@ -1,9 +1,11 @@
 namespace NIMI.UniPortal.Abstractions.Lifecycle;
 
 /// <summary>
-/// The seam between the academic lifecycle variant (credit hours today, semester-based later) and the core modules
-/// (P4, decision LIFECYCLE). Core modules — attendance, materials, grades — learn rosters and progress only through
-/// this contract, never through a lifecycle module's tables. Exactly one variant is composed per host.
+/// The seam between the academic lifecycle and the core modules (P4). Core modules (attendance, materials, grades, …)
+/// learn rosters and progress only through this contract, never through a lifecycle module's tables. Decision
+/// LIFECYCLEDEPT: every deployment installs both variants (<see cref="ILifecycleVariant"/>); the host's router
+/// implements this interface, combining both for group questions (mixed groups) and asking the student's own system
+/// for student questions.
 /// </summary>
 public interface IAcademicLifecycle
 {
@@ -34,4 +36,11 @@ public interface IAcademicLifecycle
     /// the Student Affairs dashboard (P10.6).
     /// </summary>
     Task<int> CountGraduationBlockedAsync(Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Whether any of the students has records in the given academic system (Platform refuses to move a department to
+    /// another system while its students have history in the old one).
+    /// </summary>
+    Task<bool> HasStudentRecordsAsync(
+        string academicSystem, IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken = default);
 }

@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Standings;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Abstractions;
 using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Results;
@@ -13,7 +14,7 @@ using NIMI.UniPortal.SharedKernel.Validation;
 namespace NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Enrollment;
 
 internal sealed class GenerateTermEnrollmentHandler(
-    ISemesterDbContext db, ISchedulingApi scheduling, IUsersApi users, TimeProvider clock)
+    ISemesterDbContext db, ISchedulingApi scheduling, IUsersApi users, YearGroupStudents yearGroups, TimeProvider clock)
     : IRequestHandler<GenerateTermEnrollmentCommand, GenerationReportDto>
 {
     public async Task<GenerationReportDto> Handle(GenerateTermEnrollmentCommand command, CancellationToken cancellationToken)
@@ -44,7 +45,15 @@ internal sealed class GenerateTermEnrollmentHandler(
         var taken = existing.Select(e => (e.StudentId, e.SubjectId)).ToHashSet();
         var seats = existing.GroupBy(e => e.SubjectGroupId).ToDictionary(g => g.Key, g => g.Count());
 
-        var studentIds = await users.GetActiveStudentIdsAsync(null, command.DepartmentId, cancellationToken);
+        // Decision LIFECYCLEDEPT: only students of year-group departments; credit-hours students register themselves.
+        var studentIds = new List<Guid>();
+        foreach (var studentId in await users.GetActiveStudentIdsAsync(null, command.DepartmentId, cancellationToken))
+        {
+            var placement = await users.GetStudentPlacementAsync(studentId, cancellationToken);
+            if (placement is not null && await yearGroups.IsYearGroupDepartmentAsync(placement.DepartmentId, cancellationToken))
+                studentIds.Add(studentId);
+        }
+
         var standings = await db.Standings
             .Where(s => studentIds.Contains(s.StudentId))
             .ToDictionaryAsync(s => s.StudentId, cancellationToken);
@@ -56,9 +65,7 @@ internal sealed class GenerateTermEnrollmentHandler(
         {
             if (!standings.TryGetValue(studentId, out var standing))
             {
-                var placement = await users.GetStudentPlacementAsync(studentId, cancellationToken);
-                if (placement is null)
-                    continue;
+                var placement = (await users.GetStudentPlacementAsync(studentId, cancellationToken))!;
                 standing = StudentStanding.Place(studentId, placement.DepartmentId, 1, now);
                 db.Standings.Add(standing);
                 newStandings++;

@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Platform.Contracts;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
@@ -11,15 +12,24 @@ using NIMI.UniPortal.SharedKernel.Paging;
 namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Lifecycle;
 
 /// <summary>
-/// Decision LIFECYCLE: the one implementation composed by Host.CairoUniversity. Rosters are course registrations,
-/// and only confirmed members count (R11: registered/completed/failed — never pending_payment or dropped).
+/// Decision LIFECYCLEDEPT: the credit-hours variant behind the host's lifecycle router. Rosters are course
+/// registrations, and only confirmed members count (R11: registered/completed/failed — never pending_payment or dropped).
 /// </summary>
-internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, ISchedulingApi scheduling, ISender sender) : IAcademicLifecycle
+internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, ISchedulingApi scheduling, ISender sender) : ILifecycleVariant
 {
+    public string AcademicSystem => AcademicSystems.CreditHours;
+
+    public async Task<bool> HasStudentRecordsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken)
+    {
+        var ids = studentIds.ToList();
+        return await db.CourseRegistrations.AsNoTracking().AnyAsync(r => ids.Contains(r.StudentId), cancellationToken) ||
+               await db.CreditLedger.AsNoTracking().AnyAsync(e => ids.Contains(e.StudentId), cancellationToken);
+    }
+
     // The confirmed-member predicate is written out in every query: EF Core can translate the enum comparisons,
     // but it cannot translate a call to a C# helper method inside a Where clause.
     public async Task<IReadOnlyList<Guid>> GetStudentsInGroupAsync(
-        Guid subjectGroupId, CancellationToken cancellationToken = default) =>
+        Guid subjectGroupId, CancellationToken cancellationToken) =>
         await db.CourseRegistrations.AsNoTracking()
             .Where(r => r.SubjectGroupId == subjectGroupId &&
                         (r.Status == RegistrationStatus.Registered ||
@@ -31,7 +41,7 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Guid>> GetGroupsForStudentAsync(
-        Guid studentId, Guid termId, CancellationToken cancellationToken = default) =>
+        Guid studentId, Guid termId, CancellationToken cancellationToken) =>
         await db.CourseRegistrations.AsNoTracking()
             .Where(r => r.StudentId == studentId &&
                         r.TermId == termId &&
@@ -44,7 +54,7 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
             .ToListAsync(cancellationToken);
 
     public Task<bool> IsStudentInGroupAsync(
-        Guid studentId, Guid subjectGroupId, CancellationToken cancellationToken = default) =>
+        Guid studentId, Guid subjectGroupId, CancellationToken cancellationToken) =>
         db.CourseRegistrations.AsNoTracking()
             .AnyAsync(
                 r => r.StudentId == studentId &&
@@ -55,7 +65,7 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
                 cancellationToken);
 
     public async Task<StudentProgress> GetProgressAsync(
-        Guid studentId, CancellationToken cancellationToken = default)
+        Guid studentId, CancellationToken cancellationToken)
     {
         // P9.3b: the ledger is written from GradesPublished; GPA is the latest term snapshot's cumulative GPA.
         var passed = await db.CreditLedger.AsNoTracking()
@@ -90,7 +100,7 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
     }
 
     public async Task<int> CountConfirmedRegistrationsAsync(
-        Guid termId, IReadOnlyCollection<Guid>? studentIds, CancellationToken cancellationToken = default)
+        Guid termId, IReadOnlyCollection<Guid>? studentIds, CancellationToken cancellationToken)
     {
         var registrations = db.CourseRegistrations.AsNoTracking()
             .Where(r => r.TermId == termId &&
@@ -107,7 +117,7 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
     }
 
     public async Task<int> CountGraduationBlockedAsync(
-        Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default)
+        Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken)
     {
         // The eligibility list (P9.4) is the one place the graduation rules live; count its blocked rows page by page.
         var blocked = 0;

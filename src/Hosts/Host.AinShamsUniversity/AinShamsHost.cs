@@ -1,11 +1,10 @@
 using NIMI.UniPortal.Hosting;
 using NIMI.UniPortal.Modules.Library.Api;
-using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Api;
 
 namespace Host.AinShamsUniversity;
 
 /// <summary>
-/// The reference deployment: the core platform + one lifecycle variant + Library. An explicit, namespaced entry point
+/// The reference deployment: the core platform (both academic systems; its departments default to year groups) + Library. An explicit, namespaced entry point
 /// (no top-level statements) so its type never clashes with another host's public <c>Program</c> in the test project.
 /// </summary>
 public sealed class AinShamsHost
@@ -19,7 +18,6 @@ public sealed class AinShamsHost
         var builder = WebApplication.CreateBuilder(args);
 
         builder.AddPortalCore();
-        builder.Services.AddSemesterBasedModule();   // the one lifecycle variant: SemesterBased (نظام الفرق, P4.B)
 
         // ── Premium modules this deployment sells (P11): Library — not Forum or Events ──
         builder.Services.AddLibraryModule();
@@ -27,7 +25,6 @@ public sealed class AinShamsHost
         var app = builder.Build();
 
         await app.UsePortalCoreAsync();
-        app.MapSemesterBasedEndpoints();
         app.MapLibraryEndpoints();
 
         await app.RunAsync();

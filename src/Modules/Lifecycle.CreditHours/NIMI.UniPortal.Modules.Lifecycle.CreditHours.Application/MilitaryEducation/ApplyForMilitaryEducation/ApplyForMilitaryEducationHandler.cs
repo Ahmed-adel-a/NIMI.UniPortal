@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Common;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.EventBus;
@@ -25,7 +26,8 @@ internal sealed class ApplyForMilitaryEducationHandler(
     IUsersApi users,
     IPlatformSettingsApi platform,
     IEventCollector events,
-    TimeProvider clock)
+    TimeProvider clock,
+    CreditHoursStudents creditHours)
     : IRequestHandler<ApplyForMilitaryEducationCommand, MilitaryEducationApplicationDto>
 {
     private const string Field = "subjectGroupId";
@@ -39,6 +41,9 @@ internal sealed class ApplyForMilitaryEducationHandler(
     {
         if (!command.IsStudent)
             throw new ForbiddenException("Only students can apply for military education.");
+
+        if (!await creditHours.IsOnCreditHoursAsync(command.StudentId, cancellationToken))
+            throw new ForbiddenException(CreditHoursStudents.YearGroupsMessage);
 
         var student = await users.GetUserAsync(command.StudentId, cancellationToken)
             ?? throw new NotFoundException("The signed-in student was not found.");

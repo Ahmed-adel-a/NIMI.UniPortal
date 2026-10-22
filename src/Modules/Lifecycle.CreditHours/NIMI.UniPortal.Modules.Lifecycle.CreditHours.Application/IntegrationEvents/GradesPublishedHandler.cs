@@ -19,7 +19,16 @@ internal sealed class GradesPublishedHandler(ICreditHoursDbContext db, StudentRe
     {
         var now = clock.GetUtcNow();
         var termId = integrationEvent.TermId;
-        var studentIds = integrationEvent.Grades.Select(g => g.StudentId).Distinct().ToList();
+        var published = integrationEvent.Grades.Select(g => g.StudentId).Distinct().ToList();
+
+        // Decision LIFECYCLEDEPT: grades of year-group students (no registration here) belong to the other variant.
+        var studentIds = await db.CourseRegistrations.AsNoTracking()
+            .Where(r => r.TermId == termId && published.Contains(r.StudentId))
+            .Select(r => r.StudentId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        if (studentIds.Count == 0)
+            return;
 
         var ledger = await db.CreditLedger
             .Where(e => e.TermId == termId && studentIds.Contains(e.StudentId))
@@ -32,7 +41,7 @@ internal sealed class GradesPublishedHandler(ICreditHoursDbContext db, StudentRe
                          r.Status == RegistrationStatus.Failed))
             .ToListAsync(cancellationToken);
 
-        foreach (var grade in integrationEvent.Grades)
+        foreach (var grade in integrationEvent.Grades.Where(g => studentIds.Contains(g.StudentId)))
         {
             var key = (grade.StudentId, grade.SubjectId);
             if (ledger.TryGetValue(key, out var entry))

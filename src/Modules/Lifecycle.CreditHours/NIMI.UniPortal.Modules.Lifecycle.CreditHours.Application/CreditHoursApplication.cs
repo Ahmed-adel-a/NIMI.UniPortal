@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Common;
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.EventBus;
@@ -16,7 +17,8 @@ public static class CreditHoursApplication
         services.AddRequestHandlers(assembly);
         services.AddValidators(assembly);
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CreditHoursUnitOfWorkBehavior<,>));
-        services.AddScoped<IAcademicLifecycle, AcademicLifecycleApi>();
+        services.AddScoped<ILifecycleVariant, AcademicLifecycleApi>();   // the router behind IAcademicLifecycle is in the host
+        services.AddScoped<CreditHoursStudents>();
         services.AddScoped<StudentResults>();
         services.AddIntegrationEventHandlers(assembly);   // PaymentCompleted → military education; GradesPublished → ledger
         return services;

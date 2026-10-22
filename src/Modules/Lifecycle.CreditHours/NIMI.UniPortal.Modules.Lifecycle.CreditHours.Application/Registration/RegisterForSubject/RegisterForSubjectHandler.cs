@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Common;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Registration;
@@ -14,7 +15,8 @@ internal sealed class RegisterForSubjectHandler(
     ISeatCounter seats,
     ISchedulingApi scheduling,
     IUsersApi users,
-    TimeProvider clock)
+    TimeProvider clock,
+    CreditHoursStudents creditHours)
     : IRequestHandler<RegisterForSubjectCommand, RegistrationDto>
 {
     private const string Field = "subjectGroupId";
@@ -26,6 +28,9 @@ internal sealed class RegisterForSubjectHandler(
     {
         if (!command.IsStudent)
             throw new ForbiddenException("Only students can register.");
+
+        if (!await creditHours.IsOnCreditHoursAsync(command.StudentId, cancellationToken))
+            throw new ForbiddenException(CreditHoursStudents.YearGroupsMessage);
 
         var student = await users.GetUserAsync(command.StudentId, cancellationToken)
             ?? throw new NotFoundException("The signed-in student was not found.");

@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Common;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Registration;
@@ -13,7 +14,8 @@ internal sealed class GetOfferingsHandler(
     ICreditHoursDbContext db,
     ISchedulingApi scheduling,
     IUsersApi users,
-    TimeProvider clock)
+    TimeProvider clock,
+    CreditHoursStudents creditHours)
     : IRequestHandler<GetOfferingsQuery, PagedResult<OfferingDto>>
 {
     private const string MilitaryEducation = "military_education";
@@ -24,6 +26,9 @@ internal sealed class GetOfferingsHandler(
     {
         if (!query.IsStudent)
             throw new ForbiddenException("Only students see registration offerings.");
+
+        if (!await creditHours.IsOnCreditHoursAsync(query.StudentId, cancellationToken))
+            throw new ForbiddenException(CreditHoursStudents.YearGroupsMessage);
 
         var student = await users.GetUserAsync(query.StudentId, cancellationToken)
             ?? throw new NotFoundException("The signed-in student was not found.");

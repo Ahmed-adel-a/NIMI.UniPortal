@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Platform.Contracts;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Abstractions;
@@ -9,12 +10,21 @@ using NIMI.UniPortal.Modules.Users.Contracts;
 namespace NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Application.Lifecycle;
 
 /// <summary>
-/// Decision LIFECYCLE: the SemesterBased implementation, composed by the reference host. Rosters are term
-/// enrollments; every enrollment except a withdrawn one is a member (they are generated, never pending).
+/// Decision LIFECYCLEDEPT: the year-group variant behind the host's lifecycle router. Rosters are term enrollments;
+/// every enrollment except a withdrawn one is a member (they are generated, never pending).
 /// </summary>
-internal sealed class AcademicLifecycleApi(ISemesterDbContext db, ISchedulingApi scheduling, IUsersApi users) : IAcademicLifecycle
+internal sealed class AcademicLifecycleApi(ISemesterDbContext db, ISchedulingApi scheduling, IUsersApi users) : ILifecycleVariant
 {
-    public async Task<IReadOnlyList<Guid>> GetStudentsInGroupAsync(Guid subjectGroupId, CancellationToken cancellationToken = default) =>
+    public string AcademicSystem => AcademicSystems.YearGroups;
+
+    public async Task<bool> HasStudentRecordsAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken cancellationToken)
+    {
+        var ids = studentIds.ToList();
+        return await db.Standings.AsNoTracking().AnyAsync(s => ids.Contains(s.StudentId), cancellationToken) ||
+               await db.TermEnrollments.AsNoTracking().AnyAsync(e => ids.Contains(e.StudentId), cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Guid>> GetStudentsInGroupAsync(Guid subjectGroupId, CancellationToken cancellationToken) =>
         await db.TermEnrollments.AsNoTracking()
             .Where(e => e.SubjectGroupId == subjectGroupId && e.Status != EnrollmentStatus.Withdrawn)
             .Select(e => e.StudentId)
@@ -23,7 +33,7 @@ internal sealed class AcademicLifecycleApi(ISemesterDbContext db, ISchedulingApi
             .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Guid>> GetGroupsForStudentAsync(
-        Guid studentId, Guid termId, CancellationToken cancellationToken = default) =>
+        Guid studentId, Guid termId, CancellationToken cancellationToken) =>
         await db.TermEnrollments.AsNoTracking()
             .Where(e => e.StudentId == studentId && e.TermId == termId && e.Status != EnrollmentStatus.Withdrawn)
             .Select(e => e.SubjectGroupId)
@@ -31,12 +41,12 @@ internal sealed class AcademicLifecycleApi(ISemesterDbContext db, ISchedulingApi
             .OrderBy(id => id)
             .ToListAsync(cancellationToken);
 
-    public Task<bool> IsStudentInGroupAsync(Guid studentId, Guid subjectGroupId, CancellationToken cancellationToken = default) =>
+    public Task<bool> IsStudentInGroupAsync(Guid studentId, Guid subjectGroupId, CancellationToken cancellationToken) =>
         db.TermEnrollments.AsNoTracking().AnyAsync(
             e => e.StudentId == studentId && e.SubjectGroupId == subjectGroupId && e.Status != EnrollmentStatus.Withdrawn,
             cancellationToken);
 
-    public async Task<StudentProgress> GetProgressAsync(Guid studentId, CancellationToken cancellationToken = default)
+    public async Task<StudentProgress> GetProgressAsync(Guid studentId, CancellationToken cancellationToken)
     {
         var results = await db.TermEnrollments.AsNoTracking()
             .Where(e => e.StudentId == studentId &&
@@ -70,7 +80,7 @@ internal sealed class AcademicLifecycleApi(ISemesterDbContext db, ISchedulingApi
     }
 
     public async Task<int> CountConfirmedRegistrationsAsync(
-        Guid termId, IReadOnlyCollection<Guid>? studentIds, CancellationToken cancellationToken = default)
+        Guid termId, IReadOnlyCollection<Guid>? studentIds, CancellationToken cancellationToken)
     {
         var enrollments = db.TermEnrollments.AsNoTracking()
             .Where(e => e.TermId == termId && e.Status != EnrollmentStatus.Withdrawn);
@@ -84,7 +94,7 @@ internal sealed class AcademicLifecycleApi(ISemesterDbContext db, ISchedulingApi
     }
 
     /// <summary>Students in their department's final level who could not graduate: repeating, external or held.</summary>
-    public async Task<int> CountGraduationBlockedAsync(Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default)
+    public async Task<int> CountGraduationBlockedAsync(Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken)
     {
         var scope = (await users.GetActiveStudentIdsAsync(facultyId, departmentId, cancellationToken)).ToList();
         var finalLevels = await db.StudyPlans.AsNoTracking().ToDictionaryAsync(p => p.DepartmentId, p => p.Levels, cancellationToken);

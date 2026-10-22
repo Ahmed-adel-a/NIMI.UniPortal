@@ -10,6 +10,7 @@
          notifications, audit). -->
     <ProjectReference Include="..\..\Scheduling\NIMI.UniPortal.Modules.Scheduling.Contracts\NIMI.UniPortal.Modules.Scheduling.Contracts.csproj" />
     <ProjectReference Include="..\..\Users\NIMI.UniPortal.Modules.Users.Contracts\NIMI.UniPortal.Modules.Users.Contracts.csproj" />
+    <ProjectReference Include="..\..\Platform\NIMI.UniPortal.Modules.Platform.Contracts\NIMI.UniPortal.Modules.Platform.Contracts.csproj" />
     <ProjectReference Include="..\..\Payments\NIMI.UniPortal.Modules.Payments.Contracts\NIMI.UniPortal.Modules.Payments.Contracts.csproj" />
     <ProjectReference Include="..\..\Grades\NIMI.UniPortal.Modules.Grades.Contracts\NIMI.UniPortal.Modules.Grades.Contracts.csproj" />
     <ProjectReference Include="..\..\Notifications\NIMI.UniPortal.Modules.Notifications.Contracts\NIMI.UniPortal.Modules.Notifications.Contracts.csproj" />
