@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Hosting.Dashboards;
 using NIMI.UniPortal.Hosting.DemoData;
+using NIMI.UniPortal.Hosting.Documents;
 using NIMI.UniPortal.Hosting.Errors;
 using NIMI.UniPortal.Hosting.FrontendAccess;
 using NIMI.UniPortal.Hosting.Health;
@@ -63,6 +64,7 @@ public static class PortalCore
         builder.Services.AddAuditModule();
         builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
         builder.Services.AddDashboards();                // P10: host-level dashboards over module contracts
+        builder.Services.AddDocuments();                 // printable PDFs over module queries (PDFDOCS)
         builder.Services.AddDemoData(builder.Configuration);   // Development only, Seed:DemoData (DEVDOCKER)
 
         builder.Services.AddHealthChecks()
@@ -97,6 +99,7 @@ public static class PortalCore
         app.MapAuditEndpoints();
         app.MapPaymentsEndpoints();
         app.MapDashboardEndpoints();
+        app.MapDocumentEndpoints();
         app.MapApiDocs();
         return app;
     }

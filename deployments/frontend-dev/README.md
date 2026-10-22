@@ -78,6 +78,10 @@ What the demo campus holds:
 - **Bilingual data** comes as pairs (`name` / `nameAr`). The UI picks the language.
 - **Files:** uploads are `multipart/form-data`. Downloads and CSV exports set `Content-Disposition` with the file name,
   which is readable from the browser.
+- **PDFs (English):** `GET /api/documents/receipts/{paymentId}`, `/api/documents/transcript`,
+  `/api/documents/enrollment-certificate` and `/api/documents/schedule?from=&to=` (students), plus
+  `/api/admin/documents/students/{studentId}/transcript` and `…/enrollment-certificate` (Student Affairs). Open them
+  with the bearer token (fetch as a blob), not as a plain link.
 - **CORS:** the API accepts `http://localhost:5173` and `http://localhost:3000`. For another port, set `FRONTEND_ORIGIN`
   in a `.env` file next to `docker-compose.yml`, then run `docker compose up -d` again.
 
