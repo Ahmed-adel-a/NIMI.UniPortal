@@ -28,7 +28,7 @@ separate repository (`university-map`) and talks to this API over HTTP.
 | **Platform** | University settings and branding; academic rules per faculty (working days, attendance threshold, grading scale, student-code format, …) |
 | **Users** | Faculties and departments; accounts with generated student codes; CSV cohort import; sign-in with JWT and rotating refresh tokens; forced first password change; lockout after 5 failures; password reset by email |
 | **Scheduling** | Terms; the subject catalog; groups (شعب); teaching assignments; halls; the weekly timetable with clash detection |
-| **Academic lifecycle** (one per university) | **Credit hours** (ساعات معتمدة): self-registration with prerequisites, credit limits and seats; GPA; graduation checks. **Semester-based** (نظام الفرق): study plans, year levels, generated enrollment, automatic year-end promotion (carried subjects, stage gates, fees) |
+| **Academic lifecycle** (chosen per department) | **Credit hours** (ساعات معتمدة): self-registration with prerequisites, credit limits and seats; GPA; graduation checks. **Semester-based** (نظام الفرق): study plans, year levels, generated enrollment, automatic year-end promotion (carried subjects, stage gates, fees) |
 | **Attendance** | Sessions per lecture with a rotating QR code; check-in from one registered phone; lateness, manual entries, warnings, finals eligibility |
 | **Materials & Announcements** | Course files per subject and group; subject announcements with priority, pinning and expiry |
 | **Assignments** | Deadlines, one submission per student with a receipt, review with a grade |
@@ -38,9 +38,11 @@ separate repository (`university-map`) and talks to this API over HTTP.
 | **Dashboards, Audit, Documents** | Student dashboard; Student Affairs metrics; an activity log of sensitive actions; CSV exports; English PDFs (receipt, grade report, enrollment certificate, schedule) |
 | **Premium modules** (sold separately) | **Forum** (with identity, moderation, reports) · **Events** (registration with seats) · **Library** (physical lending, reservations, reminders, and a digital library of PDF/EPUB books) |
 
-Cairo University's deployment = the core + **credit hours** + **Forum** + **Events**. A second, reference deployment
-(`Host.AinShamsUniversity`) = the core + **semester-based** + **Library**. It shows that one codebase serves different
-universities.
+**Both academic systems run in every deployment.** Each department uses one of them, set by Student Affairs at the
+department, faculty or university level, so a university can mix them. A class group can hold students from both.
+Cairo University's deployment = the core + **Forum** + **Events**, with departments defaulting to credit hours. A second,
+reference deployment (`Host.AinShamsUniversity`) = the core + **Library**, defaulting to year groups. It shows that one
+codebase serves different universities.
 
 ## How it is built
 
@@ -50,8 +52,8 @@ universities.
   - Modules never touch each other's tables; they talk through small **Contracts** and **integration events**,
     published after the database commit by an in-process event bus.
   - Architecture tests enforce the boundaries, the layer dependencies and "one type per file".
-- **One host per university** (`src/Hosts/Host.*`). Each host composes the shared core
-  (`NIMI.UniPortal.Hosting`), exactly one lifecycle variant and the premium modules that university bought.
+- **One host per university** (`src/Hosts/Host.*`). Each host composes the shared core (`NIMI.UniPortal.Hosting`,
+  which includes both lifecycle variants behind one router) and the premium modules that university bought.
 - **One error shape everywhere:** `{ code, message, details[{ field, error }] }`.
 
 ```
@@ -172,6 +174,7 @@ Settings come from `appsettings*.json`, `appsettings.Local.json` (Development), 
 | `App:FrontendUrl` | Where emailed links point | `http://localhost:5173` |
 | `Email:Provider`, `Email:ExposeOutbox` | Email delivery (only `outbox` exists so far) and the outbox endpoint | `outbox` in Development |
 | `Payments:Gateway`, `Payments:Mock:Secret` | Online payments (only `mock` exists so far) | `mock` in Development |
+| `Platform:DefaultAcademicSystem` | Academic system where Student Affairs set none | `credit_hours` (reference host: `year_groups`) |
 | `Storage:RootPath` | Where uploaded files are kept | `App_Data/files` |
 | `Library:Reminders:Enabled` | Daily library reminders (reference host) | `true` |
 
@@ -188,6 +191,9 @@ to be chosen.
 - **Forgot password:** `POST /api/auth/forgot-password`, then `POST /api/auth/reset-password` with the emailed token.
 - **Errors:** always `{ code, message, details[] }`, with status 400 / 401 / 403 / 404 / 409 / 429 / 500.
 - **Lists** are paged: `?page=&pageSize=` (at most 100), answering `{ items, page, pageSize, totalCount, totalPages }`.
+- **Academic system:** `GET /api/auth/me` returns `academicSystem` (`credit_hours` or `year_groups`). Show
+  registration screens for credit hours and year-level screens for year groups. Schedule, progress and rosters work
+  the same way for both.
 - **Values:** enums are snake_case strings, times are UTC, ids are GUIDs, and names come in pairs (`name` / `nameAr`).
 
 Every flow with examples is in [`deployments/frontend-dev/README.md`](deployments/frontend-dev/README.md), and the
