@@ -5,11 +5,14 @@ You don't need .NET, PostgreSQL or anything else, only **Docker Desktop**.
 
 ## Start
 
-```bash
-docker compose up -d
-```
+- **Windows:** double-click `start.cmd`.
+- **Mac / Linux:** run `./start.sh`.
 
-Run it in this folder. The first start pulls the images, creates the database and fills a demo campus, which takes about a minute.
+The script starts everything, waits until the API is ready, and **opens the API docs in your browser**. The first
+start pulls the images, creates the database and fills a demo campus, which takes about a minute.
+
+Without the script, `docker compose up -d` in this folder does the same, without opening the browser. Opening
+http://localhost:8080 at any time takes you to the docs.
 
 | What | Where |
 |------|-------|
