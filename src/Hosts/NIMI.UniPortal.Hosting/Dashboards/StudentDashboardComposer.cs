@@ -8,7 +8,7 @@ using NIMI.UniPortal.Modules.Platform.Contracts;
 using NIMI.UniPortal.Modules.Scheduling.Contracts;
 using NIMI.UniPortal.Modules.Users.Contracts;
 
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>
 /// P10.1 — composes the student dashboard from module contracts only (host-level, no module of its own). Each

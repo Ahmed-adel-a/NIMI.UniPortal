@@ -1,6 +1,6 @@
 using NIMI.UniPortal.Abstractions.Files;
 
-namespace Host.CairoUniversity.Storage;
+namespace NIMI.UniPortal.Hosting.Storage;
 
 /// <summary>
 /// <see cref="IFileStorage"/> on the local disk under <c>Storage:RootPath</c> (default <c>App_Data/files</c> next to the

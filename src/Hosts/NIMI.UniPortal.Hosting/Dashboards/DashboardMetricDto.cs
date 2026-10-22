@@ -1,4 +1,4 @@
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>
 /// One Student Affairs metric as the catalog describes it. <see cref="Unit"/> is <c>count</c>, <c>percent</c> or

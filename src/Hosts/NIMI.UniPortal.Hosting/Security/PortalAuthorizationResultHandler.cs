@@ -1,8 +1,8 @@
-using Host.CairoUniversity.Errors;
+using NIMI.UniPortal.Hosting.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 
-namespace Host.CairoUniversity.Security;
+namespace NIMI.UniPortal.Hosting.Security;
 
 /// <summary>
 /// A refusal caused only by a pending password change becomes a 403 the client can act on:

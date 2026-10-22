@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Security;
 
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>P10: dashboards composed in the host from module contracts.</summary>
 internal static class DashboardEndpoints

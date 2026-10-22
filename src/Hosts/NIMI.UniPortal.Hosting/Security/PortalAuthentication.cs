@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NIMI.UniPortal.SharedKernel.Security;
 
-namespace Host.CairoUniversity.Security;
+namespace NIMI.UniPortal.Hosting.Security;
 
 /// <summary>
 /// Validates the access tokens the Users module issues (POST /api/auth/login): our issuer + audience, signed with

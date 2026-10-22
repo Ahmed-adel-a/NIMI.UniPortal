@@ -1,4 +1,4 @@
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>One of the latest announcements of the student's subjects.</summary>
 public sealed record DashboardAnnouncementDto(

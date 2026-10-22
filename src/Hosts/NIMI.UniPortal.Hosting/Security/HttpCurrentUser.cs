@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using NIMI.UniPortal.SharedKernel.Security;
 
-namespace Host.CairoUniversity.Security;
+namespace NIMI.UniPortal.Hosting.Security;
 
 /// <summary>Reads the caller's id from the current HTTP request (real tokens and the test scheme alike).</summary>
 internal sealed class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUser

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.SharedKernel;
 using Npgsql;
 
-namespace Host.CairoUniversity.Errors;
+namespace NIMI.UniPortal.Hosting.Errors;
 
 /// <summary>
 /// Maps exceptions to the <see cref="ApiError"/> envelope:

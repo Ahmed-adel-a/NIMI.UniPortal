@@ -1,4 +1,4 @@
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>One lecture occurrence on the student dashboard (wall-clock date and times in the faculty's timezone).</summary>
 public sealed record DashboardLectureDto(

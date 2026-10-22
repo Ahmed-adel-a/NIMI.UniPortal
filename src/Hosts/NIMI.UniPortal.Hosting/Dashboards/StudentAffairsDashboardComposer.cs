@@ -5,7 +5,7 @@ using NIMI.UniPortal.Modules.Payments.Contracts;
 using NIMI.UniPortal.Modules.Scheduling.Contracts;
 using NIMI.UniPortal.Modules.Users.Contracts;
 
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>
 /// P10.6 SADASH — composes the Student Affairs summary from module contracts only; counting happens in each module.

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NIMI.UniPortal.SharedKernel.Persistence;
 using Npgsql;
 
-namespace Host.CairoUniversity.Health;
+namespace NIMI.UniPortal.Hosting.Health;
 
 /// <summary>Healthy when the deployment's PostgreSQL database answers a trivial query.</summary>
 internal sealed class DatabaseHealthCheck(IConfiguration configuration) : IHealthCheck
