@@ -1,0 +1,86 @@
+# Forum (P11, premium — Cairo bought it) — demo requests (VS / Rider / VS Code REST Client).
+#
+# One-time local setup (Development) is the same as users.http. Decision D4: every thread and reply shows the author's
+# name, rank and department — there is no anonymous posting.
+
+@host = http://localhost:5080
+@adminToken = paste-the-admin-token-here
+@studentToken = paste-a-students-token-here
+@professorToken = paste-a-professors-token-here
+@facultyId = paste-a-faculty-id-here
+@categoryId = paste-a-category-id-here
+@threadId = paste-a-thread-id-here
+@postId = paste-a-post-id-here
+@reportId = paste-a-report-id-here
+
+### Student Affairs: a university-wide category (facultyId null) …
+POST {{host}}/api/admin/forum/categories
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "name": "General", "nameAr": "عام", "facultyId": null, "sortOrder": 0 }
+
+### … or one faculty's
+POST {{host}}/api/admin/forum/categories
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "name": "Engineering", "nameAr": "الهندسة", "facultyId": "{{facultyId}}", "sortOrder": 1 }
+
+### Members: the categories they can use
+GET {{host}}/api/forum/categories
+Authorization: Bearer {{studentToken}}
+
+### Start a thread (optionally about a subject: its teachers may then pin/lock it); 10 posts a minute max (429)
+POST {{host}}/api/forum/categories/{{categoryId}}/threads
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "title": "Study group for CS301", "body": "Who is in?", "subjectId": null }
+
+### Threads of a category: pinned first, then latest activity
+GET {{host}}/api/forum/categories/{{categoryId}}/threads?page=1&pageSize=20
+Authorization: Bearer {{studentToken}}
+
+### Open a thread with its replies (opening it as the author re-arms the reply notification)
+GET {{host}}/api/forum/threads/{{threadId}}?page=1&pageSize=20
+Authorization: Bearer {{studentToken}}
+
+### Reply (locked thread → 409); the thread's author is notified once until they open it
+POST {{host}}/api/forum/threads/{{threadId}}/posts
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{ "body": "Negative edges break Dijkstra — use Bellman-Ford." }
+
+### Edit / delete your own reply within 15 minutes (Student Affairs any time)
+PUT {{host}}/api/forum/posts/{{postId}}
+Authorization: Bearer {{professorToken}}
+Content-Type: application/json
+
+{ "body": "Negative edges break Dijkstra; Bellman-Ford handles them." }
+
+### Moderate: pin / lock (Student Affairs, or a teacher of the thread's subject)
+POST {{host}}/api/forum/threads/{{threadId}}/lock
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "locked": true }
+
+### Report one thread or one post
+POST {{host}}/api/forum/reports
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{ "postId": "{{postId}}", "reason": "Spam" }
+
+### Student Affairs: the open reports, then remove the content or dismiss
+GET {{host}}/api/admin/forum/reports?status=open
+Authorization: Bearer {{adminToken}}
+
+###
+POST {{host}}/api/admin/forum/reports/{{reportId}}/resolve
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "action": "remove" }
