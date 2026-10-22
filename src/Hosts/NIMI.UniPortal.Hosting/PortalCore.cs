@@ -3,7 +3,9 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Hosting.Dashboards;
+using NIMI.UniPortal.Hosting.DemoData;
 using NIMI.UniPortal.Hosting.Errors;
+using NIMI.UniPortal.Hosting.FrontendAccess;
 using NIMI.UniPortal.Hosting.Health;
 using NIMI.UniPortal.Hosting.Security;
 using NIMI.UniPortal.Hosting.Storage;
@@ -45,6 +47,8 @@ public static class PortalCore
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();              // who acted, for the activity log (P10.2)
         builder.Services.AddFileStorage(builder.Configuration, builder.Environment); // uploads on local disk (Storage/)
+        builder.AddFrontendCors();                                                // Cors:AllowedOrigins (FrontendAccess/)
+        builder.AddApiDocs();                                                     // /openapi/v1.json + /docs
 
         // ── Core modules ───────────────────────────────────────────────
         builder.Services.AddPlatformModule();
@@ -59,6 +63,7 @@ public static class PortalCore
         builder.Services.AddAuditModule();
         builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
         builder.Services.AddDashboards();                // P10: host-level dashboards over module contracts
+        builder.Services.AddDemoData(builder.Configuration);   // Development only, Seed:DemoData (DEVDOCKER)
 
         builder.Services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database", tags: [DatabaseHealthCheck.Tag], timeout: TimeSpan.FromSeconds(5));
@@ -71,6 +76,7 @@ public static class PortalCore
         await app.RunDevelopmentSeedersAsync();
 
         app.UseExceptionHandler();
+        app.UseFrontendCors();
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -91,6 +97,7 @@ public static class PortalCore
         app.MapAuditEndpoints();
         app.MapPaymentsEndpoints();
         app.MapDashboardEndpoints();
+        app.MapApiDocs();
         return app;
     }
 }

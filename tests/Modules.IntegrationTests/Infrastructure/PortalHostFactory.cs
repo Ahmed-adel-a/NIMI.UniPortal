@@ -134,6 +134,9 @@ public abstract class PortalHostFactory<TEntryPoint> : WebApplicationFactory<TEn
         builder.UseSetting("Auth:Jwt:SigningKey", _signingKey);
         // Uploads (P7) go to a throwaway folder, removed with the database at the end of the run.
         builder.UseSetting("Storage:RootPath", _storageRoot);
+        // The React dev server's origin and the API docs, as a frontend developer's container has them.
+        builder.UseSetting("Cors:AllowedOrigins:0", "http://localhost:5173");
+        builder.UseSetting("ApiDocs:Enabled", "true");
 
         builder.ConfigureTestServices(services =>
         {

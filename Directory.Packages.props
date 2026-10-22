@@ -15,12 +15,15 @@
   <ItemGroup>
     <PackageVersion Include="CsvHelper" Version="33.1.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
     <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
+    <!-- The browsable API docs page (MIT) over the OpenAPI document — frontend enablement -->
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.14" />
   </ItemGroup>
   <!-- Application -->
   <ItemGroup>
