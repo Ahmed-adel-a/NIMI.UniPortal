@@ -1,0 +1,68 @@
+# Library (P11, premium — physical lending; NOT in Cairo) — demo requests against the reference host.
+#
+# Run the reference host: dotnet run --project src/Hosts/Host.AinShamsUniversity  (http://localhost:5090)
+# Its own user secrets: ConnectionStrings:Portal, SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD (same keys as Cairo).
+# The librarian is Student Affairs (decision LIBROLE).
+
+@host = http://localhost:5090
+@adminToken = paste-the-admin-token-here
+@studentToken = paste-a-students-token-here
+@bookId = paste-the-id-from-the-add-here
+@studentId = paste-a-students-id-here
+@loanId = paste-a-loan-id-here
+
+### Student Affairs: add a book (ISBN-10 or ISBN-13; stored as ISBN-13)
+POST {{host}}/api/admin/library/books
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "isbn": "0-262-04630-X", "title": "Introduction to Algorithms", "authors": "Cormen, Leiserson, Rivest, Stein", "publisher": "MIT Press", "publicationYear": 2022, "facultyId": null }
+
+### … and its barcoded copies
+POST {{host}}/api/admin/library/books/{{bookId}}/copies
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "barcode": "LIB-0001", "shelf": "QA76 C67" }
+
+### Members: search by title, author or ISBN
+GET {{host}}/api/library/books?search=algorithms
+Authorization: Bearer {{studentToken}}
+
+### Lending desk: lend by barcode (409 when not available, held for someone else, at the limit or overdue)
+POST {{host}}/api/admin/library/loans
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "barcode": "LIB-0001", "userId": "{{studentId}}" }
+
+### Member: my loans, and renew (before due, within the limit, nobody waiting)
+GET {{host}}/api/library/loans/mine
+Authorization: Bearer {{studentToken}}
+
+###
+POST {{host}}/api/library/loans/{{loanId}}/renew
+Authorization: Bearer {{studentToken}}
+
+### Member: queue for a book with no copy on the shelf
+POST {{host}}/api/library/books/{{bookId}}/reservations
+Authorization: Bearer {{studentToken}}
+
+### Lending desk: return (the copy is held for the first in line, who is notified)
+POST {{host}}/api/admin/library/loans/{{loanId}}/return
+Authorization: Bearer {{adminToken}}
+
+### Student Affairs: overdue loans, loan rules, and the reminder run (also runs daily)
+GET {{host}}/api/admin/library/loans?overdue=true
+Authorization: Bearer {{adminToken}}
+
+###
+PUT {{host}}/api/admin/library/policies/student
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "loanDays": 14, "maxOpenLoans": 3, "maxRenewals": 1, "holdDays": 3 }
+
+###
+POST {{host}}/api/admin/library/reminders/run
+Authorization: Bearer {{adminToken}}
