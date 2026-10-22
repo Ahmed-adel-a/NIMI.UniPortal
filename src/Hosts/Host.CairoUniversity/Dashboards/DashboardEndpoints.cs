@@ -11,6 +11,7 @@ internal static class DashboardEndpoints
     public static IServiceCollection AddDashboards(this IServiceCollection services)
     {
         services.AddScoped<StudentDashboardComposer>();
+        services.AddScoped<StudentAffairsDashboardComposer>();
         return services;
     }
 
@@ -20,6 +21,12 @@ internal static class DashboardEndpoints
             .WithTags("Dashboards")
             .RequireAuthorization()
             .WithName("StudentDashboard");
+
+        var admin = endpoints.MapGroup("/api/admin/dashboard")
+            .WithTags("Dashboards")
+            .RequireAuthorization(PortalPolicies.Admin);
+        admin.MapGet("/metrics", Metrics).WithName("DashboardMetrics");
+        admin.MapGet("/summary", Summary).WithName("DashboardSummary");
         return endpoints;
     }
 
@@ -31,4 +38,10 @@ internal static class DashboardEndpoints
 
         return TypedResults.Ok(await composer.ComposeAsync(caller.GetUserId(), cancellationToken));
     }
+
+    private static Ok<IReadOnlyList<DashboardMetricDto>> Metrics() => TypedResults.Ok(DashboardMetrics.Catalog);
+
+    private static async Task<Ok<StudentAffairsSummaryDto>> Summary(
+        Guid? termId, Guid? facultyId, Guid? departmentId, StudentAffairsDashboardComposer composer, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await composer.ComposeAsync(termId, facultyId, departmentId, cancellationToken));
 }

@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Abstractions.Lifecycle;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Graduation;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Results;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Registration;
 using NIMI.UniPortal.Modules.Scheduling.Contracts;
+using NIMI.UniPortal.SharedKernel.Messaging;
+using NIMI.UniPortal.SharedKernel.Paging;
 
 namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Lifecycle;
 
@@ -11,7 +14,7 @@ namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Lifecycle;
 /// Decision LIFECYCLE: the one implementation composed by Host.CairoUniversity. Rosters are course registrations,
 /// and only confirmed members count (R11: registered/completed/failed — never pending_payment or dropped).
 /// </summary>
-internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, ISchedulingApi scheduling) : IAcademicLifecycle
+internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, ISchedulingApi scheduling, ISender sender) : IAcademicLifecycle
 {
     // The confirmed-member predicate is written out in every query: EF Core can translate the enum comparisons,
     // but it cannot translate a call to a C# helper method inside a Where clause.
@@ -84,5 +87,38 @@ internal sealed class AcademicLifecycleApi(ICreditHoursDbContext db, IScheduling
             .ToList();
 
         return new StudentProgress(studentId, creditsEarned, creditsInProgress, cumulativeGpa, outstanding);
+    }
+
+    public async Task<int> CountConfirmedRegistrationsAsync(
+        Guid termId, IReadOnlyCollection<Guid>? studentIds, CancellationToken cancellationToken = default)
+    {
+        var registrations = db.CourseRegistrations.AsNoTracking()
+            .Where(r => r.TermId == termId &&
+                        (r.Status == RegistrationStatus.Registered ||
+                         r.Status == RegistrationStatus.Completed ||
+                         r.Status == RegistrationStatus.Failed));
+        if (studentIds is not null)
+        {
+            var ids = studentIds.ToList();
+            registrations = registrations.Where(r => ids.Contains(r.StudentId));
+        }
+
+        return await registrations.CountAsync(cancellationToken);
+    }
+
+    public async Task<int> CountGraduationBlockedAsync(
+        Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default)
+    {
+        // The eligibility list (P9.4) is the one place the graduation rules live; count its blocked rows page by page.
+        var blocked = 0;
+        for (var page = 1; ; page++)
+        {
+            var result = await sender.Send(
+                new GraduationEligibilityQuery(facultyId, departmentId, new PageRequest(page, PageRequest.MaxPageSize)),
+                cancellationToken);
+            blocked += result.Items.Count(s => !s.Eligible);
+            if (page >= result.TotalPages)
+                return blocked;
+        }
     }
 }

@@ -84,6 +84,10 @@ internal sealed class UsersApi(IUsersDbContext db) : IUsersApi
                 placement.IsActive);
     }
 
+    public async Task<IReadOnlyList<Guid>> GetActiveStudentIdsAsync(
+        Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default) =>
+        await ActiveStudents(facultyId, departmentId).Select(u => u.Id).ToListAsync(cancellationToken);
+
     private IQueryable<User> ActiveStudents(Guid? facultyId, Guid? departmentId)
     {
         var students = db.Users.AsNoTracking()
