@@ -19,6 +19,8 @@
     <ProjectReference Include="..\..\Modules\Assignments\NIMI.UniPortal.Modules.Assignments.Api\NIMI.UniPortal.Modules.Assignments.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Grades\NIMI.UniPortal.Modules.Grades.Api\NIMI.UniPortal.Modules.Grades.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Audit\NIMI.UniPortal.Modules.Audit.Api\NIMI.UniPortal.Modules.Audit.Api.csproj" />
+    <!-- Premium modules Cairo bought (P11): Forum + Events. Library is not referenced. -->
+    <ProjectReference Include="..\..\Modules\Forum\NIMI.UniPortal.Modules.Forum.Api\NIMI.UniPortal.Modules.Forum.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Payments\NIMI.UniPortal.Modules.Payments.Api\NIMI.UniPortal.Modules.Payments.Api.csproj" />
     <!-- Decision LIFECYCLE: this deployment composes exactly one lifecycle variant (rule: HostCompositionTests). -->
     <ProjectReference Include="..\..\Modules\Lifecycle.CreditHours\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api.csproj" />

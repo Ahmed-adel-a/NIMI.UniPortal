@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Forum.Application\NIMI.UniPortal.Modules.Forum.Application.csproj" />
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Forum.Infrastructure\NIMI.UniPortal.Modules.Forum.Infrastructure.csproj" />
   </ItemGroup>
