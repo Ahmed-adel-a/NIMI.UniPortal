@@ -11,6 +11,7 @@ using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Announcements.Api;
 using NIMI.UniPortal.Modules.Assignments.Api;
 using NIMI.UniPortal.Modules.Audit.Api;
+using NIMI.UniPortal.Modules.Forum.Api;
 using NIMI.UniPortal.Modules.Grades.Api;
 using NIMI.UniPortal.Modules.Attendance.Api;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
@@ -54,6 +55,9 @@ builder.Services.AddDashboards();                // P10: host-level dashboards o
 builder.Services.AddPaymentsModule(builder.Configuration, builder.Environment);
 builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
 
+// ── Premium modules Cairo bought (P11): Forum + Events — not Library ──
+builder.Services.AddForumModule();
+
 builder.Services.AddHealthChecks()
     .AddCheck<DatabaseHealthCheck>("database", tags: [DatabaseHealthCheck.Tag], timeout: TimeSpan.FromSeconds(5));
 
@@ -84,5 +88,6 @@ app.MapAuditEndpoints();
 app.MapPaymentsEndpoints();
 app.MapCreditHoursEndpoints();
 app.MapDashboardEndpoints();
+app.MapForumEndpoints();
 
 app.Run();
