@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
+using Microsoft.Extensions.Configuration.Json;
 using NIMI.UniPortal.Host.CairoUniversity;
 using NIMI.UniPortal.Hosting;
 using NIMI.UniPortal.Hosting.DemoData;
@@ -8,6 +10,21 @@ using NIMI.UniPortal.SharedKernel.Persistence;
 
 // Cairo University: the core platform + the CreditHours lifecycle + the premium modules it bought (Forum, Events).
 var builder = WebApplication.CreateBuilder(args);
+
+// Developer-only settings (e.g. ConnectionStrings:Portal with the local password) in appsettings.Local.json:
+// git-ignored and never copied into a Docker image. Environment variables and the command line still win.
+if (builder.Environment.IsDevelopment())
+{
+    var sources = builder.Configuration.Sources;
+    var firstEnvironmentSource = sources.TakeWhile(s => s is not EnvironmentVariablesConfigurationSource).Count();
+    sources.Insert(firstEnvironmentSource, new JsonConfigurationSource
+    {
+        FileProvider = builder.Environment.ContentRootFileProvider,
+        Path = "appsettings.Local.json",
+        Optional = true,
+        ReloadOnChange = true,
+    });
+}
 
 builder.AddPortalCore();
 builder.Services.AddCreditHoursModule();   // the one lifecycle variant this deployment composes
