@@ -104,6 +104,60 @@ namespace NIMI.UniPortal.Modules.Notifications.Infrastructure.Persistence.Migrat
                             t.HasCheckConstraint("ck_notifications_type", "type IN ('schedule','assignment','grade','attendance','announcement','payment','forum','event','system')");
                         });
                 });
+
+            modelBuilder.Entity("NIMI.UniPortal.Modules.Notifications.Domain.OutboundEmail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("provider");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<Guid>("SourceEventId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_event_id");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("subject");
+
+                    b.Property<string>("To")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("to");
+
+                    b.HasKey("Id")
+                        .HasName("pk_outbound_emails");
+
+                    b.HasIndex("SourceEventId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_outbound_emails_source_event_id");
+
+                    b.HasIndex("To", "CreatedAt")
+                        .HasDatabaseName("ix_outbound_emails_to_created_at");
+
+                    b.ToTable("outbound_emails", "notifications");
+                });
 #pragma warning restore 612, 618
         }
     }

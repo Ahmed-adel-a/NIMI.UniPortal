@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
+using NIMI.UniPortal.Modules.Users.Application.Auth;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Security;
@@ -19,6 +20,7 @@ internal sealed class ResetPasswordHandler(
 
         var temporaryPassword = TemporaryPassword.Generate();
         user.ResetPassword(hasher.Hash(temporaryPassword), clock.GetUtcNow());
+        await Sessions.RevokeAllAsync(db, user.Id, clock.GetUtcNow(), cancellationToken);
         events.Add(new AuditableActionPerformed(
             Guid.CreateVersion7(),
             clock.GetUtcNow(),

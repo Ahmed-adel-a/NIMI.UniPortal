@@ -11,6 +11,8 @@ public sealed class NotificationsDbContext(DbContextOptions<NotificationsDbConte
 
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    public DbSet<OutboundEmail> OutboundEmails => Set<OutboundEmail>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);

@@ -17,9 +17,11 @@ internal sealed class ChangePasswordHandler(IUsersDbContext db, IPasswordHasher 
         if (!hasher.Verify(user.PasswordHash, command.CurrentPassword))
             throw ValidationErrors.For(nameof(command.CurrentPassword), "The current password is incorrect.");
 
-        user.ChangePassword(hasher.Hash(command.NewPassword), clock.GetUtcNow());
+        var now = clock.GetUtcNow();
+        user.ChangePassword(hasher.Hash(command.NewPassword), now);
 
-        var token = tokens.Issue(user);
-        return new TokenResponse(token.Value, token.ExpiresAt, user.MustChangePassword);
+        // Other devices are signed out; this one continues with a fresh session.
+        await Sessions.RevokeAllAsync(db, user.Id, now, cancellationToken);
+        return Sessions.Start(db, tokens, user, now);
     }
 }
