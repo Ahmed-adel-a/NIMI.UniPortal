@@ -1,4 +1,4 @@
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>
 /// P10.1 — the student's home screen in one call. A section whose source failed is null and its name is listed in

@@ -1,6 +1,6 @@
 using NIMI.UniPortal.SharedKernel.Persistence;
 
-namespace Host.CairoUniversity;
+namespace NIMI.UniPortal.Hosting;
 
 internal static class ModuleSeeding
 {

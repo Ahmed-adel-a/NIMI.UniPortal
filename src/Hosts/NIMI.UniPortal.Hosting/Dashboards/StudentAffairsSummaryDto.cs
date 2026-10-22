@@ -1,4 +1,4 @@
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>
 /// P10.6 — every catalog metric's value for the filter (term defaults to the active one). A metric whose source failed

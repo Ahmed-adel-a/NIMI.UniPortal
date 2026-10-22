@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using NIMI.UniPortal.SharedKernel.Security;
 
-namespace Host.CairoUniversity.Security;
+namespace NIMI.UniPortal.Hosting.Security;
 
 /// <summary>Satisfied unless the token says <c>must_change_password = true</c>.</summary>
 internal sealed class PasswordChangedHandler : AuthorizationHandler<PasswordChangedRequirement>

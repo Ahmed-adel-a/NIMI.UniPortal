@@ -1,6 +1,6 @@
 using NIMI.UniPortal.Abstractions.Files;
 
-namespace Host.CairoUniversity.Storage;
+namespace NIMI.UniPortal.Hosting.Storage;
 
 /// <summary>Registers the deployment's file storage (local disk under <c>Storage:RootPath</c>).</summary>
 internal static class FileStorageServiceCollectionExtensions

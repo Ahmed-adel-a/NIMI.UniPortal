@@ -1,4 +1,4 @@
-namespace Host.CairoUniversity.Dashboards;
+namespace NIMI.UniPortal.Hosting.Dashboards;
 
 /// <summary>P10.6 SADASH — the metric catalog, in display order. Keys are the summary's value names.</summary>
 internal static class DashboardMetrics
