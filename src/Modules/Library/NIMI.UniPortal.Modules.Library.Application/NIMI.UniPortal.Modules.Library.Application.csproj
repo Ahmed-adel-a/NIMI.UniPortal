@@ -4,6 +4,14 @@
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Library.Domain\NIMI.UniPortal.Modules.Library.Domain.csproj" />
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Library.Contracts\NIMI.UniPortal.Modules.Library.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.EventBus\NIMI.UniPortal.EventBus.csproj" />
+    <!-- Premium module: reads core Contracts only (members and faculties, notifications); core never references it. -->
+    <ProjectReference Include="..\..\Users\NIMI.UniPortal.Modules.Users.Contracts\NIMI.UniPortal.Modules.Users.Contracts.csproj" />
+    <ProjectReference Include="..\..\Notifications\NIMI.UniPortal.Modules.Notifications.Contracts\NIMI.UniPortal.Modules.Notifications.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 
 </Project>
