@@ -57,9 +57,18 @@ What the demo campus holds:
 
 ## Talking to the API
 
-- **Sign in:** `POST /api/auth/login` with `{ "email", "password" }`. The response has `accessToken`, `expiresAt` and `mustChangePassword`.
-  Send `Authorization: Bearer <accessToken>` on every other call. `GET /api/auth/me` returns the signed-in user.
-  When `mustChangePassword` is true, every call except `/api/auth/me` and `POST /api/auth/change-password` returns 403 `password_change_required`.
+- **Sign in:** `POST /api/auth/login` with `{ "email", "password" }` returns `accessToken` + `expiresAt`, `refreshToken` +
+  `refreshTokenExpiresAt` (14 days) and `mustChangePassword`. Send `Authorization: Bearer <accessToken>` on every
+  other call; `GET /api/auth/me` returns the signed-in user. While `mustChangePassword` is true, everything except
+  `/api/auth/me` and `POST /api/auth/change-password` answers 403 `password_change_required`.
+- **Staying signed in:** before the access token expires (or after a 401), `POST /api/auth/refresh` with
+  `{ "refreshToken" }` returns a new pair. **Each refresh token works once**: always store the new one. Using an old
+  one again ends that sign-in (it looks stolen). `POST /api/auth/logout` with `{ "refreshToken" }` ends the sign-in.
+  Changing or resetting the password ends every other sign-in.
+- **Forgot password:** `POST /api/auth/forgot-password` with `{ "email" }` always answers 202. The email holds a link to
+  `<frontend>/reset-password?token=…` (valid 30 minutes, once). Your page posts `{ "token", "newPassword" }` to
+  `POST /api/auth/reset-password` (204). No real email is sent in this setup: read it as Student Affairs at
+  `GET /api/admin/dev/emails?to=<address>`.
 - **Errors** always have the same shape: `{ "code", "message", "details": [{ "field", "error" }] }`. The codes are
   400 `validation_failed` / `invalid_value` / `bad_request`, 401 (`invalid_credentials` on login), 403 `forbidden` /
   `password_change_required`, 404 `not_found`, 409 `conflict`, 429 `rate_limited` and 500 `server_error`.
