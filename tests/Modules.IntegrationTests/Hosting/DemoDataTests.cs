@@ -24,8 +24,11 @@ public sealed class DemoDataTests(PortalWebAppFactory factory) : PortalTest(fact
     {
         await SeedAsync();
 
+        var today = DateOnly.FromDateTime(Factory.Clock.GetUtcNow().UtcDateTime);
+        var twoWeeks = $"from={today:yyyy-MM-dd}&to={today.AddDays(13):yyyy-MM-dd}";
+
         var student = await TokenClientAsync(DemoCampus.StudentEmail);
-        var schedule = await student.GetStringAsync("/api/schedule");
+        var schedule = await student.GetStringAsync($"/api/schedule?{twoWeeks}");
         Assert.Contains("CSE101", schedule);
         Assert.Equal(HttpStatusCode.OK, (await student.GetAsync("/api/dashboard")).StatusCode);
         var fees = await student.GetStringAsync("/api/payments/fees");
@@ -34,7 +37,7 @@ public sealed class DemoDataTests(PortalWebAppFactory factory) : PortalTest(fact
         Assert.NotEmpty(feed["items"]!.AsArray());
 
         var professor = await TokenClientAsync(DemoCampus.ProfessorEmail);
-        Assert.Contains("CSE101", await professor.GetStringAsync("/api/teaching/schedule"));
+        Assert.Contains("CSE101", await professor.GetStringAsync($"/api/teaching/schedule?{twoWeeks}"));
 
         var admin = await TokenClientAsync(DemoCampus.AdminEmail);
         Assert.Equal(HttpStatusCode.OK, (await admin.GetAsync("/api/admin/dashboard/summary")).StatusCode);
