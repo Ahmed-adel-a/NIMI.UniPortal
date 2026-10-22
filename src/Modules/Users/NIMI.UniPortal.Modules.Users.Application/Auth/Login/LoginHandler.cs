@@ -37,7 +37,6 @@ internal sealed class LoginHandler(IUsersDbContext db, IPasswordHasher hasher, I
         }
 
         user.RecordSuccessfulLogin(now);
-        var token = tokens.Issue(user);
-        return new TokenResponse(token.Value, token.ExpiresAt, user.MustChangePassword);
+        return Sessions.Start(db, tokens, user, now);
     }
 }

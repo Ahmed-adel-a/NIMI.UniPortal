@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Notifications.Application.Abstractions;
+using NIMI.UniPortal.Modules.Notifications.Infrastructure.Email;
 using NIMI.UniPortal.Modules.Notifications.Infrastructure.Persistence;
 using NIMI.UniPortal.SharedKernel.Persistence;
 
@@ -15,6 +16,7 @@ public static class NotificationsInfrastructure
         services.AddDbContext<NotificationsDbContext>((provider, options) => Configure(options, connectionString(provider)));
         services.AddScoped<INotificationsDbContext>(provider => provider.GetRequiredService<NotificationsDbContext>());
         services.AddScoped<IModuleDatabase, NotificationsDatabase>();
+        services.AddSingleton<IEmailSender, OutboxEmailSender>();   // the only provider in this build (EMAILPROVIDER open)
         return services;
     }
 
