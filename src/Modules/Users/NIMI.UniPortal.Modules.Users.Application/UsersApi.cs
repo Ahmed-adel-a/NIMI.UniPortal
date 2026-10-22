@@ -21,6 +21,19 @@ internal sealed class UsersApi(IUsersDbContext db) : IUsersApi
             .Select(d => new DepartmentRef(d.Id, d.FacultyId, d.Code, d.Name, d.NameAr, d.IsActive))
             .SingleOrDefaultAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<FacultyRef>> GetFacultiesAsync(CancellationToken cancellationToken = default) =>
+        await db.Faculties.AsNoTracking()
+            .OrderBy(f => f.Code)
+            .Select(f => new FacultyRef(f.Id, f.Code, f.Name, f.NameAr, f.IsActive))
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<DepartmentRef>> GetDepartmentsAsync(Guid? facultyId, CancellationToken cancellationToken = default) =>
+        await db.Departments.AsNoTracking()
+            .Where(d => facultyId == null || d.FacultyId == facultyId)
+            .OrderBy(d => d.Code)
+            .Select(d => new DepartmentRef(d.Id, d.FacultyId, d.Code, d.Name, d.NameAr, d.IsActive))
+            .ToListAsync(cancellationToken);
+
     public async Task<UserRef?> GetUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await db.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);

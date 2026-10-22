@@ -1,3 +1,4 @@
+using NIMI.UniPortal.Modules.Platform.Domain.AcademicSystems;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Platform.Application.Abstractions;
 using NIMI.UniPortal.Modules.Platform.Domain.Settings;
@@ -11,6 +12,8 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<SystemSettings> SystemSettings => Set<SystemSettings>();
 
     public DbSet<FacultySettings> FacultySettings => Set<FacultySettings>();
+
+    public DbSet<AcademicSystemRule> AcademicSystemRules => Set<AcademicSystemRule>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

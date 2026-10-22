@@ -23,6 +23,47 @@ namespace NIMI.UniPortal.Modules.Platform.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NIMI.UniPortal.Modules.Platform.Domain.AcademicSystems.AcademicSystemRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("department_id");
+
+                    b.Property<Guid?>("FacultyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("faculty_id");
+
+                    b.Property<string>("System")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("system");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_academic_system_rules");
+
+                    b.HasIndex("FacultyId", "DepartmentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_academic_system_rules_faculty_id_department_id");
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("FacultyId", "DepartmentId"), false);
+
+                    b.ToTable("academic_system_rules", "platform", t =>
+                        {
+                            t.HasCheckConstraint("ck_academic_system_rules_scope", "faculty_id IS NULL OR department_id IS NULL");
+
+                            t.HasCheckConstraint("ck_academic_system_rules_system", "system IN ('credit_hours','year_groups')");
+                        });
+                });
+
             modelBuilder.Entity("NIMI.UniPortal.Modules.Platform.Domain.Settings.FacultySettings", b =>
                 {
                     b.Property<Guid>("Id")

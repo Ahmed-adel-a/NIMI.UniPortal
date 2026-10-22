@@ -1,3 +1,5 @@
+using NIMI.UniPortal.Modules.Platform.Application.AcademicSystems;
+using NIMI.UniPortal.Modules.Users.Contracts;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Platform.Application.Abstractions;
@@ -7,8 +9,16 @@ using NIMI.UniPortal.Modules.Platform.Domain.Settings;
 namespace NIMI.UniPortal.Modules.Platform.Application;
 
 /// <summary>Platform's public read contract for other modules: settings, faculty overrides and the effective rules (P1.4).</summary>
-internal sealed class PlatformSettingsApi(IPlatformDbContext db) : IPlatformSettingsApi
+internal sealed class PlatformSettingsApi(IPlatformDbContext db, AcademicSystemResolver academicSystems, IUsersApi users)
+    : IPlatformSettingsApi
 {
+    public async Task<string> GetAcademicSystemAsync(Guid? departmentId, CancellationToken cancellationToken = default)
+    {
+        var facultyId = departmentId is { } id ? (await users.GetDepartmentAsync(id, cancellationToken))?.FacultyId : null;
+        var (system, _) = await academicSystems.ResolveAsync(facultyId, departmentId, cancellationToken);
+        return AcademicSystemNames.Name(system);
+    }
+
     public async Task<string> GetStudentCodeFormatAsync(Guid facultyId, CancellationToken cancellationToken = default)
     {
         // R7: the faculty's format when it overrides one; the university format otherwise. Codes already issued
