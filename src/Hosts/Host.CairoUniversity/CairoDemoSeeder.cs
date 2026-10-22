@@ -15,11 +15,11 @@ namespace NIMI.UniPortal.Host.CairoUniversity;
 /// The premium modules Cairo bought, on top of the shared demo campus: forum categories with a conversation, and a
 /// published event with a registration. Runs only when the shared seeder built the campus in this run.
 /// </summary>
-public sealed class CairoDemoSeeder(ISender sender, TimeProvider clock, DemoCampus campus) : IModuleSeeder
+public sealed class CairoDemoSeeder(ISender sender, TimeProvider clock, DemoDataOptions options, DemoCampus campus) : IModuleSeeder
 {
     public async Task SeedAsync(CancellationToken cancellationToken)
     {
-        if (!campus.Seeded)
+        if (!options.Enabled || !campus.Seeded)
             return;
 
         var ct = cancellationToken;
