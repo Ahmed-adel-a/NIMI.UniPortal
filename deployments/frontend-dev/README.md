@@ -18,6 +18,10 @@ Run it in this folder. The first start pulls the images, creates the database an
 | OpenAPI document (generate a typed client from it) | http://localhost:8080/openapi/v1.json |
 | Health | http://localhost:8080/api/health/db |
 
+The very first start logs a few `Failed executing DbCommand … __ef_migrations_history` lines. That is the API
+finding an empty database before it creates the tables, so they are expected. `docker compose logs api` should end with
+`Demo campus seeded` and `Now listening on: http://[::]:8080`.
+
 ### Other commands
 
 | Task | Command |

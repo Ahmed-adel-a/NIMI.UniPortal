@@ -3,13 +3,20 @@ using Microsoft.OpenApi;
 
 namespace NIMI.UniPortal.Hosting.FrontendAccess;
 
-/// <summary>Declares the JWT bearer scheme (from POST /api/auth/login), so the docs page can send authorized requests.</summary>
+/// <summary>
+/// Names the document and declares the JWT bearer scheme (from POST /api/auth/login), so the docs page can send authorized
+/// requests.
+/// </summary>
 internal sealed class BearerSecuritySchemeTransformer : IOpenApiDocumentTransformer
 {
     public const string SchemeName = "Bearer";
 
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
+        document.Info.Title = "NIMI UniPortal API";
+        document.Info.Description =
+            "Sign in at POST /api/auth/login and send the accessToken as a Bearer token. Errors share one shape: " +
+            "{ code, message, details[{ field, error }] }. Lists are paged (page, pageSize up to 100).";
         document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
         document.Components.SecuritySchemes[SchemeName] = new OpenApiSecurityScheme
