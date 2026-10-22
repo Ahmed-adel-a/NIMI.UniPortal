@@ -10,7 +10,8 @@ namespace Host.CairoUniversity.Errors;
 /// Maps exceptions to the <see cref="ApiError"/> envelope:
 /// validation → 400 · domain rule (ArgumentException thrown <b>from a .Domain assembly</b>) → 400 ·
 /// malformed request → 400 · <see cref="NotFoundException"/> → 404 · <see cref="ConflictException"/> or a
-/// database unique-key violation → 409 · anything else → 500 without internals.
+/// database unique-key violation → 409 · <see cref="TooManyRequestsException"/> → 429 · anything else → 500 without
+/// internals.
 /// </summary>
 internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : IExceptionHandler
 {
@@ -46,6 +47,8 @@ internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) :
             ConflictException conflict => (StatusCodes.Status409Conflict, new ApiError("conflict", conflict.Message, [])),
 
             ForbiddenException forbidden => (StatusCodes.Status403Forbidden, new ApiError("forbidden", forbidden.Message, [])),
+
+            TooManyRequestsException limited => (StatusCodes.Status429TooManyRequests, new ApiError("rate_limited", limited.Message, [])),
 
             // Backstop for races the handlers' duplicate checks can't see (two admins at the same moment).
             DbUpdateException { InnerException: PostgresException { SqlState: UniqueViolation } } =>
