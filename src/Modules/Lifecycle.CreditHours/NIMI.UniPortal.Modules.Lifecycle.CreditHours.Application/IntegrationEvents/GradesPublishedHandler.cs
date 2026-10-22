@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Grades.Contracts;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Abstractions;
+using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Common;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Results;
 using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Domain.Registration;
 
@@ -12,21 +13,23 @@ namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.IntegrationEv
 /// correction updates it), complete or fail the matching confirmed registration, and refresh the students' GPA
 /// snapshots. Pending and dropped registrations are left alone.
 /// </summary>
-internal sealed class GradesPublishedHandler(ICreditHoursDbContext db, StudentResults results, TimeProvider clock)
+internal sealed class GradesPublishedHandler(
+    ICreditHoursDbContext db, StudentResults results, CreditHoursStudents creditHoursStudents, TimeProvider clock)
     : IIntegrationEventHandler<GradesPublished>
 {
     public async Task HandleAsync(GradesPublished integrationEvent, CancellationToken cancellationToken)
     {
         var now = clock.GetUtcNow();
         var termId = integrationEvent.TermId;
-        var published = integrationEvent.Grades.Select(g => g.StudentId).Distinct().ToList();
 
-        // Decision LIFECYCLEDEPT: grades of year-group students (no registration here) belong to the other variant.
-        var studentIds = await db.CourseRegistrations.AsNoTracking()
-            .Where(r => r.TermId == termId && published.Contains(r.StudentId))
-            .Select(r => r.StudentId)
-            .Distinct()
-            .ToListAsync(cancellationToken);
+        // Decision LIFECYCLEDEPT: grades of year-group students belong to the other variant.
+        var studentIds = new List<Guid>();
+        foreach (var studentId in integrationEvent.Grades.Select(g => g.StudentId).Distinct())
+        {
+            if (await creditHoursStudents.IsOnCreditHoursAsync(studentId, cancellationToken))
+                studentIds.Add(studentId);
+        }
+
         if (studentIds.Count == 0)
             return;
 

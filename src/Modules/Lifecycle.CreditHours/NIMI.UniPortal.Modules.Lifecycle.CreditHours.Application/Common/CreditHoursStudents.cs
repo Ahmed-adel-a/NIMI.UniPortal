@@ -9,6 +9,8 @@ namespace NIMI.UniPortal.Modules.Lifecycle.CreditHours.Application.Common;
 /// </summary>
 internal sealed class CreditHoursStudents(IUsersApi users, IPlatformSettingsApi platform)
 {
+    private readonly Dictionary<Guid, bool> byDepartment = [];
+
     public const string YearGroupsMessage =
         "Your department studies in year groups: Student Affairs places you in your subjects, there is no self-registration.";
 
@@ -18,6 +20,14 @@ internal sealed class CreditHoursStudents(IUsersApi users, IPlatformSettingsApi 
         return placement is null || await IsCreditHoursDepartmentAsync(placement.DepartmentId, cancellationToken);
     }
 
-    public async Task<bool> IsCreditHoursDepartmentAsync(Guid departmentId, CancellationToken cancellationToken) =>
-        await platform.GetAcademicSystemAsync(departmentId, cancellationToken) == AcademicSystems.CreditHours;
+    public async Task<bool> IsCreditHoursDepartmentAsync(Guid departmentId, CancellationToken cancellationToken)
+    {
+        if (!byDepartment.TryGetValue(departmentId, out var creditHours))
+        {
+            creditHours = await platform.GetAcademicSystemAsync(departmentId, cancellationToken) == AcademicSystems.CreditHours;
+            byDepartment[departmentId] = creditHours;
+        }
+
+        return creditHours;
+    }
 }
