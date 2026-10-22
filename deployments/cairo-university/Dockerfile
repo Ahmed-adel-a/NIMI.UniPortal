@@ -13,8 +13,9 @@ RUN dotnet publish src/Hosts/Host.CairoUniversity/Host.CairoUniversity.csproj \
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
+# libgssapi-krb5-2: the PostgreSQL driver probes for Kerberos at start-up and logs an error without it.
 # Uploaded files (Storage:RootPath) live on a volume mounted here; the app user must own it.
-RUN mkdir -p /data/files && chown -R $APP_UID /data
+RUN apt-get update     && apt-get install -y --no-install-recommends libgssapi-krb5-2     && rm -rf /var/lib/apt/lists/*     && mkdir -p /data/files && chown -R $APP_UID /data
 COPY --from=build /app .
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     Storage__RootPath=/data/files
