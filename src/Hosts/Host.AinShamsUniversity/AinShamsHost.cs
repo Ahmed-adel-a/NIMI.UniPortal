@@ -1,6 +1,6 @@
 using NIMI.UniPortal.Hosting;
 using NIMI.UniPortal.Modules.Library.Api;
-using NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api;
+using NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Api;
 
 namespace Host.AinShamsUniversity;
 
@@ -19,7 +19,7 @@ public sealed class AinShamsHost
         var builder = WebApplication.CreateBuilder(args);
 
         builder.AddPortalCore();
-        builder.Services.AddCreditHoursModule();   // the one lifecycle variant (SemesterBased once P4.B exists)
+        builder.Services.AddSemesterBasedModule();   // the one lifecycle variant: SemesterBased (نظام الفرق, P4.B)
 
         // ── Premium modules this deployment sells (P11): Library — not Forum or Events ──
         builder.Services.AddLibraryModule();
@@ -27,7 +27,7 @@ public sealed class AinShamsHost
         var app = builder.Build();
 
         await app.UsePortalCoreAsync();
-        app.MapCreditHoursEndpoints();
+        app.MapSemesterBasedEndpoints();
         app.MapLibraryEndpoints();
 
         await app.RunAsync();

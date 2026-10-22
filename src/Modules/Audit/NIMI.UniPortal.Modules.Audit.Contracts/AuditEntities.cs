@@ -12,4 +12,6 @@ public static class AuditEntities
     public const string Payment = "payment";
     public const string DeviceChangeRequest = "device_change_request";
     public const string ScheduleSlot = "schedule_slot";
+    public const string Department = "department";
+    public const string PromotionPolicy = "promotion_policy";
 }

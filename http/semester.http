@@ -1,0 +1,105 @@
+# Lifecycle.SemesterBased (P4.B, نظام الفرق) — demo requests against the reference host.
+#
+# Run the reference host: dotnet run --project src/Hosts/Host.AinShamsUniversity  (http://localhost:5090)
+# Its own user secrets: ConnectionStrings:Portal, SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD (same keys as Cairo).
+# Student Affairs sets up subjects, groups and teaching assignments as usual (http/scheduling.http), then:
+#   study plan → promotion policy → generate the term → grades → automatic promotion (decision SEMPROMO).
+
+@host = http://localhost:5090
+@adminToken = paste-the-admin-token-here
+@studentToken = paste-a-students-token-here
+@departmentId = paste-a-department-id-here
+@facultyId = paste-a-faculty-id-here
+@termId = paste-a-term-id-here
+@studentId = paste-a-students-id-here
+@subjectId1 = paste-a-subject-id-here
+@subjectId2 = paste-another-subject-id-here
+@enrollmentId = paste-an-enrollment-id-here
+@groupId = paste-a-group-id-here
+
+### Student Affairs: the department's study plan (levels; subjects per level and term)
+PUT {{host}}/api/admin/study-plans/{{departmentId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "levels": 4,
+  "subjects": [
+    { "level": 1, "term": "first", "subjectId": "{{subjectId1}}" },
+    { "level": 1, "term": "second", "subjectId": "{{subjectId2}}" }
+  ]
+}
+
+### … and read it back
+GET {{host}}/api/admin/study-plans/{{departmentId}}
+Authorization: Bearer {{adminToken}}
+
+### Promotion settings, university-wide (built in: 3 carried subjects, no gates, 2 years per level, fees required)
+GET {{host}}/api/admin/promotion-policy
+Authorization: Bearer {{adminToken}}
+
+### A faculty's own numbers, e.g. a 2+2 programme: level 3 only with everything passed
+PUT {{host}}/api/admin/faculties/{{facultyId}}/promotion-policy
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "maxCarriedSubjects": 3, "gateLevels": [3], "maxYearsPerLevel": 2, "requireFeesPaid": true }
+
+### Back to the university's numbers
+DELETE {{host}}/api/admin/faculties/{{facultyId}}/promotion-policy
+Authorization: Bearer {{adminToken}}
+
+### Generate the term's enrollments (new students start in level 1; carried subjects come along)
+POST {{host}}/api/admin/term-enrollments/generate
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "termId": "{{termId}}", "departmentId": "{{departmentId}}" }
+
+### The term's enrollments of one student
+GET {{host}}/api/admin/term-enrollments?termId={{termId}}&studentId={{studentId}}
+Authorization: Bearer {{adminToken}}
+
+### Move a student to another group of the same subject
+PUT {{host}}/api/admin/term-enrollments/{{enrollmentId}}/group
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "subjectGroupId": "{{groupId}}" }
+
+### The department's year groups (فرق)
+GET {{host}}/api/admin/cohorts?departmentId={{departmentId}}
+Authorization: Bearer {{adminToken}}
+
+### Place a student in a level (transfers, corrections)
+PUT {{host}}/api/admin/standings/{{studentId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "level": 2 }
+
+### Year-end decisions (publishing the second term's grades decides them automatically)
+GET {{host}}/api/admin/promotions?academicYear=2026
+Authorization: Bearer {{adminToken}}
+
+### Re-run the decisions of a second term (complete results, undecided or held-and-now-paid)
+POST {{host}}/api/admin/promotions/run
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "termId": "{{termId}}" }
+
+### Override the rule for one student
+POST {{host}}/api/admin/promotions/override
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "studentId": "{{studentId}}", "result": "promoted", "reason": "Excused absence accepted by the faculty council." }
+
+### Student: my year level, carried subjects and latest decision
+GET {{host}}/api/standing
+Authorization: Bearer {{studentToken}}
+
+### Student: the same schedule and progress routes as CreditHours
+GET {{host}}/api/schedule?from=2027-02-06&to=2027-02-19
+Authorization: Bearer {{studentToken}}
