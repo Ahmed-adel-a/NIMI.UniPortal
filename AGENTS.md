@@ -12,7 +12,7 @@ Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean
 
 **No Docker for backend development** (Docker only packages the backend for the frontend developer, decision DEVDOCKER). PostgreSQL 18 is installed locally:
 - Integration tests: set the user env var `PORTAL_TEST_DB` = `Host=localhost;Port=5432;Username=postgres;Password=…` (no database name; each run creates and drops its own `portal_test_*` database). CI uses the runner's preinstalled PostgreSQL.
-- Running the host: `dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=…" --project src/Hosts/Host.CairoUniversity`
+- Running the host: put `ConnectionStrings:Portal` in `src/Hosts/Host.CairoUniversity/appsettings.Local.json` (Development only, git- and Docker-ignored; environment variables still win) or in user secrets: `dotnet user-secrets set ConnectionStrings:Portal "Host=localhost;Port=5432;Database=nimi_portal;Username=postgres;Password=…" --project src/Hosts/Host.CairoUniversity`
 - First admin (Development only): `dotnet user-secrets set SEED_ADMIN_EMAIL …` + `SEED_ADMIN_PASSWORD …` → seeded at startup, then log in via `POST /api/auth/login` (see `http/users.http`)
 - Token signing key: `Auth:Jwt:SigningKey` (≥ 32 bytes, env / user secrets, never committed). **Required** outside Development — the host refuses to start without it; Development generates a random key per run
 

@@ -9,6 +9,8 @@ obj/
 # Local secrets / environment files — never committed (trap #10)
 .env
 *.env
+# Developer-only host settings (local connection string with its password, keys)
+appsettings.Local.json
 
 # opencode config — local only (handbook README §6)
 /opencode.json

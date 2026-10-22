@@ -12,6 +12,7 @@ deployments/
 *.md
 *.user
 *.env
+**/appsettings.Local.json
 .env
 opencode.json
 project-map.json
