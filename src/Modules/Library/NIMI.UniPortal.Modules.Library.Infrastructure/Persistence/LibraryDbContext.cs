@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Library.Application.Abstractions;
 using NIMI.UniPortal.Modules.Library.Domain;
+using NIMI.UniPortal.Modules.Library.Domain.Digital;
 
 namespace NIMI.UniPortal.Modules.Library.Infrastructure.Persistence;
 
@@ -21,6 +22,8 @@ public sealed class LibraryDbContext(DbContextOptions<LibraryDbContext> options)
     public DbSet<LoanPolicy> Policies => Set<LoanPolicy>();
 
     public DbSet<LoanReminder> Reminders => Set<LoanReminder>();
+
+    public DbSet<DigitalBook> DigitalBooks => Set<DigitalBook>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

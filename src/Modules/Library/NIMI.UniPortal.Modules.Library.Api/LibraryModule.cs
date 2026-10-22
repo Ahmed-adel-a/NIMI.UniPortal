@@ -24,6 +24,7 @@ public static class LibraryModule
     {
         LibraryAdminEndpoints.Map(endpoints);
         LibraryMemberEndpoints.Map(endpoints);
+        DigitalLibraryEndpoints.Map(endpoints);
         return endpoints;
     }
 }
