@@ -66,3 +66,31 @@ Content-Type: application/json
 ###
 POST {{host}}/api/admin/library/reminders/run
 Authorization: Bearer {{adminToken}}
+
+### Digital library (DIGILIB): Student Affairs adds a verified PDF/EPUB for the university, a faculty or a department
+POST {{host}}/api/admin/library/digital
+Authorization: Bearer {{adminToken}}
+Content-Type: multipart/form-data; boundary=book
+
+--book
+Content-Disposition: form-data; name="title"
+
+Signals and Systems
+--book
+Content-Disposition: form-data; name="authors"
+
+Oppenheim, Willsky
+--book
+Content-Disposition: form-data; name="file"; filename="signals.pdf"
+Content-Type: application/pdf
+
+< ./signals.pdf
+--book--
+
+### Members: the books meant for them (search, subject filter)
+GET {{host}}/api/library/digital?search=signals
+Authorization: Bearer {{studentToken}}
+
+### … and download one (counted)
+GET {{host}}/api/library/digital/{{bookId}}/download
+Authorization: Bearer {{studentToken}}

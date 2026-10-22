@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NIMI.UniPortal.Modules.Library.Domain;
+using NIMI.UniPortal.Modules.Library.Domain.Digital;
 
 namespace NIMI.UniPortal.Modules.Library.Application.Abstractions;
 
@@ -17,6 +18,8 @@ public interface ILibraryDbContext
     DbSet<LoanPolicy> Policies { get; }
 
     DbSet<LoanReminder> Reminders { get; }
+
+    DbSet<DigitalBook> DigitalBooks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
