@@ -1,0 +1,18 @@
+# Only what the image build needs: the solution-level props and src/.
+**/bin/
+**/obj/
+.git/
+.github/
+.vs/
+.claude/
+docs/
+tests/
+http/
+deployments/
+*.md
+*.user
+*.env
+.env
+opencode.json
+project-map.json
+App_Data/
