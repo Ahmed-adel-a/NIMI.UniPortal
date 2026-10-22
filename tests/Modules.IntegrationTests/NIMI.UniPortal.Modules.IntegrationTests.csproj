@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Hosts\Host.CairoUniversity\Host.CairoUniversity.csproj" />
+    <!-- P11: the reference host, where the Library premium module (not sold to Cairo) is tested. -->
+    <ProjectReference Include="..\..\src\Hosts\Host.AinShamsUniversity\Host.AinShamsUniversity.csproj" />
   </ItemGroup>
 
 </Project>

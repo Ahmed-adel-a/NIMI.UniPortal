@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    The reference host (P4.10 placeholder, built in P11): proves a second deployment composes a different module set
+    from the same code. It sells Library, not Forum or Events. Until the SemesterBased variant exists (P4.B) it uses
+    CreditHours as its one lifecycle variant.
+  -->
+
+  <PropertyGroup>
+    <UserSecretsId>nimi-uniportal-host-ainshams</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Shared plumbing + the core modules + dashboards (every deployment). -->
+    <ProjectReference Include="..\NIMI.UniPortal.Hosting\NIMI.UniPortal.Hosting.csproj" />
+    <!-- Decision LIFECYCLE: exactly one lifecycle variant (SemesterBased once P4.B exists). -->
+    <ProjectReference Include="..\..\Modules\Lifecycle.CreditHours\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api\NIMI.UniPortal.Modules.Lifecycle.CreditHours.Api.csproj" />
+    <!-- Premium modules this deployment sells (P11): Library. -->
+    <ProjectReference Include="..\..\Modules\Library\NIMI.UniPortal.Modules.Library.Api\NIMI.UniPortal.Modules.Library.Api.csproj" />
+  </ItemGroup>
+
+</Project>
