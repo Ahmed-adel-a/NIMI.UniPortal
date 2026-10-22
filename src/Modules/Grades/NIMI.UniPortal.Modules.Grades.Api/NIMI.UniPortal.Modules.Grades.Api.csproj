@@ -9,4 +9,8 @@
     <ProjectReference Include="..\NIMI.UniPortal.Modules.Grades.Infrastructure\NIMI.UniPortal.Modules.Grades.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" />
+  </ItemGroup>
+
 </Project>

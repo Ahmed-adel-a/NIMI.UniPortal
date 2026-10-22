@@ -53,3 +53,21 @@ Content-Type: application/json
 ### Student Affairs: the grade's correction history
 GET {{host}}/api/admin/grades/{{gradeId}}/corrections
 Authorization: Bearer {{adminToken}}
+
+### Grades CSV import: the group's roster as a template (student_code, full_name, score)
+GET {{host}}/api/grades/groups/{{groupId}}/template
+Authorization: Bearer {{professorToken}}
+
+### … filled in and uploaded back as drafts (all or nothing; rows without a score are skipped)
+POST {{host}}/api/grades/groups/{{groupId}}/import
+Authorization: Bearer {{professorToken}}
+Content-Type: multipart/form-data; boundary=grades
+
+--grades
+Content-Disposition: form-data; name="file"; filename="grades.csv"
+Content-Type: text/csv
+
+student_code,full_name,score
+CS-2026-0001,Ahmed,91.5
+CS-2026-0002,Mona,78
+--grades--
