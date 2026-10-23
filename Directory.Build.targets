@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shared build settings that need the project's paths (imported after the SDK has set them).
+-->
+<Project>
+
+  <PropertyGroup>
+    <!--
+      Windows' 260-character path limit: Visual Studio's MSBuild fails on the longest generated file,
+      obj/<config>/net10.0/<project name>.GeneratedMSBuildEditorConfig.editorconfig, in the lifecycle projects unless
+      long paths are enabled in Windows. A short file name keeps every project well under the limit.
+    -->
+    <GeneratedMSBuildEditorConfigFile>$(IntermediateOutputPath)analyzers.editorconfig</GeneratedMSBuildEditorConfigFile>
+  </PropertyGroup>
+
+</Project>
