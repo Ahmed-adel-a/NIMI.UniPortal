@@ -2,8 +2,9 @@
 
   <!--
     What every deployment shares (P11 reference host): cross-cutting plumbing (errors, security, storage, migrations,
-    seeding, health), the core modules and the host-level dashboards. A host adds exactly one lifecycle variant and the
-    premium modules it sells — never through this project (rule: HostCompositionTests).
+    seeding, health), the core modules, both academic systems behind the lifecycle router (decision LIFECYCLEDEPT) and
+    the host-level dashboards and documents. A host adds only the premium modules it sells, never through this project;
+    only this project references the lifecycle variants (rule: HostCompositionTests).
   -->
 
   <ItemGroup>
