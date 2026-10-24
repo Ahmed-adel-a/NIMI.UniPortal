@@ -35,6 +35,7 @@
     <ProjectReference Include="..\..\Modules\Attendance\NIMI.UniPortal.Modules.Attendance.Api\NIMI.UniPortal.Modules.Attendance.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Materials\NIMI.UniPortal.Modules.Materials.Api\NIMI.UniPortal.Modules.Materials.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Announcements\NIMI.UniPortal.Modules.Announcements.Api\NIMI.UniPortal.Modules.Announcements.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\StudentReports\NIMI.UniPortal.Modules.StudentReports.Api\NIMI.UniPortal.Modules.StudentReports.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Assignments\NIMI.UniPortal.Modules.Assignments.Api\NIMI.UniPortal.Modules.Assignments.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Grades\NIMI.UniPortal.Modules.Grades.Api\NIMI.UniPortal.Modules.Grades.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Audit\NIMI.UniPortal.Modules.Audit.Api\NIMI.UniPortal.Modules.Audit.Api.csproj" />

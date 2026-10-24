@@ -22,4 +22,6 @@ public static class AuditActions
     public const string PromotionPolicyRemoved = "promotion_policy.removed";
     public const string StandingPlaced = "standing.placed";
     public const string PromotionOverridden = "promotion.overridden";
+    public const string StudentReportAnswered = "student_report.answered";
+    public const string StudentReportClosed = "student_report.closed";
 }

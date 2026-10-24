@@ -37,12 +37,28 @@ internal sealed class UsersApi(IUsersDbContext db) : IUsersApi
     public async Task<UserRef?> GetUserAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await db.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
-        return user is null
-            ? null
-            : new UserRef(
-                user.Id, user.FullName, UserRoles.Name(user.Role), user.DepartmentId, user.StudentCode,
-                user.AcademicTitle?.ToString().ToLowerInvariant(), user.IsActive);
+        return user is null ? null : ToRef(user);
     }
+
+    public async Task<IReadOnlyList<UserRef>> GetUsersAsync(
+        IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken = default)
+    {
+        if (userIds.Count == 0)
+            return [];
+        var users = await db.Users.AsNoTracking().Where(u => userIds.Contains(u.Id)).ToListAsync(cancellationToken);
+        return users.Select(ToRef).ToList();
+    }
+
+    public async Task<UserRef?> GetDepartmentHeadAsync(Guid departmentId, CancellationToken cancellationToken = default)
+    {
+        var head = await db.Users.AsNoTracking()
+            .SingleOrDefaultAsync(u => u.Role == UserRole.DepartmentHead && u.IsActive && u.DepartmentId == departmentId, cancellationToken);
+        return head is null ? null : ToRef(head);
+    }
+
+    private static UserRef ToRef(User user) =>
+        new(user.Id, user.FullName, UserRoles.Name(user.Role), user.DepartmentId, user.StudentCode,
+            user.AcademicTitle?.ToString().ToLowerInvariant(), user.IsActive);
 
     public Task<int> CountActiveStudentsAsync(
         Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default) =>

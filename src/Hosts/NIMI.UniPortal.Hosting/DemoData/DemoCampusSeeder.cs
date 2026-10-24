@@ -22,6 +22,8 @@ using NIMI.UniPortal.Modules.Scheduling.Application.Terms.ActivateTerm;
 using NIMI.UniPortal.Modules.Scheduling.Application.Terms.CreateTerm;
 using NIMI.UniPortal.Modules.Scheduling.Application.Timetable.CreateScheduleSlot;
 using NIMI.UniPortal.Modules.Scheduling.Contracts;
+using NIMI.UniPortal.Modules.StudentReports.Application.Submit;
+using ReportViewer = NIMI.UniPortal.Modules.StudentReports.Application.Common.Viewer;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Catalog;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Facilities;
 using NIMI.UniPortal.Modules.Scheduling.Domain.Terms;
@@ -120,6 +122,13 @@ public sealed class DemoCampusSeeder(
         // Created with the demo password but not switched over: shows the forced first-login change.
         await sender.Send(new CreateUserCommand(UserRole.Student, "طالب جديد", DemoCampus.NewStudentEmail, options.Password,
             computer.Id, academicYear, null, null, null, null, null), ct);
+
+        // Decision ROLES2: one open report from Omar to the Computer department head.
+        await sender.Send(new SubmitReportCommand(
+            new ReportViewer(omar, IsAdmin: false, IsDepartmentHead: false, IsStudent: true),
+            "academic",
+            "معمل الحاسب ١٠٤ بلا إنترنت",
+            "أجهزة المعمل لا تتصل بالإنترنت منذ أسبوع، ولا نستطيع إنهاء تكليف البرمجة."), ct);
 
         // ── A running term with a timetable ────────────────────────────
         var startsOn = today.AddDays(-28);

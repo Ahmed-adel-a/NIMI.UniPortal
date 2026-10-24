@@ -21,7 +21,8 @@ separate repository (`university-map`) and talks to this API over HTTP.
 
 ## What it does
 
-**Roles:** students, professors (teaching staff) and Student Affairs (the administrators).
+**Roles:** students, professors (teaching staff; teaching assistants too), department heads (supervise one department
+and may also teach) and Student Affairs (the administrators).
 
 | Area | What it covers |
 |------|----------------|
@@ -34,6 +35,7 @@ separate repository (`university-map`) and talks to this API over HTTP.
 | **Assignments** | Deadlines, one submission per student with a receipt, review with a grade |
 | **Grades** | Professors draft (also from a CSV); Student Affairs confirms and publishes; term and cumulative GPA; audited corrections |
 | **Payments** | Fee items per term, faculty or department; office payments with receipts; online checkout through a provider-neutral gateway (a mock until the real provider is chosen) |
+| **Student reports** | Students send reports to their department head, who answers once and/or closes them; Student Affairs reads them all |
 | **Notifications** | In-app notifications; an email outbox (password-reset links) |
 | **Dashboards, Audit, Documents** | Student dashboard; Student Affairs metrics; an activity log of sensitive actions; CSV exports; English PDFs (receipt, grade report, enrollment certificate, schedule) |
 | **Premium modules** (sold separately) | **Forum** (with identity, moderation, reports) · **Events** (registration with seats) · **Library** (physical lending, reservations, reminders, and a digital library of PDF/EPUB books) |
@@ -195,6 +197,8 @@ to be chosen.
 - **Academic system:** `GET /api/auth/me` returns `academicSystem` (`credit_hours` or `year_groups`). Show
   registration screens for credit hours and year-level screens for year groups. Schedule, progress and rosters work
   the same way for both.
+- **Roles:** `/api/auth/me` returns `role`: `student`, `professor`, `department_head` or `admin`. A department head
+  gets the reports inbox (`/api/department/reports`) and, for subjects they are assigned to, the teaching screens.
 - **Values:** enums are snake_case strings, times are UTC, ids are GUIDs, and names come in pairs (`name` / `nameAr`).
 
 Every flow with examples is in [`deployments/frontend-dev/README.md`](deployments/frontend-dev/README.md), and the

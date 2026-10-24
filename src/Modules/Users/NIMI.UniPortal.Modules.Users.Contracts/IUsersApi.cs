@@ -20,6 +20,12 @@ public interface IUsersApi
 
     Task<UserRef?> GetUserAsync(Guid userId, CancellationToken cancellationToken = default);
 
+    /// <summary>Several accounts at once (unknown ids are left out), e.g. to name the people in a list.</summary>
+    Task<IReadOnlyList<UserRef>> GetUsersAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken = default);
+
+    /// <summary>The department's active head (decision ROLES2), or null when it has none.</summary>
+    Task<UserRef?> GetDepartmentHeadAsync(Guid departmentId, CancellationToken cancellationToken = default);
+
     /// <summary>Active students only; a department filter wins over a faculty filter, both null means the university.</summary>
     Task<int> CountActiveStudentsAsync(Guid? facultyId, Guid? departmentId, CancellationToken cancellationToken = default);
 
