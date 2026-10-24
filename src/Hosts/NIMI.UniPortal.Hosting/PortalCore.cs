@@ -45,7 +45,11 @@ public static class PortalCore
         builder.Services.AddProblemDetails();   // required by UseExceptionHandler(); our handler writes the actual envelope
         builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);   // malformed bodies → our envelope
         builder.Services.ConfigureHttpJsonOptions(o =>
-            o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower)));
+        {
+            o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+            // Numbers are JSON numbers, not strings: also keeps the OpenAPI document (and the frontend's types) exact.
+            o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+        });
         builder.AddPortalAuthentication();                                        // JWT validation + policies (Security/)
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();              // who acted, for the activity log (P10.2)
