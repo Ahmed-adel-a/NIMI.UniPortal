@@ -209,3 +209,12 @@ Authorization: Bearer {{professorToken}}
 ### 15. Admin term lifecycle: only a planned term is editable (409 otherwise); close ends the term
 POST {{host}}/api/admin/terms/{{term.response.body.$.id}}/close
 Authorization: Bearer {{token}}
+
+### 16. Create next year's term from this one: a planned draft with the same groups, teaching assignments and weekly/biweekly slots
+# Dates keep the same distance from the term start; one-off and cancelled slots stay behind. The response lists what was copied
+# and what was skipped (inactive subject/teacher/hall, a non-working day, a double-booking) with the reason. 409 if that year and term already exist.
+POST {{host}}/api/admin/terms/{{term.response.body.$.id}}/copy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "academicYear": 2027, "number": "first", "startsOn": "2027-09-18", "endsOn": "2028-01-14", "weekCount": 17 }

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using NIMI.UniPortal.Modules.Scheduling.Application.Terms;
 using NIMI.UniPortal.Modules.Scheduling.Application.Terms.ActivateTerm;
 using NIMI.UniPortal.Modules.Scheduling.Application.Terms.CloseTerm;
+using NIMI.UniPortal.Modules.Scheduling.Application.Terms.CopyTerm;
 using NIMI.UniPortal.Modules.Scheduling.Application.Terms.CreateTerm;
 using NIMI.UniPortal.Modules.Scheduling.Application.Terms.GetCurrentTerm;
 using NIMI.UniPortal.Modules.Scheduling.Application.Terms.ListTerms;
@@ -37,6 +39,7 @@ internal static class TermEndpoints
         admin.MapPut("/{id:guid}", UpdateTerm).WithName("UpdateTerm");
         admin.MapPost("/{id:guid}/activate", ActivateTerm).WithName("ActivateTerm");
         admin.MapPost("/{id:guid}/close", CloseTerm).WithName("CloseTerm");
+        admin.MapPost("/{id:guid}/copy", CopyTerm).WithName("CopyTerm");
     }
 
     private static async Task<Ok<PagedResult<TermDto>>> ListTerms(
@@ -68,4 +71,18 @@ internal static class TermEndpoints
     private static async Task<Ok<TermDto>> CloseTerm(
         Guid id, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(new CloseTermCommand(id), cancellationToken));
+
+    /// <summary>
+    /// Creates a planned term from an earlier one and carries over its groups, teaching assignments and weekly/biweekly
+    /// slots; what cannot be carried over comes back in <c>skipped</c> with a reason.
+    /// </summary>
+    private static async Task<Created<CopyTermResultDto>> CopyTerm(
+        Guid id, CopyTermRequest request, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(
+            new CopyTermCommand(
+                id, request.AcademicYear, request.Number, request.StartsOn, request.EndsOn, request.WeekCount, caller.GetUserId()),
+            cancellationToken);
+        return TypedResults.Created($"/api/terms/{result.Term.Id}", result);
+    }
 }
