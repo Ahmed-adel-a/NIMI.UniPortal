@@ -21,6 +21,7 @@ using NIMI.UniPortal.Modules.Notifications.Api;
 using NIMI.UniPortal.Modules.Payments.Api;
 using NIMI.UniPortal.Modules.Platform.Api;
 using NIMI.UniPortal.Modules.Scheduling.Api;
+using NIMI.UniPortal.Modules.StudentReports.Api;
 using NIMI.UniPortal.Modules.Users.Api;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Security;
@@ -60,6 +61,7 @@ public static class PortalCore
         builder.Services.AddAttendanceModule();
         builder.Services.AddMaterialsModule();
         builder.Services.AddAnnouncementsModule();
+        builder.Services.AddStudentReportsModule();   // decision ROLES2
         builder.Services.AddAssignmentsModule();
         builder.Services.AddGradesModule();
         builder.Services.AddAuditModule();
@@ -96,6 +98,7 @@ public static class PortalCore
         app.MapAttendanceEndpoints();
         app.MapMaterialsEndpoints();
         app.MapAnnouncementsEndpoints();
+        app.MapStudentReportsEndpoints();
         app.MapAssignmentsEndpoints();
         app.MapGradesEndpoints();
         app.MapAuditEndpoints();

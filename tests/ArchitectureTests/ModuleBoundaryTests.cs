@@ -20,7 +20,7 @@ public sealed class ModuleBoundaryTests
     {
         var modules = ProjectGraph.ModuleProjects.GroupBy(p => p.Module!).ToList();
 
-        Assert.Equal(16, modules.Count);
+        Assert.Equal(17, modules.Count);   // 16 + StudentReports (decision ROLES2)
         Assert.All(modules, m => Assert.Equal(
             Layers.All.Order(),
             m.Select(p => p.Layer!).Order()));
