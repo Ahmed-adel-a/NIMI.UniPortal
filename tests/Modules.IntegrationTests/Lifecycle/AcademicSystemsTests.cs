@@ -121,41 +121,7 @@ public sealed class AcademicSystemsTests(PortalWebAppFactory factory) : PortalTe
         Assert.Equal(("credit_hours", "default"), await SystemAsync(admin, w.Cs));
     }
 
-    private async Task<MixedCampus> BuildAsync(HttpClient admin)
-    {
-        var eng = await OrganizationSetup.CreateFacultyAsync(admin, "ENG");
-        var cs = await OrganizationSetup.CreateDepartmentAsync(admin, eng, "CS");
-        var com = await OrganizationSetup.CreateFacultyAsync(admin, "COM");
-        var acc = await OrganizationSetup.CreateDepartmentAsync(admin, com, "ACC");
-        Assert.Equal(HttpStatusCode.OK, (await SetFacultyAsync(admin, com, "year_groups")).StatusCode);
-
-        var (ahmed, ahmedToken) = await AccountSetup.CreateStudentWithTokenAsync(Factory, admin, cs, "ahmed@cu.edu.eg");
-        var (sara, saraToken) = await AccountSetup.CreateStudentWithTokenAsync(Factory, admin, acc, "sara@cu.edu.eg");
-        var (hany, hanyToken) = await AccountSetup.CreateProfessorWithTokenAsync(Factory, admin, cs, "hany@cu.edu.eg");
-
-        var termId = await CreateActiveTermAsync(admin);
-        await OpenWindowAsync(Factory, admin, termId, minCredits: 3);
-        var hall = await CreateFacilityAsync(admin, "Hall A", eng);
-
-        var cs101 = await CreateSubjectAsync(admin, cs, "CS101", "Programming", "البرمجة");
-        var acc101 = await CreateSubjectAsync(admin, acc, "ACC101", "Accounting", "المحاسبة");
-        var cs101Group = await CreateGroupAsync(admin, cs101, termId);
-        var acc101Group = await CreateGroupAsync(admin, acc101, termId);
-        await AssignTeacherAsync(admin, hany, cs101, termId);
-        await AssignTeacherAsync(admin, hany, acc101, termId);
-        await CreateSlotAsync(admin, cs101Group, hall, null, 1, "09:00:00", "10:30:00");
-        await CreateSlotAsync(admin, acc101Group, hall, null, 2, "09:00:00", "10:30:00");
-
-        var plan = await admin.PutAsJsonAsync($"/api/admin/study-plans/{acc}",
-            new { levels = 4, subjects = new[] { new { level = 1, term = "first", subjectId = acc101 } } });
-        Assert.Equal(HttpStatusCode.OK, plan.StatusCode);
-
-        return new MixedCampus(
-            eng, cs, com, acc, termId, cs101, cs101Group, acc101, acc101Group,
-            ahmed, Factory.CreateClientWithToken(ahmedToken),
-            sara, Factory.CreateClientWithToken(saraToken),
-            hany, Factory.CreateClientWithToken(hanyToken));
-    }
+    private Task<MixedCampus> BuildAsync(HttpClient admin) => MixedCampusSetup.BuildAsync(Factory, admin);
 
     private static async Task<HttpResponseMessage> SetFacultyAsync(HttpClient admin, Guid facultyId, string? academicSystem) =>
         await admin.PutAsJsonAsync($"/api/admin/faculties/{facultyId}/academic-system", new { academicSystem });
