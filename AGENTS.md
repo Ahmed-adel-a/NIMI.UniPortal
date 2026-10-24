@@ -4,7 +4,7 @@
 
 ## Project
 
-**NIMI.UniPortal**: the backend for an Arabic RTL university portal, built as a sellable multi-university product (Model 2: one isolated deployment + its own database per university). One deployment covers a **whole university**: faculties (colleges) → departments, all managed as data, nothing hardcoded. First client: **Cairo University** (core modules incl. both academic systems + Forum + Events). **This repo is backend-only**; the React frontend lives in a separate repo (`university-map`) and is wired to this API in phase P12.
+**NIMI.UniPortal**: the backend for an Arabic RTL university portal, built as a sellable multi-university product (Model 2: one isolated deployment + its own database per university). One deployment covers a **whole university**: faculties (colleges) → departments, all managed as data, nothing hardcoded. First client: **Cairo University** (core modules incl. both academic systems + Forum + Events). The **web app** lives in `frontend/` (decision FRONTEND: React + Vite + TypeScript, Arabic RTL by default with an English switch, one app for every role; replaces wiring the old `university-map` repo).
 
 Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean Architecture (94 projects: 3 BuildingBlocks + 17 modules × 5 + the shared `NIMI.UniPortal.Hosting` + 2 hosts + 3 test projects) · own minimal mediator (no MediatR) · FluentValidation · JWT bearer · EF Core · PostgreSQL (one DB per deployment) · Guid v7 keys · Central Package Management (`Directory.Packages.props`).
 
@@ -29,6 +29,8 @@ Stack: .NET 10 (`net10.0` pinned in `Directory.Build.props`) · Modulith + Clean
 | `dotnet tool restore` | Restore repo-local tools (`dotnet-ef` 10.0.13, pinned in `dotnet-tools.json`) |
 | `dotnet ef migrations add <Name> --project src/Modules/<M>/NIMI.UniPortal.Modules.<M>.Infrastructure --context <M>DbContext --output-dir Persistence/Migrations` | Add a migration for one module (`--context` is mandatory) |
 | `dotnet build-server shutdown` | Stop lingering MSBuild/compiler servers (Windows file locks) |
+| `npm install` + `npm run dev` (in `frontend/`) | Run the web app on :5173; `/api` is forwarded to `VITE_API_URL` (default the Docker API on :8080) |
+| `npm test` / `npm run lint` / `npm run typecheck` (in `frontend/`) | Frontend checks; `npm run api:fetch` + `npm run api:types` regenerate the API types |
 
 CI: `.github/workflows/backend-ci.yml` runs restore → build → test (against the runner's PostgreSQL) on every push to `main` / `dev` / `module/**` / `slice/**` / `fix/**` / `chore/**` and on every PR. Failing tests appear as public annotations. `.github/workflows/backend-image.yml` builds the Docker image on every PR and publishes it to GHCR (`:dev`, `:sha-<commit>`) on every merge to `dev`.
 
@@ -39,6 +41,7 @@ CI: `.github/workflows/backend-ci.yml` runs restore → build → test (against 
 - `src/Modules/<Module>/`: one folder per module; layers `.Contracts` → `.Domain` → `.Application` → `.Infrastructure` → `.Api`. Core: Platform, Users, Notifications, Scheduling, Attendance, Materials, Announcements, Assignments, Grades, Payments, Audit, StudentReports. Lifecycle variants: `Lifecycle.CreditHours`, `Lifecycle.SemesterBased`. Premium: Forum, Events, Library
 - `src/Hosts/`: one host per deployment + the shared `NIMI.UniPortal.Hosting` (plumbing, core modules, both lifecycle variants + the router, dashboards, documents). `Host.CairoUniversity` (real: + Forum + Events; departments default to credit hours) · `Host.AinShamsUniversity` (reference host: + Library; departments default to year groups). Premium modules are selected per host at build time; the academic system per department is data
 - `tests/`: `ArchitectureTests` · `Modules.IntegrationTests` · `Modules.UnitTests`
+- `frontend/`: the web app (`src/api` client + generated `schema.d.ts`, `auth`, `i18n` ar/en, `layout`, `components/ui`, `pages/<role>`); CI `.github/workflows/frontend-ci.yml`
 - `deployments/`: per-client deployment assets: `cairo-university/Dockerfile` (the image) and `frontend-dev/` (compose + README for the frontend developer); production deployment stays deferred (DEP)
 - `http/`: `.http` demo files, one per module (`platform.http`, …)
 

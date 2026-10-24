@@ -47,6 +47,29 @@ internal sealed class StudentLifecycleReads(
         ];
     }
 
+    /// <summary>Decision FRONTEND: the student's subjects and groups this term, by code, from their own academic system.</summary>
+    public async Task<IReadOnlyList<StudentCourseDto>> CoursesAsync(Guid studentId, bool isStudent, CancellationToken cancellationToken)
+    {
+        if (!isStudent)
+            throw new ForbiddenException("Only students have courses of their own.");
+
+        var term = await scheduling.GetCurrentTermAsync(cancellationToken);
+        if (term is null)
+            return [];
+
+        var courses = new List<StudentCourseDto>();
+        foreach (var groupId in await lifecycle.GetGroupsForStudentAsync(studentId, term.Id, cancellationToken))
+        {
+            if (await scheduling.GetGroupAsync(groupId, cancellationToken) is not { } group
+                || await scheduling.GetSubjectAsync(group.SubjectId, cancellationToken) is not { } subject)
+                continue;
+            courses.Add(new StudentCourseDto(
+                subject.Id, subject.Code, subject.Name, subject.NameAr, subject.CreditHours, group.Id, group.GroupNumber));
+        }
+
+        return [.. courses.OrderBy(c => c.SubjectCode, StringComparer.Ordinal)];
+    }
+
     /// <summary>A group's members from both systems; the group's teaching staff or Student Affairs only.</summary>
     public async Task<PagedResult<RosterStudentDto>> RosterAsync(
         Guid groupId, Guid staffId, bool isProfessor, bool isAdmin, PageRequest paging, CancellationToken cancellationToken)
