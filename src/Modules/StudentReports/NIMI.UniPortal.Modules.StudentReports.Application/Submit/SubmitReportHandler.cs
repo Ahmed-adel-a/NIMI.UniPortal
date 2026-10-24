@@ -18,9 +18,9 @@ internal sealed class SubmitReportHandler(
     IUsersApi users,
     ReportPresenter presenter,
     IEventCollector events,
-    TimeProvider clock) : IRequestHandler<SubmitReportCommand, ReportDto>
+    TimeProvider clock) : IRequestHandler<SubmitReportCommand, StudentReportDto>
 {
-    public async Task<ReportDto> Handle(SubmitReportCommand command, CancellationToken cancellationToken)
+    public async Task<StudentReportDto> Handle(SubmitReportCommand command, CancellationToken cancellationToken)
     {
         if (!command.Caller.IsStudent)
             throw new ForbiddenException("Only students send reports to their department head.");

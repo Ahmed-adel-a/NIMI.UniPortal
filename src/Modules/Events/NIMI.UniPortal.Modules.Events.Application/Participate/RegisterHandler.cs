@@ -12,9 +12,9 @@ namespace NIMI.UniPortal.Modules.Events.Application.Participate;
 /// event is full." and nothing is saved · R3 one registration per member (a cancelled one is renewed).
 /// </summary>
 internal sealed class RegisterHandler(IEventsDbContext db, EventAudience audience, IEventSeats seats, TimeProvider clock)
-    : IRequestHandler<RegisterCommand, RegistrationDto>
+    : IRequestHandler<RegisterCommand, EventRegistrationDto>
 {
-    public async Task<RegistrationDto> Handle(RegisterCommand command, CancellationToken cancellationToken)
+    public async Task<EventRegistrationDto> Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
         if (command.Caller.IsAdmin)
             throw new ForbiddenException("Student Affairs runs events; members register.");
@@ -51,6 +51,6 @@ internal sealed class RegisterHandler(IEventsDbContext db, EventAudience audienc
             registration.Renew(now);
         }
 
-        return RegistrationDto.From(registration);
+        return EventRegistrationDto.From(registration);
     }
 }

@@ -24,7 +24,7 @@ internal static class ReportEndpoints
         group.MapGet("/{id:guid}", Get).WithName("GetStudentReport");
     }
 
-    private static async Task<Created<ReportDto>> Submit(
+    private static async Task<Created<StudentReportDto>> Submit(
         SubmitReportRequest request, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
     {
         var report = await sender.Send(
@@ -32,10 +32,10 @@ internal static class ReportEndpoints
         return TypedResults.Created($"/api/reports/{report.Id}", report);
     }
 
-    private static async Task<Ok<PagedResult<ReportDto>>> Mine(
+    private static async Task<Ok<PagedResult<StudentReportDto>>> Mine(
         int? page, int? pageSize, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(new MyReportsQuery(CallerViewer.From(caller), new PageRequest(page, pageSize)), cancellationToken));
 
-    private static async Task<Ok<ReportDto>> Get(Guid id, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
+    private static async Task<Ok<StudentReportDto>> Get(Guid id, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(new GetReportQuery(CallerViewer.From(caller), id), cancellationToken));
 }

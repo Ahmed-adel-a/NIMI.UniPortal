@@ -7,9 +7,9 @@ using NIMI.UniPortal.SharedKernel.Messaging;
 
 namespace NIMI.UniPortal.Modules.Events.Application.Manage;
 
-internal sealed class CheckInHandler(IEventsDbContext db, TimeProvider clock) : IRequestHandler<CheckInCommand, RegistrationDto>
+internal sealed class CheckInHandler(IEventsDbContext db, TimeProvider clock) : IRequestHandler<CheckInCommand, EventRegistrationDto>
 {
-    public async Task<RegistrationDto> Handle(CheckInCommand command, CancellationToken cancellationToken)
+    public async Task<EventRegistrationDto> Handle(CheckInCommand command, CancellationToken cancellationToken)
     {
         var campusEvent = await db.Events.AsNoTracking().SingleOrDefaultAsync(e => e.Id == command.EventId, cancellationToken)
             ?? throw new NotFoundException("Event not found.");
@@ -27,6 +27,6 @@ internal sealed class CheckInHandler(IEventsDbContext db, TimeProvider clock) : 
             throw new ConflictException("This member is already checked in.");
 
         registration.CheckIn(now);
-        return RegistrationDto.From(registration);
+        return EventRegistrationDto.From(registration);
     }
 }

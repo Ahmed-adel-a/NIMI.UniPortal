@@ -19,9 +19,9 @@ internal sealed class AnswerReportHandler(
     HeadAccess heads,
     ReportPresenter presenter,
     IEventCollector events,
-    TimeProvider clock) : IRequestHandler<AnswerReportCommand, ReportDto>
+    TimeProvider clock) : IRequestHandler<AnswerReportCommand, StudentReportDto>
 {
-    public async Task<ReportDto> Handle(AnswerReportCommand command, CancellationToken cancellationToken)
+    public async Task<StudentReportDto> Handle(AnswerReportCommand command, CancellationToken cancellationToken)
     {
         var departmentId = await heads.DepartmentOfAsync(command.Caller, cancellationToken);
         var report = await db.Reports.SingleOrDefaultAsync(

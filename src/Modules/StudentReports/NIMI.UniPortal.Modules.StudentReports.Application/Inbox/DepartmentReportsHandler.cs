@@ -8,9 +8,9 @@ using NIMI.UniPortal.SharedKernel.Paging;
 namespace NIMI.UniPortal.Modules.StudentReports.Application.Inbox;
 
 internal sealed class DepartmentReportsHandler(IStudentReportsDbContext db, HeadAccess heads, ReportPresenter presenter)
-    : IRequestHandler<DepartmentReportsQuery, PagedResult<ReportDto>>
+    : IRequestHandler<DepartmentReportsQuery, PagedResult<StudentReportDto>>
 {
-    public async Task<PagedResult<ReportDto>> Handle(DepartmentReportsQuery query, CancellationToken cancellationToken)
+    public async Task<PagedResult<StudentReportDto>> Handle(DepartmentReportsQuery query, CancellationToken cancellationToken)
     {
         var departmentId = await heads.DepartmentOfAsync(query.Caller, cancellationToken);
         var reports = db.Reports.AsNoTracking().Where(r => r.DepartmentId == departmentId);
