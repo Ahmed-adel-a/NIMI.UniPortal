@@ -72,7 +72,11 @@ internal sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) :
         return true;
     }
 
-    /// <summary>Only argument errors raised by domain code are the caller's fault; elsewhere they're our bugs (→ 500).</summary>
+    /// <summary>
+    /// Only argument errors raised by domain code are the caller's fault; elsewhere they're our bugs (→ 500).
+    /// Reliable because .Domain assemblies are never JIT-optimized (Directory.Build.props), so a domain guard can't be
+    /// inlined into the calling handler and hide its assembly.
+    /// </summary>
     private static bool IsDomainRule(ArgumentException exception) =>
         exception.TargetSite?.DeclaringType?.Assembly.GetName().Name?.EndsWith(".Domain", StringComparison.Ordinal) == true;
 

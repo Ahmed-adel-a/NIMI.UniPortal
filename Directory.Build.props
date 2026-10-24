@@ -12,4 +12,14 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <!--
+    Domain assemblies are never JIT-optimized, in every configuration. The host answers 400 for an ArgumentException
+    only when the throwing method lives in a .Domain assembly (ApiExceptionHandler.IsDomainRule); an optimized JIT may
+    inline a domain guard or a whole entity factory into the calling handler, turning a broken rule into 500. The
+    runtime never inlines methods of a debuggable assembly. Locked in by DomainRuleOriginTests.
+  -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Domain'))">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
 </Project>
