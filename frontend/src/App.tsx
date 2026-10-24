@@ -21,6 +21,9 @@ import { RegistrationPage } from './pages/student/RegistrationPage';
 import { ReportsPage } from './pages/student/ReportsPage';
 import { SchedulePage } from './pages/student/SchedulePage';
 import { StandingPage } from './pages/student/StandingPage';
+import { HeadReportsPage } from './pages/head/HeadReportsPage';
+import { ClassPage } from './pages/teaching/ClassPage';
+import { TeachingHomePage } from './pages/teaching/TeachingHomePage';
 
 /** Sends a signed-in user to their role's home. */
 function RoleHome() {
@@ -53,6 +56,10 @@ export function App() {
         <Route path="student/attendance" element={<RequireAuth roles={['student']}><AttendancePage /></RequireAuth>} />
         <Route path="student/fees" element={<RequireAuth roles={['student']}><FeesPage /></RequireAuth>} />
         <Route path="student/reports" element={<RequireAuth roles={['student']}><ReportsPage /></RequireAuth>} />
+
+        <Route path="teach" element={<RequireAuth roles={['professor', 'department_head']}><TeachingHomePage /></RequireAuth>} />
+        <Route path="teach/classes/:groupId" element={<RequireAuth roles={['professor', 'department_head']}><ClassPage /></RequireAuth>} />
+        <Route path="head/reports" element={<RequireAuth roles={['department_head']}><HeadReportsPage /></RequireAuth>} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

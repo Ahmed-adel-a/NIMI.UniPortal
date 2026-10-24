@@ -37,7 +37,7 @@ export const ar = {
   },
   nav: {
     home: 'الرئيسية', schedule: 'الجدول', registration: 'التسجيل', standing: 'الفرقة الدراسية', grades: 'الدرجات', fees: 'المصروفات',
-    attendance: 'الحضور', courses: 'المقررات', assignments: 'التكليفات', reports: 'البلاغات', notifications: 'الإشعارات', profile: 'الملف الشخصي',
+    attendance: 'الحضور', courses: 'المقررات', assignments: 'التكليفات', reports: 'البلاغات', teaching: 'التدريس', headReports: 'بلاغات القسم', notifications: 'الإشعارات', profile: 'الملف الشخصي',
     language: 'English', theme: 'المظهر', themeLight: 'فاتح', themeDark: 'داكن', themeSystem: 'تلقائي', menu: 'القائمة',
   },
   profile: {
@@ -72,7 +72,7 @@ export const ar = {
     paidOk: 'تم الدفع. رقم الإيصال: {{receipt}}', paidFail: 'لم تتم عملية الدفع.', currency: 'ج.م',
     statuses: { unpaid: 'غير مدفوع', partial: 'مدفوع جزئيًا', paid: 'مدفوع', waived: 'معفى' },
   },
-  attendance: { title: 'تسجيل الحضور', hint: 'اكتب الكود الظاهر أسفل رمز QR على شاشة المحاضر.', code: 'كود الجلسة', checkIn: 'سجل حضوري', done: 'تم تسجيل حضورك في {{subject}} ({{status}}).', statuses: { present: 'حاضر', late: 'متأخر', absent: 'غائب', excused: 'بعذر' }, device: 'هذا الجهاز مسجل كهاتفك للحضور.' },
+  attendance: { title: 'تسجيل الحضور', hint: 'امسح رمز QR الظاهر على شاشة المحاضر بكاميرا هاتفك.', scan: 'مسح رمز QR', cameraDenied: 'تعذر فتح الكاميرا. اسمح بالوصول إليها أو الصق الكود.', pasteHint: 'أو الصق الكود المنسوخ من شاشة المحاضر.', code: 'كود الجلسة', checkIn: 'سجل حضوري', done: 'تم تسجيل حضورك في {{subject}} ({{status}}).', statuses: { present: 'حاضر', late: 'متأخر', absent: 'غائب', excused: 'بعذر' }, device: 'هذا الجهاز مسجل كهاتفك للحضور.' },
   courses: { title: 'المقررات', materials: 'المحتوى', announcements: 'الإعلانات', week: 'الأسبوع {{n}}', noMaterials: 'لا محتوى بعد.', noAnnouncements: 'لا إعلانات.', pinned: 'مثبت', priority: { normal: 'عادي', high: 'مهم', urgent: 'عاجل' }, pick: 'اختر مقررًا', none: 'لا مقررات مسجلة.' },
   assignments: {
     title: 'التكليفات', open: 'مفتوحة', closed: 'مغلقة', due: 'التسليم: {{date}}', maxGrade: 'الدرجة العظمى', submit: 'تسليم', choose: 'اختر ملفًا',
@@ -85,6 +85,27 @@ export const ar = {
     categories: { academic: 'أكاديمي', attendance: 'الحضور', conduct: 'سلوك', other: 'أخرى' },
     statuses: { open: 'مفتوح', answered: 'تم الرد', closed: 'مغلق' },
   },
-  home: { staffSoon: 'صفحات أعضاء هيئة التدريس وشؤون الطلاب في المرحلة القادمة. يمكنك الآن عرض الإشعارات والملف الشخصي.' },
+  teach: {
+    title: 'التدريس', week: 'محاضرات هذا الأسبوع', classes: 'مجموعاتي', noClasses: 'لا مجموعات مسندة إليك في هذا الفصل.', noLectures: 'لا محاضرات هذا الأسبوع.',
+    open: 'فتح', group: 'مجموعة {{n}}', back: 'كل المجموعات',
+    tabs: { roster: 'الطلاب', attendance: 'الحضور', grades: 'الدرجات', materials: 'المحتوى', announcements: 'الإعلانات', assignments: 'التكليفات' },
+    roster: { student: 'الطالب', code: 'الكود', attended: 'حضر', held: 'محاضرات', rate: 'النسبة', export: 'تصدير الحضور CSV', empty: 'لا طلاب في المجموعة.' },
+    attendance: {
+      occurrences: 'محاضرات المجموعة هذا الأسبوع', openSession: 'بدء جلسة حضور', resume: 'متابعة الجلسة', session: 'جلسة {{date}}',
+      code: 'رمز الحضور', codeHint: 'يمسحه الطلاب بكاميرا هواتفهم؛ يتغير كل 20 ثانية.', copy: 'نسخ الكود', live: 'الحضور المباشر', close: 'إنهاء الجلسة',
+      closed: 'انتهت الجلسة: حاضر {{present}}، متأخر {{late}}، يدوي {{manual}}، غائب {{absent}}.', manual: 'تسجيل يدوي', note: 'سبب التسجيل اليدوي', noteFirst: 'اكتب سبب التسجيل اليدوي أولًا لتفعيل أزرار حاضر/متأخر/غائب.',
+      counts: 'حاضر {{present}} · متأخر {{late}} · يدوي {{manual}} · غائب {{absent}} · لم يسجل {{notYet}}', none: 'لا محاضرات لهذه المجموعة هذا الأسبوع.',
+      statuses: { present: 'حاضر', late: 'متأخر', manual_audit: 'يدوي', absent: 'غائب', not_yet: 'لم يسجل' },
+    },
+    grades: { score: 'الدرجة', status: 'الحالة', save: 'حفظ المسودة', saved: 'تم حفظ الدرجات.', template: 'تنزيل قالب CSV', import: 'استيراد CSV', imported: 'تم استيراد الدرجات.', statuses: { draft: 'مسودة', confirmed: 'مؤكدة', published: 'منشورة' } },
+    materials: { upload: 'رفع ملف', title: 'العنوان', description: 'الوصف', week: 'الأسبوع', file: 'الملف', uploaded: 'تم رفع الملف.', delete: 'حذف', confirmDelete: 'حذف هذا الملف؟', downloads: '{{n}} تنزيل' },
+    announcements: { new: 'إعلان جديد', title: 'العنوان', body: 'النص', priority: 'الأولوية', pinned: 'تثبيت', expires: 'ينتهي في', thisGroup: 'لهذه المجموعة فقط', posted: 'تم نشر الإعلان.', delete: 'حذف', confirmDelete: 'حذف هذا الإعلان؟' },
+    assignments: {
+      new: 'تكليف جديد', title: 'العنوان', instructions: 'التعليمات', due: 'آخر موعد', maxGrade: 'الدرجة العظمى', extensions: 'الامتدادات المسموحة (مثال: pdf,zip)', maxMb: 'أقصى حجم (م.ب)',
+      created: 'تم إنشاء التكليف.', submissions: 'التسليمات ({{n}})', noSubmissions: 'لا تسليمات بعد.', review: 'تقييم', approve: 'قبول', reject: 'رفض', grade: 'الدرجة', feedback: 'ملاحظات', reason: 'سبب الرفض', reviewed: 'تم التقييم.', file: 'الملف',
+    },
+  },
+  head: { title: 'بلاغات القسم', all: 'الكل', reply: 'الرد', closeToo: 'إغلاق البلاغ', answer: 'إرسال', close: 'إغلاق', answered: 'تم الحفظ.', empty: 'لا بلاغات.', from: 'من {{name}} ({{code}})' },
+  home: { staffSoon: 'صفحات شؤون الطلاب في المرحلة القادمة. يمكنك الآن عرض الإشعارات والملف الشخصي.' },
   days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
 };

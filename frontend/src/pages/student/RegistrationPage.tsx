@@ -8,7 +8,7 @@ import { Card, Stat } from '../../components/ui/Card';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Alert, EmptyState, QueryState } from '../../components/ui/States';
 import { useErrorMessage } from '../../components/ui/useErrorMessage';
-import { formatNumber, formatTime } from '../../lib/format';
+import { formatNumber, formatTime, jsDayOf } from '../../lib/format';
 
 const statusTone: Record<string, Tone> = { registered: 'success', pending_payment: 'warning', completed: 'primary', failed: 'danger', dropped: 'neutral' };
 
@@ -74,7 +74,7 @@ export function RegistrationPage() {
                             <span className="ltr-nums">{o.creditHours}</span> {t('registration.credits')} · {t('registration.seats')}: <span className="ltr-nums">{o.seatsLeft}</span>
                           </p>
                           <p className="mt-1 text-xs text-muted">
-                            {o.slots.map((s) => `${days[Number(s.dayOfWeek)]} ${formatTime(s.startTime)}–${formatTime(s.endTime)}`).join(' · ')}
+                            {o.slots.map((s) => `${days[jsDayOf(s.dayOfWeek)]} ${formatTime(s.startTime)}–${formatTime(s.endTime)}`).join(' · ')}
                           </p>
                           {!o.eligible && o.reasons.length > 0 && <p className="mt-1 text-xs text-warning">{o.reasons.join(' ')}</p>}
                         </div>

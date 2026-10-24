@@ -13,6 +13,6 @@ export function deviceFingerprint(): string {
     }
     return id;
   } catch {
-    return 'no-storage';
+    return 'no-storage-device';
   }
 }

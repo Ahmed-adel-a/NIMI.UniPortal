@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { api, call } from '../../api/client';
-import { ApiError, isApiErrorBody } from '../../api/errors';
-import { getSession } from '../../api/session';
+import { api, call, sendForm } from '../../api/client';
 import type { Schema } from '../../api/types';
 import { Badge, type Tone } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -86,19 +84,11 @@ function AssignmentItem({ assignment: a }: { assignment: Assignment }) {
   const errorMessage = useErrorMessage();
   const [file, setFile] = useState<File | null>(null);
 
-  // Multipart upload: openapi-fetch handles JSON, so the file goes through fetch with the session token.
   const submit = useMutation({
-    mutationFn: async () => {
+    mutationFn: () => {
       const form = new FormData();
       form.append('file', file!);
-      const response = await fetch(`/api/assignments/${a.id}/submissions`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${getSession()?.accessToken ?? ''}` },
-        body: form,
-      });
-      const body = await response.json().catch(() => null);
-      if (!response.ok) throw new ApiError(response.status, isApiErrorBody(body) ? body : null);
-      return body as Schema<'SubmissionReceiptDto'>;
+      return sendForm<Schema<'SubmissionReceiptDto'>>(`/api/assignments/${a.id}/submissions`, form);
     },
     onSuccess: () => {
       setFile(null);
