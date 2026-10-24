@@ -60,7 +60,7 @@ public sealed class DepartmentHeadTests(PortalWebAppFactory factory) : PortalTes
         var second = await admin.PostAsJsonAsync(Url, new { role = "department_head", fullName = "Second Head", email = "second@cu.edu.eg", departmentId = cs });
         Assert.Equal(HttpStatusCode.Conflict, second.StatusCode);
 
-        Assert.Equal(HttpStatusCode.OK, (await admin.PatchAsJsonAsync($"{Url}/{first}/status", new { isActive = false })).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await admin.PatchAsJsonAsync($"{Url}/{first}/status", new { isActive = false })).StatusCode);
         Assert.Equal(HttpStatusCode.Created,
             (await admin.PostAsJsonAsync(Url, new { role = "department_head", fullName = "Second Head", email = "second@cu.edu.eg", departmentId = cs })).StatusCode);
 
