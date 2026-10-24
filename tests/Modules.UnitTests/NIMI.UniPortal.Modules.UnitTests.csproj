@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\src\Modules\Library\NIMI.UniPortal.Modules.Library.Domain\NIMI.UniPortal.Modules.Library.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Lifecycle.SemesterBased\NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Domain\NIMI.UniPortal.Modules.Lifecycle.SemesterBased.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Events\NIMI.UniPortal.Modules.Events.Domain\NIMI.UniPortal.Modules.Events.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Audit\NIMI.UniPortal.Modules.Audit.Domain\NIMI.UniPortal.Modules.Audit.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
