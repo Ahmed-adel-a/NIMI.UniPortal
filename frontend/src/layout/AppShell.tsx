@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, call } from '../api/client';
 import { useAuth } from '../auth/useAuth';
+import { Spinner } from '../components/ui/Spinner';
 import { navigationFor } from './navigation';
 import { applyTheme, savedTheme, type Theme } from './theme';
 
@@ -32,7 +33,7 @@ export function AppShell() {
         <NavLink
           key={item.to}
           to={item.to}
-          end={item.to === '/student' || item.to === '/home'}
+          end={item.to === '/student' || item.to === '/home' || item.to === '/admin'}
           onClick={() => setOpen(false)}
           className={({ isActive }) =>
             `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${isActive ? 'bg-primary-soft text-primary' : 'text-fg hover:bg-sunk'}`
@@ -102,7 +103,9 @@ export function AppShell() {
           </div>
         )}
         <main className="min-w-0 flex-1 py-6">
-          <Outlet />
+          <Suspense fallback={<div className="grid place-items-center py-16"><Spinner /></div>}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>
