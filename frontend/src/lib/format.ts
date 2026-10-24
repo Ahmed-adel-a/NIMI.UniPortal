@@ -52,6 +52,11 @@ export function addDays(date: Date, days: number): Date {
   return result;
 }
 
+/** The same weekday `weeks` weeks later, as yyyy-MM-dd in and out: last year's term dates, moved to this year. */
+export function plusWeeks(value: string, weeks: number): string {
+  return isoDate(addDays(new Date(`${value}T00:00:00`), weeks * 7));
+}
+
 /**
  * The API numbers weekdays from Saturday (0 = Saturday … 6 = Friday, ScheduleSlot.ProductDay); JavaScript and the
  * `days` texts start from Sunday. Converts the API's number to the JavaScript index.

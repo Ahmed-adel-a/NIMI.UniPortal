@@ -916,6 +916,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/terms/{id}/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CopyTerm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/subjects": {
         parameters: {
             query?: never;
@@ -3044,6 +3060,30 @@ export interface components {
             /** Format: int32 */
             confirmed: number;
         };
+        CopiedCountsDto: {
+            /** Format: int32 */
+            groups: number;
+            /** Format: int32 */
+            teachingAssignments: number;
+            /** Format: int32 */
+            slots: number;
+        };
+        CopyTermRequest: {
+            /** Format: int32 */
+            academicYear: number;
+            number: components["schemas"]["TermNumber"];
+            /** Format: date */
+            startsOn: string;
+            /** Format: date */
+            endsOn: string;
+            /** Format: int32 */
+            weekCount: number;
+        };
+        CopyTermResultDto: {
+            term: components["schemas"]["TermDto"];
+            copied: components["schemas"]["CopiedCountsDto"];
+            skipped: components["schemas"]["SkippedItemDto"][];
+        };
         CorrectGradeRequest: {
             /** Format: double */
             score: number;
@@ -4688,6 +4728,17 @@ export interface components {
         SetUserStatusRequest: {
             isActive: boolean;
         };
+        /** @enum {unknown} */
+        SkipReason: "subject_inactive" | "staff_inactive" | "facility_inactive" | "not_a_working_day" | "outside_term" | "conflict";
+        SkippedItemDto: {
+            kind: components["schemas"]["SkippedItemKind"];
+            subjectCode: string;
+            /** Format: int32 */
+            groupNumber: null | number;
+            reason: components["schemas"]["SkipReason"];
+        };
+        /** @enum {unknown} */
+        SkippedItemKind: "group" | "teaching_assignment" | "slot";
         StandingDto: {
             /** Format: uuid */
             studentId: string;
@@ -6692,6 +6743,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TermDto"];
+                };
+            };
+        };
+    };
+    CopyTerm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopyTermRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CopyTermResultDto"];
                 };
             };
         };

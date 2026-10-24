@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { api, call } from '../../api/client';
+import type { Schema } from '../../api/types';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -11,6 +12,8 @@ import { Alert, EmptyState, QueryState } from '../../components/ui/States';
 import { Table } from '../../components/ui/Table';
 import { useErrorMessage } from '../../components/ui/useErrorMessage';
 import { formatDate, formatDateTime } from '../../lib/format';
+import { CopyTermForm } from './CopyTermForm';
+import { CopyTermResult } from './CopyTermResult';
 import { useTerms } from './lookups';
 
 const statusTone = { planned: 'neutral', active: 'success', closed: 'warning' } as const;
@@ -23,6 +26,8 @@ export function TermsPage() {
   const terms = useTerms();
   const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null);
   const [creating, setCreating] = useState(false);
+  const [copying, setCopying] = useState<Schema<'TermDto'> | null>(null);
+  const [copyResult, setCopyResult] = useState<Schema<'CopyTermResultDto'> | null>(null);
   const year = new Date().getFullYear();
   const [form, setForm] = useState({ academicYear: String(year), number: 'first', startsOn: '', endsOn: '', weekCount: '15' });
 
@@ -63,6 +68,15 @@ export function TermsPage() {
     <>
       <PageHeader title={t('admin.terms.title')} actions={<Button onClick={() => setCreating(!creating)}>{t('admin.terms.new')}</Button>} />
       {message && <div className="mb-4"><Alert tone={message.tone}>{message.text}</Alert></div>}
+      {copying && (
+        <CopyTermForm
+          key={copying.id}
+          source={copying}
+          onCancel={() => setCopying(null)}
+          onDone={(result) => { refresh(); setCopying(null); setCopyResult(result); }}
+        />
+      )}
+      {copyResult && <CopyTermResult result={copyResult} onClose={() => setCopyResult(null)} />}
       {creating && (
         <Card title={t('admin.terms.new')} className="mb-6">
           <form className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5" onSubmit={submit}>
@@ -93,6 +107,7 @@ export function TermsPage() {
                       <td>
                         {term.status === 'planned' && <Button variant="ghost" className="min-h-8 px-2" onClick={() => transition.mutate({ id: term.id, to: 'activate' })}>{t('admin.terms.activate')}</Button>}
                         {term.status === 'active' && <Button variant="ghost" className="min-h-8 px-2" onClick={() => window.confirm(t('admin.terms.confirmClose')) && transition.mutate({ id: term.id, to: 'close' })}>{t('admin.terms.close')}</Button>}
+                        <Button variant="ghost" className="min-h-8 px-2" onClick={() => { setCopyResult(null); setCopying(term); }}>{t('admin.terms.copy')}</Button>
                       </td>
                     </tr>
                   ))}
