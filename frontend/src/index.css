@@ -1,0 +1,126 @@
+@import 'tailwindcss';
+@import '@fontsource/ibm-plex-sans-arabic/400.css';
+@import '@fontsource/ibm-plex-sans-arabic/500.css';
+@import '@fontsource/ibm-plex-sans-arabic/600.css';
+@import '@fontsource/ibm-plex-sans-arabic/700.css';
+
+/* Dark mode follows the system unless the user picks one (data-theme on <html>). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Design tokens: a university blue with a warm gold accent on cool neutrals; one font family for Arabic and Latin. */
+:root {
+  --c-bg: #f4f6f9;
+  --c-surface: #ffffff;
+  --c-sunk: #eaeef3;
+  --c-fg: #172231;
+  --c-muted: #5b6878;
+  --c-line: #d6dce4;
+  --c-primary: #1e4e8c;
+  --c-primary-fg: #ffffff;
+  --c-primary-soft: #e3ecf8;
+  --c-accent: #b7791f;
+  --c-accent-soft: #fbf0db;
+  --c-success: #1f7a52;
+  --c-success-soft: #ddf3e8;
+  --c-warning: #a35f00;
+  --c-warning-soft: #fcefd9;
+  --c-danger: #b4362f;
+  --c-danger-soft: #fbe3e1;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --c-bg: #0f151d;
+    --c-surface: #17202b;
+    --c-sunk: #1e2935;
+    --c-fg: #e6ebf1;
+    --c-muted: #9aa6b5;
+    --c-line: #2c3846;
+    --c-primary: #7fa9e3;
+    --c-primary-fg: #0f151d;
+    --c-primary-soft: #1b2b40;
+    --c-accent: #f0b354;
+    --c-accent-soft: #33270f;
+    --c-success: #6fcfa2;
+    --c-success-soft: #14302a;
+    --c-warning: #f0aa45;
+    --c-warning-soft: #33270f;
+    --c-danger: #f08a80;
+    --c-danger-soft: #3a1d1b;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --c-bg: #0f151d;
+  --c-surface: #17202b;
+  --c-sunk: #1e2935;
+  --c-fg: #e6ebf1;
+  --c-muted: #9aa6b5;
+  --c-line: #2c3846;
+  --c-primary: #7fa9e3;
+  --c-primary-fg: #0f151d;
+  --c-primary-soft: #1b2b40;
+  --c-accent: #f0b354;
+  --c-accent-soft: #33270f;
+  --c-success: #6fcfa2;
+  --c-success-soft: #14302a;
+  --c-warning: #f0aa45;
+  --c-warning-soft: #33270f;
+  --c-danger: #f08a80;
+  --c-danger-soft: #3a1d1b;
+  color-scheme: dark;
+}
+
+@theme {
+  --font-sans: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, system-ui, sans-serif;
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-sunk: var(--c-sunk);
+  --color-fg: var(--c-fg);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-primary: var(--c-primary);
+  --color-primary-fg: var(--c-primary-fg);
+  --color-primary-soft: var(--c-primary-soft);
+  --color-accent: var(--c-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-success: var(--c-success);
+  --color-success-soft: var(--c-success-soft);
+  --color-warning: var(--c-warning);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+}
+
+html,
+body {
+  background: var(--c-bg);
+  color: var(--c-fg);
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Numbers, codes and times stay left-to-right inside Arabic text. */
+.ltr-nums {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
