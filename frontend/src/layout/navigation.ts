@@ -28,5 +28,13 @@ export function navigationFor(role: Role | string, academicSystem?: string): Nav
       ...common,
     ];
   }
+  if (role === 'professor') return [{ to: '/teach', label: 'nav.teaching', icon: '🧑‍🏫' }, ...common];
+  if (role === 'department_head') {
+    return [
+      { to: '/head/reports', label: 'nav.headReports', icon: '📮' },
+      { to: '/teach', label: 'nav.teaching', icon: '🧑‍🏫' },
+      ...common,
+    ];
+  }
   return [{ to: '/home', label: 'nav.home', icon: '🏠' }, ...common];
 }

@@ -41,7 +41,7 @@ export const en: DeepStrings<typeof ar> = {
   },
   nav: {
     home: 'Home', schedule: 'Schedule', registration: 'Registration', standing: 'Year standing', grades: 'Grades', fees: 'Fees',
-    attendance: 'Attendance', courses: 'Courses', assignments: 'Assignments', reports: 'Reports', notifications: 'Notifications', profile: 'Profile',
+    attendance: 'Attendance', courses: 'Courses', assignments: 'Assignments', reports: 'Reports', teaching: 'Teaching', headReports: 'Department reports', notifications: 'Notifications', profile: 'Profile',
     language: 'العربية', theme: 'Theme', themeLight: 'Light', themeDark: 'Dark', themeSystem: 'System', menu: 'Menu',
   },
   profile: {
@@ -76,7 +76,7 @@ export const en: DeepStrings<typeof ar> = {
     paidOk: 'Paid. Receipt number: {{receipt}}', paidFail: "The payment didn't go through.", currency: 'EGP',
     statuses: { unpaid: 'Unpaid', partial: 'Partly paid', paid: 'Paid', waived: 'Waived' },
   },
-  attendance: { title: 'Check in', hint: "Type the code shown under the lecturer's QR code.", code: 'Session code', checkIn: 'Check me in', done: 'Checked in to {{subject}} ({{status}}).', statuses: { present: 'Present', late: 'Late', absent: 'Absent', excused: 'Excused' }, device: 'This device is registered as your attendance phone.' },
+  attendance: { title: 'Check in', hint: "Scan the QR code on the lecturer's screen with your phone's camera.", scan: 'Scan the QR code', cameraDenied: "Can't open the camera. Allow camera access or paste the code.", pasteHint: "Or paste the code copied from the lecturer's screen.", code: 'Session code', checkIn: 'Check me in', done: 'Checked in to {{subject}} ({{status}}).', statuses: { present: 'Present', late: 'Late', absent: 'Absent', excused: 'Excused' }, device: 'This device is registered as your attendance phone.' },
   courses: { title: 'Courses', materials: 'Materials', announcements: 'Announcements', week: 'Week {{n}}', noMaterials: 'No materials yet.', noAnnouncements: 'No announcements.', pinned: 'Pinned', priority: { normal: 'Normal', high: 'High', urgent: 'Urgent' }, pick: 'Choose a course', none: 'No registered courses.' },
   assignments: {
     title: 'Assignments', open: 'Open', closed: 'Closed', due: 'Due {{date}}', maxGrade: 'Out of', submit: 'Submit', choose: 'Choose a file',
@@ -89,6 +89,27 @@ export const en: DeepStrings<typeof ar> = {
     categories: { academic: 'Academic', attendance: 'Attendance', conduct: 'Conduct', other: 'Other' },
     statuses: { open: 'Open', answered: 'Answered', closed: 'Closed' },
   },
-  home: { staffSoon: 'Pages for teaching staff and Student Affairs come in the next step. For now you can see your notifications and profile.' },
+  teach: {
+    title: 'Teaching', week: "This week's lectures", classes: 'My groups', noClasses: 'No groups are assigned to you this term.', noLectures: 'No lectures this week.',
+    open: 'Open', group: 'Group {{n}}', back: 'All groups',
+    tabs: { roster: 'Students', attendance: 'Attendance', grades: 'Grades', materials: 'Materials', announcements: 'Announcements', assignments: 'Assignments' },
+    roster: { student: 'Student', code: 'Code', attended: 'Attended', held: 'Lectures', rate: 'Rate', export: 'Export attendance CSV', empty: 'No students in this group.' },
+    attendance: {
+      occurrences: "This group's lectures this week", openSession: 'Start attendance', resume: 'Resume session', session: 'Session {{date}}',
+      code: 'Attendance QR', codeHint: 'Students scan it with their phone camera; it changes every 20 seconds.', copy: 'Copy the code', live: 'Live attendance', close: 'End session',
+      closed: 'Session ended: present {{present}}, late {{late}}, manual {{manual}}, absent {{absent}}.', manual: 'Manual entry', note: 'Reason for the manual entry', noteFirst: 'Write the reason first to enable the present / late / absent buttons.',
+      counts: 'Present {{present}} · late {{late}} · manual {{manual}} · absent {{absent}} · not yet {{notYet}}', none: 'No lectures for this group this week.',
+      statuses: { present: 'Present', late: 'Late', manual_audit: 'Manual', absent: 'Absent', not_yet: 'Not yet' },
+    },
+    grades: { score: 'Score', status: 'Status', save: 'Save draft', saved: 'Grades saved.', template: 'Download CSV template', import: 'Import CSV', imported: 'Grades imported.', statuses: { draft: 'Draft', confirmed: 'Confirmed', published: 'Published' } },
+    materials: { upload: 'Upload a file', title: 'Title', description: 'Description', week: 'Week', file: 'File', uploaded: 'File uploaded.', delete: 'Delete', confirmDelete: 'Delete this file?', downloads: '{{n}} downloads' },
+    announcements: { new: 'New announcement', title: 'Title', body: 'Text', priority: 'Priority', pinned: 'Pin', expires: 'Expires on', thisGroup: 'This group only', posted: 'Announcement posted.', delete: 'Delete', confirmDelete: 'Delete this announcement?' },
+    assignments: {
+      new: 'New assignment', title: 'Title', instructions: 'Instructions', due: 'Due', maxGrade: 'Out of', extensions: 'Allowed types (e.g. pdf,zip)', maxMb: 'Max size (MB)',
+      created: 'Assignment created.', submissions: 'Submissions ({{n}})', noSubmissions: 'No submissions yet.', review: 'Review', approve: 'Approve', reject: 'Reject', grade: 'Grade', feedback: 'Feedback', reason: 'Reason', reviewed: 'Review saved.', file: 'File',
+    },
+  },
+  head: { title: 'Department reports', all: 'All', reply: 'Reply', closeToo: 'Close the report', answer: 'Send', close: 'Close', answered: 'Saved.', empty: 'No reports.', from: 'From {{name}} ({{code}})' },
+  home: { staffSoon: 'Student Affairs pages come in the next step. For now you can see your notifications and profile.' },
   days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 };

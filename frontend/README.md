@@ -49,7 +49,7 @@ src/
   i18n/       Arabic + English texts (keys must match; a test checks)
   layout/     the app frame: sidebar per role, top bar, theme
   components/ small UI pieces (buttons, fields, cards, tables, states)
-  pages/      auth/, common/, student/ (teaching staff and Student Affairs next)
+  pages/      auth/, common/, student/, teaching/ (class tabs), head/ (Student Affairs next)
   lib/        formatting (dates, money, Saturday-based weeks), device id
 ```
 

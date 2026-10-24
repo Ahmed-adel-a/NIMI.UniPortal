@@ -68,7 +68,7 @@ export function NotificationsPage() {
                   </div>
                 </article>
               ))}
-              <Pager page={page} totalPages={Number(data.totalPages)} onPage={setPage} />
+              <Pager page={page} totalPages={data.totalPages ?? 1} onPage={setPage} />
             </div>
           )
         }

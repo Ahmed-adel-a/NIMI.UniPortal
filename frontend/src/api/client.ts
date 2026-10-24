@@ -43,6 +43,21 @@ export async function call<T>(request: Promise<{ data?: T; error?: unknown; resp
   return result.data as T;
 }
 
+/** Sends a multipart form (file uploads) with the user's token; returns the JSON answer or throws an ApiError. */
+export async function sendForm<T>(url: string, form: FormData, method: 'POST' | 'PUT' = 'POST'): Promise<T> {
+  let session = getSession();
+  if (session && needsRefresh(session)) session = await refreshSession();
+  let response: Response;
+  try {
+    response = await fetch(url, { method, headers: session ? { Authorization: `Bearer ${session.accessToken}` } : {}, body: form });
+  } catch {
+    throw new ApiError(0, null);
+  }
+  const body = await response.json().catch(() => null);
+  if (!response.ok) throw new ApiError(response.status, isApiErrorBody(body) ? body : null);
+  return body as T;
+}
+
 /** Downloads a protected file (PDF, CSV, uploaded material) with the user's token and saves it under its name. */
 export async function downloadFile(url: string, fallbackName: string): Promise<void> {
   let session = getSession();

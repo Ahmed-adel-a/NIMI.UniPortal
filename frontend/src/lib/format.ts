@@ -51,3 +51,11 @@ export function addDays(date: Date, days: number): Date {
   result.setDate(result.getDate() + days);
   return result;
 }
+
+/**
+ * The API numbers weekdays from Saturday (0 = Saturday … 6 = Friday, ScheduleSlot.ProductDay); JavaScript and the
+ * `days` texts start from Sunday. Converts the API's number to the JavaScript index.
+ */
+export function jsDayOf(productDay: number): number {
+  return (productDay + 6) % 7;
+}

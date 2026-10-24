@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/teaching/classes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMyTeachingClasses"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/attendance/device-change": {
         parameters: {
             query?: never;
@@ -4927,6 +4943,21 @@ export interface components {
             role: components["schemas"]["TeachingRole"];
             isActive: boolean;
         };
+        TeachingClassDto: {
+            /** Format: uuid */
+            termId: string;
+            /** Format: uuid */
+            subjectId: string;
+            subjectCode: string;
+            subjectName: string;
+            subjectNameAr: string;
+            /** Format: int32 */
+            creditHours: number;
+            /** Format: uuid */
+            groupId: string;
+            /** Format: int32 */
+            groupNumber: number;
+        };
         TeachingOccurrenceDto: {
             /** Format: date */
             date: string;
@@ -5289,6 +5320,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TeachingOccurrenceDto"][];
+                };
+            };
+        };
+    };
+    GetMyTeachingClasses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeachingClassDto"][];
                 };
             };
         };

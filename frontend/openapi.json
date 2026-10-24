@@ -132,6 +132,29 @@
         }
       }
     },
+    "/api/teaching/classes": {
+      "get": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "GetMyTeachingClasses",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeachingClassDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/attendance/device-change": {
       "post": {
         "tags": [
@@ -14803,6 +14826,50 @@
           }
         }
       },
+      "TeachingClassDto": {
+        "required": [
+          "termId",
+          "subjectId",
+          "subjectCode",
+          "subjectName",
+          "subjectNameAr",
+          "creditHours",
+          "groupId",
+          "groupNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "termId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subjectCode": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "subjectNameAr": {
+            "type": "string"
+          },
+          "creditHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "groupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "groupNumber": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "TeachingOccurrenceDto": {
         "required": [
           "date",
@@ -15726,7 +15793,7 @@
   },
   "security": [
     {
-      "Bearer": [ ]
+      "Bearer": []
     }
   ],
   "tags": [
