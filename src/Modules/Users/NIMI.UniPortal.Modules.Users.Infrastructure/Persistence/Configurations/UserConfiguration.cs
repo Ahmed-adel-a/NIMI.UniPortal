@@ -36,6 +36,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.Email).IsUnique();         // stored normalized (lower-case) → exact, case-insensitive uniqueness
         builder.HasIndex(u => u.StudentCode).IsUnique();   // NULLs (non-students) don't collide in PostgreSQL
         builder.HasIndex(u => u.Role);
+        builder.HasIndex(u => u.NationalId);   // login by national ID (decision NATIONALIDLOGIN); not unique: one person, several roles
 
         // Decision ROLES2: at most one active head per department (the handlers check first for a friendly 409).
         // Named, so it doesn't replace the plain department index EF keeps for the foreign key.
