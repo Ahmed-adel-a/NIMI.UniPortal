@@ -9,6 +9,8 @@ export function homeOf(role: Role | string | undefined): string {
       return '/teach';
     case 'department_head':
       return '/head/reports';
+    case 'admin':
+      return '/admin';
     default:
       return '/home';
   }

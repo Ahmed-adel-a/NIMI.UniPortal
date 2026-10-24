@@ -36,5 +36,23 @@ export function navigationFor(role: Role | string, academicSystem?: string): Nav
       ...common,
     ];
   }
+  if (role === 'admin') {
+    return [
+      { to: '/admin', label: 'admin.nav.dashboard', icon: '📈' },
+      { to: '/admin/users', label: 'admin.nav.users', icon: '👥' },
+      { to: '/admin/organization', label: 'admin.nav.organization', icon: '🏛' },
+      { to: '/admin/terms', label: 'admin.nav.terms', icon: '📆' },
+      { to: '/admin/subjects', label: 'admin.nav.subjects', icon: '📚' },
+      { to: '/admin/facilities', label: 'admin.nav.facilities', icon: '🏫' },
+      { to: '/admin/timetable', label: 'admin.nav.timetable', icon: '🗓' },
+      { to: '/admin/grades', label: 'admin.nav.grades', icon: '📊' },
+      { to: '/admin/payments', label: 'admin.nav.payments', icon: '💳' },
+      { to: '/admin/reports', label: 'admin.nav.reports', icon: '📮' },
+      { to: '/admin/devices', label: 'admin.nav.devices', icon: '📱' },
+      { to: '/admin/activity', label: 'admin.nav.activity', icon: '🧾' },
+      { to: '/admin/settings', label: 'admin.nav.settings', icon: '⚙️' },
+      ...common,
+    ];
+  }
   return [{ to: '/home', label: 'nav.home', icon: '🏠' }, ...common];
 }

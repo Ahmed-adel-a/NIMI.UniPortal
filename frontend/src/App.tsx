@@ -1,3 +1,4 @@
+import { lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './auth/useAuth';
 import { RequireAuth } from './auth/RequireAuth';
@@ -21,9 +22,24 @@ import { RegistrationPage } from './pages/student/RegistrationPage';
 import { ReportsPage } from './pages/student/ReportsPage';
 import { SchedulePage } from './pages/student/SchedulePage';
 import { StandingPage } from './pages/student/StandingPage';
-import { HeadReportsPage } from './pages/head/HeadReportsPage';
-import { ClassPage } from './pages/teaching/ClassPage';
-import { TeachingHomePage } from './pages/teaching/TeachingHomePage';
+
+// Staff pages load on first use, so students never download them.
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage').then((m) => ({ default: m.AdminDashboardPage })));
+const FacilitiesPage = lazy(() => import('./pages/admin/FacilitiesPage').then((m) => ({ default: m.FacilitiesPage })));
+const GradeApprovalPage = lazy(() => import('./pages/admin/GradeApprovalPage').then((m) => ({ default: m.GradeApprovalPage })));
+const OrganizationPage = lazy(() => import('./pages/admin/OrganizationPage').then((m) => ({ default: m.OrganizationPage })));
+const ActivityPage = lazy(() => import('./pages/admin/OversightPages').then((m) => ({ default: m.ActivityPage })));
+const AdminReportsPage = lazy(() => import('./pages/admin/OversightPages').then((m) => ({ default: m.AdminReportsPage })));
+const DevicesPage = lazy(() => import('./pages/admin/OversightPages').then((m) => ({ default: m.DevicesPage })));
+const PaymentsPage = lazy(() => import('./pages/admin/PaymentsPage').then((m) => ({ default: m.PaymentsPage })));
+const SettingsPage = lazy(() => import('./pages/admin/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const SubjectsPage = lazy(() => import('./pages/admin/SubjectsPage').then((m) => ({ default: m.SubjectsPage })));
+const TermsPage = lazy(() => import('./pages/admin/TermsPage').then((m) => ({ default: m.TermsPage })));
+const TimetablePage = lazy(() => import('./pages/admin/TimetablePage').then((m) => ({ default: m.TimetablePage })));
+const UsersPage = lazy(() => import('./pages/admin/UsersPage').then((m) => ({ default: m.UsersPage })));
+const HeadReportsPage = lazy(() => import('./pages/head/HeadReportsPage').then((m) => ({ default: m.HeadReportsPage })));
+const ClassPage = lazy(() => import('./pages/teaching/ClassPage').then((m) => ({ default: m.ClassPage })));
+const TeachingHomePage = lazy(() => import('./pages/teaching/TeachingHomePage').then((m) => ({ default: m.TeachingHomePage })));
 
 /** Sends a signed-in user to their role's home. */
 function RoleHome() {
@@ -60,6 +76,20 @@ export function App() {
         <Route path="teach" element={<RequireAuth roles={['professor', 'department_head']}><TeachingHomePage /></RequireAuth>} />
         <Route path="teach/classes/:groupId" element={<RequireAuth roles={['professor', 'department_head']}><ClassPage /></RequireAuth>} />
         <Route path="head/reports" element={<RequireAuth roles={['department_head']}><HeadReportsPage /></RequireAuth>} />
+
+        <Route path="admin" element={<RequireAuth roles={['admin']}><AdminDashboardPage /></RequireAuth>} />
+        <Route path="admin/users" element={<RequireAuth roles={['admin']}><UsersPage /></RequireAuth>} />
+        <Route path="admin/organization" element={<RequireAuth roles={['admin']}><OrganizationPage /></RequireAuth>} />
+        <Route path="admin/terms" element={<RequireAuth roles={['admin']}><TermsPage /></RequireAuth>} />
+        <Route path="admin/subjects" element={<RequireAuth roles={['admin']}><SubjectsPage /></RequireAuth>} />
+        <Route path="admin/facilities" element={<RequireAuth roles={['admin']}><FacilitiesPage /></RequireAuth>} />
+        <Route path="admin/timetable" element={<RequireAuth roles={['admin']}><TimetablePage /></RequireAuth>} />
+        <Route path="admin/grades" element={<RequireAuth roles={['admin']}><GradeApprovalPage /></RequireAuth>} />
+        <Route path="admin/payments" element={<RequireAuth roles={['admin']}><PaymentsPage /></RequireAuth>} />
+        <Route path="admin/reports" element={<RequireAuth roles={['admin']}><AdminReportsPage /></RequireAuth>} />
+        <Route path="admin/devices" element={<RequireAuth roles={['admin']}><DevicesPage /></RequireAuth>} />
+        <Route path="admin/activity" element={<RequireAuth roles={['admin']}><ActivityPage /></RequireAuth>} />
+        <Route path="admin/settings" element={<RequireAuth roles={['admin']}><SettingsPage /></RequireAuth>} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
