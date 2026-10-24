@@ -40,7 +40,7 @@ internal sealed class UsersApi(IUsersDbContext db) : IUsersApi
         return user is null
             ? null
             : new UserRef(
-                user.Id, user.FullName, user.Role.ToString().ToLowerInvariant(), user.DepartmentId, user.StudentCode,
+                user.Id, user.FullName, UserRoles.Name(user.Role), user.DepartmentId, user.StudentCode,
                 user.AcademicTitle?.ToString().ToLowerInvariant(), user.IsActive);
     }
 

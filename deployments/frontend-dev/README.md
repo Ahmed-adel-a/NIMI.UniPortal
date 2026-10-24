@@ -46,6 +46,7 @@ Every account signs in with the password **`Demo@2026`** (override it with `DEMO
 |------|-------|-------|
 | Student Affairs (admin) | `affairs@demo.cu.edu.eg` | Everything under `/api/admin/...` |
 | Professor | `hassan.mahmoud@demo.cu.edu.eg` | Teaches CSE101 (both groups) and CSE301 |
+| Department head | `hala.nabil@demo.cu.edu.eg` | Head of the Computer department (role `department_head`) |
 | Professor | `mona.adel@demo.cu.edu.eg` | CSE211 + the CSE101 lab |
 | Professor | `karim.fathy@demo.cu.edu.eg`, `salma.nabil@demo.cu.edu.eg` | EPE201, ACC101 |
 | Student | `omar.khaled@demo.cu.edu.eg` | Computer Engineering. Registered in CSE101 + CSE211, tuition paid |

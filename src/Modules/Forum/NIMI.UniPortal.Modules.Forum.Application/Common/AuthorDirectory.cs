@@ -1,6 +1,7 @@
 using NIMI.UniPortal.Modules.Forum.Domain;
 using NIMI.UniPortal.Modules.Users.Contracts;
 using NIMI.UniPortal.SharedKernel;
+using NIMI.UniPortal.SharedKernel.Security;
 
 namespace NIMI.UniPortal.Modules.Forum.Application.Common;
 
@@ -20,7 +21,9 @@ internal sealed class AuthorDirectory(IUsersApi users)
             throw new ForbiddenException("Your account was not found.");
 
         var department = user.DepartmentId is { } id ? await users.GetDepartmentAsync(id, cancellationToken) : null;
-        var rank = viewer.IsProfessor ? user.AcademicTitle ?? "professor" : "student";
+        var rank = !viewer.IsProfessor ? "student"
+            : user.Role == PortalRoles.DepartmentHead ? PortalRoles.DepartmentHead   // decision ROLES2
+            : user.AcademicTitle ?? "professor";
         return new ForumAuthor(user.Id, user.FullName, rank, department?.Name ?? string.Empty, department?.NameAr ?? string.Empty);
     }
 }

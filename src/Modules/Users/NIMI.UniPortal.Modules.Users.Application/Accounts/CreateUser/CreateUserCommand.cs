@@ -6,6 +6,7 @@ namespace NIMI.UniPortal.Modules.Users.Application.Accounts.CreateUser;
 /// <summary>
 /// US-A01 / US-A10: Student Affairs creates an account.
 /// Student → department + enrollment year (student code generated). Professor → department + academic title.
+/// Department head (decision ROLES2) → department, optional academic title, one active per department.
 /// Admin → no department. Password optional: if absent a temporary one is generated and returned once.
 /// Every new account must change its password at first login.
 /// </summary>

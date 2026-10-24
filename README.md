@@ -78,6 +78,7 @@ students, fees, posts, forum and events.
 |--------------|----------------------|
 | Student Affairs | `affairs@demo.cu.edu.eg` |
 | Professor | `hassan.mahmoud@demo.cu.edu.eg` |
+| Department head (Computer) | `hala.nabil@demo.cu.edu.eg` |
 | Student | `omar.khaled@demo.cu.edu.eg` |
 | Student with a forced password change | `new.student@demo.cu.edu.eg` |
 

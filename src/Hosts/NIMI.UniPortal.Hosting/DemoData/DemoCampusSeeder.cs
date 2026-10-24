@@ -95,6 +95,7 @@ public sealed class DemoCampusSeeder(
         var mona = await AccountAsync(UserRole.Professor, "د. منى عادل", "mona.adel" + Domain, computer.Id, null, AcademicTitle.Lecturer, ct);
         var karim = await AccountAsync(UserRole.Professor, "د. كريم فتحي", "karim.fathy" + Domain, power.Id, null, AcademicTitle.Lecturer, ct);
         var salma = await AccountAsync(UserRole.Professor, "د. سلمى نبيل", "salma.nabil" + Domain, accounting.Id, null, AcademicTitle.Lecturer, ct);
+        await AccountAsync(UserRole.DepartmentHead, "د. هالة نبيل", DemoCampus.DepartmentHeadEmail, computer.Id, null, AcademicTitle.Professor, ct);   // decision ROLES2
 
         var academicYear = today.Month >= 8 ? today.Year : today.Year - 1;
         var cohort = academicYear - 1;

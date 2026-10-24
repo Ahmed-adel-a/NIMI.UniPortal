@@ -23,7 +23,7 @@ public sealed class User
 
     public UserRole Role { get; private set; }
 
-    /// <summary>Required for students and professors; null for admins.</summary>
+    /// <summary>Required for students, professors and department heads; null for admins.</summary>
     public Guid? DepartmentId { get; private set; }
 
     /// <summary>Students only. Generated once, never changes.</summary>
@@ -105,6 +105,30 @@ public sealed class User
         professor.AcademicTitle = academicTitle;
         professor.Apply(details);
         return professor;
+    }
+
+    /// <summary>
+    /// A new department head (decision ROLES2): the supervisor of one department, who may also be assigned to teach.
+    /// The academic title is optional and display-only. One active head per department is checked by the caller.
+    /// </summary>
+    public static User CreateDepartmentHead(
+        string fullName,
+        string email,
+        string passwordHash,
+        Department department,
+        AcademicTitle? academicTitle,
+        PersonalDetails details,
+        DateTimeOffset now)
+    {
+        RequireActive(department);
+        if (academicTitle is { } title && !Enum.IsDefined(title))
+            throw new ArgumentOutOfRangeException(nameof(academicTitle), academicTitle, "Unknown academic title.");
+
+        var head = New(UserRole.DepartmentHead, fullName, email, passwordHash, mustChangePassword: true, now);
+        head.DepartmentId = department.Id;
+        head.AcademicTitle = academicTitle;
+        head.Apply(details);
+        return head;
     }
 
     public bool IsLockedOut(DateTimeOffset now) => LockedUntil > now;

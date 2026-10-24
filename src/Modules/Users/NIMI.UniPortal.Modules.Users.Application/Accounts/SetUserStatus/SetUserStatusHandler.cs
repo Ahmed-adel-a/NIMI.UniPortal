@@ -3,6 +3,7 @@ using NIMI.UniPortal.EventBus;
 using NIMI.UniPortal.Modules.Audit.Contracts;
 using NIMI.UniPortal.Modules.Users.Application.Abstractions;
 using NIMI.UniPortal.Modules.Users.Application.Auth;
+using NIMI.UniPortal.Modules.Users.Domain.Accounts;
 using NIMI.UniPortal.SharedKernel;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Security;
@@ -20,6 +21,9 @@ internal sealed class SetUserStatusHandler(IUsersDbContext db, IEventCollector e
 
         var user = await db.Users.SingleOrDefaultAsync(u => u.Id == command.UserId, cancellationToken)
             ?? throw new NotFoundException("User not found.");
+
+        if (command.IsActive && !user.IsActive && user is { Role: UserRole.DepartmentHead, DepartmentId: { } departmentId })
+            await DepartmentHeads.EnsureNoOtherActiveHeadAsync(db, departmentId, user.Id, cancellationToken);
 
         user.SetActive(command.IsActive, clock.GetUtcNow());
         if (!command.IsActive)
