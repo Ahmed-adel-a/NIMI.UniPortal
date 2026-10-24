@@ -18,7 +18,7 @@ internal sealed class CreateTeachingAssignmentHandler(
         CreateTeachingAssignmentCommand command, CancellationToken cancellationToken)
     {
         var staff = await users.GetUserAsync(command.StaffId, cancellationToken);
-        if (staff is null || !staff.IsActive || staff.Role != PortalRoles.Professor)
+        if (staff is null || !staff.IsActive || !PortalRoles.CanTeach(staff.Role))
             throw ValidationErrors.For(nameof(command.StaffId), "Must be an active professor.");
 
         var subject = await db.Subjects.FirstOrDefaultAsync(s => s.Id == command.SubjectId, cancellationToken)

@@ -55,8 +55,8 @@ internal static class EventAdminEndpoints
         Guid id, int? page, int? pageSize, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(new ListAttendeesQuery(id, new PageRequest(page, pageSize)), cancellationToken));
 
-    private static async Task<Ok<RegistrationDto>> CheckIn(
-        Guid id, CheckInRequest request, ISender sender, CancellationToken cancellationToken) =>
+    private static async Task<Ok<EventRegistrationDto>> CheckIn(
+        Guid id, EventCheckInRequest request, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(new CheckInCommand(id, request.UserId), cancellationToken));
 
     private static SaveEventCommand Save(Guid? id, EventRequest request, ClaimsPrincipal caller) =>

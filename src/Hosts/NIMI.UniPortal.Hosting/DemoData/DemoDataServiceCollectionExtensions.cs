@@ -10,6 +10,8 @@ internal static class DemoDataServiceCollectionExtensions
         services.AddSingleton(DemoDataOptions.From(configuration));
         services.AddScoped<DemoCampus>();
         services.AddScoped<IModuleSeeder, DemoCampusSeeder>();
+        services.AddSingleton(TestAccountOptions.From(configuration));
+        services.AddScoped<IModuleSeeder, TestAccountsSeeder>();   // after the campus, so the accounts can join its classes
         return services;
     }
 }

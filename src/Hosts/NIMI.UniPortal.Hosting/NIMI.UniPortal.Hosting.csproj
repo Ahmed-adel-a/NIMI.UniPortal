@@ -2,8 +2,9 @@
 
   <!--
     What every deployment shares (P11 reference host): cross-cutting plumbing (errors, security, storage, migrations,
-    seeding, health), the core modules and the host-level dashboards. A host adds exactly one lifecycle variant and the
-    premium modules it sells — never through this project (rule: HostCompositionTests).
+    seeding, health), the core modules, both academic systems behind the lifecycle router (decision LIFECYCLEDEPT) and
+    the host-level dashboards and documents. A host adds only the premium modules it sells, never through this project;
+    only this project references the lifecycle variants (rule: HostCompositionTests).
   -->
 
   <ItemGroup>
@@ -34,6 +35,7 @@
     <ProjectReference Include="..\..\Modules\Attendance\NIMI.UniPortal.Modules.Attendance.Api\NIMI.UniPortal.Modules.Attendance.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Materials\NIMI.UniPortal.Modules.Materials.Api\NIMI.UniPortal.Modules.Materials.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Announcements\NIMI.UniPortal.Modules.Announcements.Api\NIMI.UniPortal.Modules.Announcements.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\StudentReports\NIMI.UniPortal.Modules.StudentReports.Api\NIMI.UniPortal.Modules.StudentReports.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Assignments\NIMI.UniPortal.Modules.Assignments.Api\NIMI.UniPortal.Modules.Assignments.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Grades\NIMI.UniPortal.Modules.Grades.Api\NIMI.UniPortal.Modules.Grades.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Audit\NIMI.UniPortal.Modules.Audit.Api\NIMI.UniPortal.Modules.Audit.Api.csproj" />

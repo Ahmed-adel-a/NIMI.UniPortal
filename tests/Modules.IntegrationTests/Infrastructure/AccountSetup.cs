@@ -36,6 +36,17 @@ internal static class AccountSetup
             academicTitle = "professor",
         });
 
+    /// <summary>Decision ROLES2: a department head is its own kind of account, one active per department.</summary>
+    public static Task<(Guid Id, string Token)> CreateDepartmentHeadWithTokenAsync(
+        IPortalHost factory, HttpClient admin, Guid departmentId, string email) =>
+        CreateWithTokenAsync(factory, admin, email, new
+        {
+            role = "department_head",
+            fullName = "Test Department Head",
+            email,
+            departmentId,
+        });
+
     private static async Task<(Guid Id, string Token)> CreateWithTokenAsync(
         IPortalHost factory, HttpClient admin, string email, object body)
     {

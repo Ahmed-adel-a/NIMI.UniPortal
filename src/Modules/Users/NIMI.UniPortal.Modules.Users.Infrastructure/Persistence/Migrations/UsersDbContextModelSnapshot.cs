@@ -216,12 +216,12 @@ namespace NIMI.UniPortal.Modules.Users.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_users");
 
-                    b.HasIndex("DepartmentId")
-                        .HasDatabaseName("ix_users_department_id");
-
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasDatabaseName("ix_users_email");
+
+                    b.HasIndex("NationalId")
+                        .HasDatabaseName("ix_users_national_id");
 
                     b.HasIndex("Role")
                         .HasDatabaseName("ix_users_role");
@@ -229,6 +229,14 @@ namespace NIMI.UniPortal.Modules.Users.Infrastructure.Persistence.Migrations
                     b.HasIndex("StudentCode")
                         .IsUnique()
                         .HasDatabaseName("ix_users_student_code");
+
+                    b.HasIndex(new[] { "DepartmentId" }, "ix_users_department_id")
+                        .HasDatabaseName("ix_users_department_id");
+
+                    b.HasIndex(new[] { "DepartmentId" }, "ux_users_active_department_head")
+                        .IsUnique()
+                        .HasDatabaseName("ux_users_active_department_head")
+                        .HasFilter("role = 'department_head' AND is_active");
 
                     b.ToTable("users", "users", t =>
                         {
@@ -238,7 +246,7 @@ namespace NIMI.UniPortal.Modules.Users.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_users_gender", "gender IN ('male', 'female')");
 
-                            t.HasCheckConstraint("ck_users_role", "role IN ('student', 'professor', 'admin')");
+                            t.HasCheckConstraint("ck_users_role", "role IN ('student', 'professor', 'department_head', 'admin')");
                         });
                 });
 

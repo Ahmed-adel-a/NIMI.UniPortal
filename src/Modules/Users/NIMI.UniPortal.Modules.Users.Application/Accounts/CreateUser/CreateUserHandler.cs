@@ -49,7 +49,8 @@ internal sealed class CreateUserHandler(
                 details, now),
             UserRole.Professor => User.CreateProfessor(
                 command.FullName, email, passwordHash, department!, command.AcademicTitle!.Value, details, now),
-            _ => User.CreateAdmin(command.FullName, email, passwordHash, mustChangePassword: true, now),
+            UserRole.DepartmentHead => await NewDepartmentHead(command, email, passwordHash, department!, details, now, cancellationToken),
+            _ => User.CreateAdmin(command.FullName, email, passwordHash, mustChangePassword: true, now, details),
         };
 
         db.Users.Add(user);
@@ -68,6 +69,14 @@ internal sealed class CreateUserHandler(
                 user.DepartmentId, department?.Code, faculty?.Code, user.EnrollmentYear,
                 user.IsActive, user.MustChangePassword, user.CreatedAt, user.LastLoginAt),
             temporaryPassword);
+    }
+
+    private async Task<User> NewDepartmentHead(
+        CreateUserCommand command, string email, string passwordHash, Department department, PersonalDetails details,
+        DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        await DepartmentHeads.EnsureNoOtherActiveHeadAsync(db, department.Id, exceptUserId: null, cancellationToken);
+        return User.CreateDepartmentHead(command.FullName, email, passwordHash, department, command.AcademicTitle, details, now);
     }
 
     private async Task<string> NextStudentCode(Faculty faculty, Department department, int enrollmentYear, CancellationToken cancellationToken)

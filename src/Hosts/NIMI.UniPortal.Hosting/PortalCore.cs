@@ -21,6 +21,7 @@ using NIMI.UniPortal.Modules.Notifications.Api;
 using NIMI.UniPortal.Modules.Payments.Api;
 using NIMI.UniPortal.Modules.Platform.Api;
 using NIMI.UniPortal.Modules.Scheduling.Api;
+using NIMI.UniPortal.Modules.StudentReports.Api;
 using NIMI.UniPortal.Modules.Users.Api;
 using NIMI.UniPortal.SharedKernel.Messaging;
 using NIMI.UniPortal.SharedKernel.Security;
@@ -44,7 +45,11 @@ public static class PortalCore
         builder.Services.AddProblemDetails();   // required by UseExceptionHandler(); our handler writes the actual envelope
         builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);   // malformed bodies → our envelope
         builder.Services.ConfigureHttpJsonOptions(o =>
-            o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower)));
+        {
+            o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
+            // Numbers are JSON numbers, not strings: also keeps the OpenAPI document (and the frontend's types) exact.
+            o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+        });
         builder.AddPortalAuthentication();                                        // JWT validation + policies (Security/)
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();              // who acted, for the activity log (P10.2)
@@ -60,6 +65,7 @@ public static class PortalCore
         builder.Services.AddAttendanceModule();
         builder.Services.AddMaterialsModule();
         builder.Services.AddAnnouncementsModule();
+        builder.Services.AddStudentReportsModule();   // decision ROLES2
         builder.Services.AddAssignmentsModule();
         builder.Services.AddGradesModule();
         builder.Services.AddAuditModule();
@@ -96,6 +102,7 @@ public static class PortalCore
         app.MapAttendanceEndpoints();
         app.MapMaterialsEndpoints();
         app.MapAnnouncementsEndpoints();
+        app.MapStudentReportsEndpoints();
         app.MapAssignmentsEndpoints();
         app.MapGradesEndpoints();
         app.MapAuditEndpoints();

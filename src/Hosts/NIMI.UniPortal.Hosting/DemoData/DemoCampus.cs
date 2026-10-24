@@ -9,6 +9,7 @@ public sealed class DemoCampus
 {
     public const string AdminEmail = "affairs@demo.cu.edu.eg";
     public const string ProfessorEmail = "hassan.mahmoud@demo.cu.edu.eg";
+    public const string DepartmentHeadEmail = "hala.nabil@demo.cu.edu.eg";
     public const string StudentEmail = "omar.khaled@demo.cu.edu.eg";
     public const string NewStudentEmail = "new.student@demo.cu.edu.eg";
 

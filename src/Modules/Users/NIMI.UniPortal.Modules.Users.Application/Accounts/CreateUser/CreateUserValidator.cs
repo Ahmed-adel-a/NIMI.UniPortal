@@ -30,6 +30,13 @@ internal sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
             RuleFor(c => c.EnrollmentYear).Null().WithMessage("Only students have an enrollment year.");
         });
 
+        When(c => c.Role == UserRole.DepartmentHead, () =>
+        {
+            RuleFor(c => c.DepartmentId).NotEmpty().WithMessage("A department head belongs to a department.");
+            RuleFor(c => c.AcademicTitle).IsInEnum().When(c => c.AcademicTitle is not null);
+            RuleFor(c => c.EnrollmentYear).Null().WithMessage("Only students have an enrollment year.");
+        });
+
         When(c => c.Role == UserRole.Admin, () =>
         {
             RuleFor(c => c.DepartmentId).Null().WithMessage("Student Affairs accounts are university-wide (no department).");

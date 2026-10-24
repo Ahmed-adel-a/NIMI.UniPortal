@@ -1,11 +1,12 @@
-# NIMI UniPortal: backend
+# NIMI UniPortal
 
 The backend of an Arabic, right-to-left university portal for students, professors and Student Affairs. It is built as
 a **product sold to many universities**: every university gets its own deployment and its own database, and one
 deployment covers the whole university (faculties → departments, all managed as data).
 
-The first client is **Cairo University**. This repository holds the **backend only**. The React frontend lives in a
-separate repository (`university-map`) and talks to this API over HTTP.
+The first client is **Cairo University**. This repository holds the **.NET backend** and the **web app**
+(`frontend/`: React, Arabic right-to-left with an English switch, one app for every role). See
+[`frontend/README.md`](frontend/README.md) to run it.
 
 - [What it does](#what-it-does)
 - [How it is built](#how-it-is-built)
@@ -21,7 +22,8 @@ separate repository (`university-map`) and talks to this API over HTTP.
 
 ## What it does
 
-**Roles:** students, professors (teaching staff) and Student Affairs (the administrators).
+**Roles:** students, professors (teaching staff; teaching assistants too), department heads (supervise one department
+and may also teach) and Student Affairs (the administrators).
 
 | Area | What it covers |
 |------|----------------|
@@ -34,6 +36,7 @@ separate repository (`university-map`) and talks to this API over HTTP.
 | **Assignments** | Deadlines, one submission per student with a receipt, review with a grade |
 | **Grades** | Professors draft (also from a CSV); Student Affairs confirms and publishes; term and cumulative GPA; audited corrections |
 | **Payments** | Fee items per term, faculty or department; office payments with receipts; online checkout through a provider-neutral gateway (a mock until the real provider is chosen) |
+| **Student reports** | Students send reports to their department head, who answers once and/or closes them; Student Affairs reads them all |
 | **Notifications** | In-app notifications; an email outbox (password-reset links) |
 | **Dashboards, Audit, Documents** | Student dashboard; Student Affairs metrics; an activity log of sensitive actions; CSV exports; English PDFs (receipt, grade report, enrollment certificate, schedule) |
 | **Premium modules** (sold separately) | **Forum** (with identity, moderation, reports) · **Events** (registration with seats) · **Library** (physical lending, reservations, reminders, and a digital library of PDF/EPUB books) |
@@ -78,6 +81,7 @@ students, fees, posts, forum and events.
 |--------------|----------------------|
 | Student Affairs | `affairs@demo.cu.edu.eg` |
 | Professor | `hassan.mahmoud@demo.cu.edu.eg` |
+| Department head (Computer) | `hala.nabil@demo.cu.edu.eg` |
 | Student | `omar.khaled@demo.cu.edu.eg` |
 | Student with a forced password change | `new.student@demo.cu.edu.eg` |
 
@@ -194,6 +198,10 @@ to be chosen.
 - **Academic system:** `GET /api/auth/me` returns `academicSystem` (`credit_hours` or `year_groups`). Show
   registration screens for credit hours and year-level screens for year groups. Schedule, progress and rosters work
   the same way for both.
+- **Sign-in:** `POST /api/auth/login` takes an email **or a national ID** in `email`. When one national ID has several
+  accounts, it answers 409 `choice_required` with one `details` entry per role; send the login again with `role`.
+- **Roles:** `/api/auth/me` returns `role`: `student`, `professor`, `department_head` or `admin`. A department head
+  gets the reports inbox (`/api/department/reports`) and, for subjects they are assigned to, the teaching screens.
 - **Values:** enums are snake_case strings, times are UTC, ids are GUIDs, and names come in pairs (`name` / `nameAr`).
 
 Every flow with examples is in [`deployments/frontend-dev/README.md`](deployments/frontend-dev/README.md), and the
@@ -208,9 +216,10 @@ src/
   Modules/<Module>/ Contracts · Domain · Application · Infrastructure (EF Core, migrations) · Api (endpoints)
   Hosts/            NIMI.UniPortal.Hosting (shared) · Host.CairoUniversity · Host.AinShamsUniversity
 tests/              ArchitectureTests · Modules.UnitTests · Modules.IntegrationTests
+frontend/           the web app (React + Vite + TypeScript), see frontend/README.md
 deployments/        cairo-university/Dockerfile · frontend-dev/ (compose, start scripts, README)
 http/               .http demo requests per module
-.github/workflows/  backend-ci.yml (build + tests) · backend-image.yml (Docker image)
+.github/workflows/  backend-ci.yml (build + tests) · backend-image.yml (Docker image) · frontend-ci.yml (web app)
 ```
 
 ## Working on the code

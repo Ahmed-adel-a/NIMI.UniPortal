@@ -23,7 +23,7 @@ internal sealed class JwtAccessTokenIssuer(IOptions<PortalJwtOptions> options, T
             [PortalClaims.UserId] = user.Id.ToString(),
             [PortalClaims.Name] = user.FullName,
             [PortalClaims.Email] = user.Email,
-            [PortalClaims.Role] = user.Role.ToString().ToLowerInvariant(),
+            [PortalClaims.Role] = UserRoles.Name(user.Role),
             [PortalClaims.MustChangePassword] = user.MustChangePassword ? "true" : "false",
         };
         if (user.DepartmentId is { } departmentId)

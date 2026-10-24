@@ -33,6 +33,7 @@ internal static class LifecycleEndpoints
         endpoints.MapGet("/api/schedule", Schedule).WithTags("Lifecycle").RequireAuthorization().WithName("GetStudentSchedule");
         endpoints.MapGet("/api/schedule/export", ExportSchedule).WithTags("Lifecycle").RequireAuthorization().WithName("ExportStudentSchedule");
         endpoints.MapGet("/api/registration/progress", Progress).WithTags("Lifecycle").RequireAuthorization().WithName("GetStudentProgress");
+        endpoints.MapGet("/api/courses/mine", Courses).WithTags("Lifecycle").RequireAuthorization().WithName("GetMyCourses");
         endpoints.MapGet("/api/teaching/groups/{groupId:guid}/roster", TeachingRoster)
             .WithTags("Lifecycle").RequireAuthorization().WithName("GetTeachingGroupRoster");
         endpoints.MapGet("/api/admin/groups/{groupId:guid}/roster", AdminRoster)
@@ -71,10 +72,14 @@ internal static class LifecycleEndpoints
         ClaimsPrincipal caller, StudentLifecycleReads reads, CancellationToken cancellationToken) =>
         TypedResults.Ok(await reads.ProgressAsync(caller.GetUserId(), caller.IsInRole(PortalRoles.Student), cancellationToken));
 
+    private static async Task<Ok<IReadOnlyList<StudentCourseDto>>> Courses(
+        ClaimsPrincipal caller, StudentLifecycleReads reads, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await reads.CoursesAsync(caller.GetUserId(), caller.IsInRole(PortalRoles.Student), cancellationToken));
+
     private static async Task<Ok<PagedResult<RosterStudentDto>>> TeachingRoster(
         Guid groupId, int? page, int? pageSize, ClaimsPrincipal caller, StudentLifecycleReads reads, CancellationToken cancellationToken) =>
         TypedResults.Ok(await reads.RosterAsync(
-            groupId, caller.GetUserId(), caller.IsInRole(PortalRoles.Professor), isAdmin: false, new PageRequest(page, pageSize), cancellationToken));
+            groupId, caller.GetUserId(), caller.IsTeachingStaff(), isAdmin: false, new PageRequest(page, pageSize), cancellationToken));
 
     private static async Task<Ok<PagedResult<RosterStudentDto>>> AdminRoster(
         Guid groupId, int? page, int? pageSize, StudentLifecycleReads reads, CancellationToken cancellationToken) =>

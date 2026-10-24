@@ -15,4 +15,5 @@ public static class AuditEntities
     public const string Department = "department";
     public const string PromotionPolicy = "promotion_policy";
     public const string AcademicSystemRule = "academic_system_rule";
+    public const string StudentReport = "student_report";
 }

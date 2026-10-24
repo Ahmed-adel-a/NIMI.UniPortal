@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Nothing outside the module reads student reports yet; the project keeps the five-layer shape for later. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.SharedKernel\NIMI.UniPortal.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\NIMI.UniPortal.EventBus\NIMI.UniPortal.EventBus.csproj" />
+  </ItemGroup>
+
+</Project>

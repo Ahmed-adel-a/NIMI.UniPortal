@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\src\Modules\Attendance\NIMI.UniPortal.Modules.Attendance.Domain\NIMI.UniPortal.Modules.Attendance.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Materials\NIMI.UniPortal.Modules.Materials.Domain\NIMI.UniPortal.Modules.Materials.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Announcements\NIMI.UniPortal.Modules.Announcements.Domain\NIMI.UniPortal.Modules.Announcements.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\StudentReports\NIMI.UniPortal.Modules.StudentReports.Domain\NIMI.UniPortal.Modules.StudentReports.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Assignments\NIMI.UniPortal.Modules.Assignments.Domain\NIMI.UniPortal.Modules.Assignments.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Grades\NIMI.UniPortal.Modules.Grades.Domain\NIMI.UniPortal.Modules.Grades.Domain.csproj" />
     <ProjectReference Include="..\..\src\Modules\Forum\NIMI.UniPortal.Modules.Forum.Domain\NIMI.UniPortal.Modules.Forum.Domain.csproj" />
