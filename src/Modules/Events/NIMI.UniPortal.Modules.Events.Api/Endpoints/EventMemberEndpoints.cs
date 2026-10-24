@@ -37,7 +37,7 @@ internal static class EventMemberEndpoints
     private static async Task<Ok<EventDto>> Get(Guid id, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(new GetEventQuery(id, CallerViewer.From(caller)), cancellationToken));
 
-    private static async Task<Created<RegistrationDto>> Register(Guid id, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
+    private static async Task<Created<EventRegistrationDto>> Register(Guid id, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken)
     {
         var registration = await sender.Send(new RegisterCommand(id, CallerViewer.From(caller)), cancellationToken);
         return TypedResults.Created($"/api/events/{id}", registration);

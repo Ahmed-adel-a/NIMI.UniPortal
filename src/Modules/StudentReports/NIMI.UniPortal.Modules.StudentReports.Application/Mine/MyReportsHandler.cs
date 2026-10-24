@@ -8,9 +8,9 @@ using NIMI.UniPortal.SharedKernel.Paging;
 namespace NIMI.UniPortal.Modules.StudentReports.Application.Mine;
 
 internal sealed class MyReportsHandler(IStudentReportsDbContext db, ReportPresenter presenter)
-    : IRequestHandler<MyReportsQuery, PagedResult<ReportDto>>
+    : IRequestHandler<MyReportsQuery, PagedResult<StudentReportDto>>
 {
-    public async Task<PagedResult<ReportDto>> Handle(MyReportsQuery query, CancellationToken cancellationToken)
+    public async Task<PagedResult<StudentReportDto>> Handle(MyReportsQuery query, CancellationToken cancellationToken)
     {
         if (!query.Caller.IsStudent)
             throw new ForbiddenException("Only students have reports of their own.");

@@ -23,12 +23,12 @@ internal static class DepartmentReportEndpoints
     }
 
     /// <param name="status">open, answered or closed.</param>
-    private static async Task<Ok<PagedResult<ReportDto>>> Inbox(
+    private static async Task<Ok<PagedResult<StudentReportDto>>> Inbox(
         string? status, int? page, int? pageSize, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(
             new DepartmentReportsQuery(CallerViewer.From(caller), status, new PageRequest(page, pageSize)), cancellationToken));
 
-    private static async Task<Ok<ReportDto>> Answer(
+    private static async Task<Ok<StudentReportDto>> Answer(
         Guid id, AnswerReportRequest request, ClaimsPrincipal caller, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(
             new AnswerReportCommand(CallerViewer.From(caller), id, request.Reply, request.Close), cancellationToken));

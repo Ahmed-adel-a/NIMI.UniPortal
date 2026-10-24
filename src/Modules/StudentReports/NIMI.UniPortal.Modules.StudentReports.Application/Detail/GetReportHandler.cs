@@ -7,9 +7,9 @@ using NIMI.UniPortal.SharedKernel.Messaging;
 namespace NIMI.UniPortal.Modules.StudentReports.Application.Detail;
 
 internal sealed class GetReportHandler(IStudentReportsDbContext db, HeadAccess heads, ReportPresenter presenter)
-    : IRequestHandler<GetReportQuery, ReportDto>
+    : IRequestHandler<GetReportQuery, StudentReportDto>
 {
-    public async Task<ReportDto> Handle(GetReportQuery query, CancellationToken cancellationToken)
+    public async Task<StudentReportDto> Handle(GetReportQuery query, CancellationToken cancellationToken)
     {
         var report = await db.Reports.AsNoTracking().SingleOrDefaultAsync(r => r.Id == query.ReportId, cancellationToken);
         var allowed = report is not null &&
