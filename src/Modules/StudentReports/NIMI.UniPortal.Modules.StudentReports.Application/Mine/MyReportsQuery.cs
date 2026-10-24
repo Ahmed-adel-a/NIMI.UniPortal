@@ -5,4 +5,4 @@ using NIMI.UniPortal.SharedKernel.Paging;
 namespace NIMI.UniPortal.Modules.StudentReports.Application.Mine;
 
 /// <summary>The student's own reports, newest first.</summary>
-public sealed record MyReportsQuery(Viewer Caller, PageRequest Paging) : IQuery<PagedResult<ReportDto>>;
+public sealed record MyReportsQuery(Viewer Caller, PageRequest Paging) : IQuery<PagedResult<StudentReportDto>>;

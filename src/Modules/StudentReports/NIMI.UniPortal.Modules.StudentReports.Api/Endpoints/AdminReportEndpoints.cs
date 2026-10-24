@@ -21,7 +21,7 @@ internal static class AdminReportEndpoints
     }
 
     /// <param name="status">open, answered or closed.</param>
-    private static async Task<Ok<PagedResult<ReportDto>>> List(
+    private static async Task<Ok<PagedResult<StudentReportDto>>> List(
         Guid? departmentId, string? status, int? page, int? pageSize, ISender sender, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sender.Send(new AllReportsQuery(departmentId, status, new PageRequest(page, pageSize)), cancellationToken));
 }

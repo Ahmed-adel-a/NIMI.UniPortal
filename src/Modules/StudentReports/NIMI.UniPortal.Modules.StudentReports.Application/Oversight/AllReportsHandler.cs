@@ -9,9 +9,9 @@ namespace NIMI.UniPortal.Modules.StudentReports.Application.Oversight;
 
 /// <summary>Read-only oversight; the route is restricted to Student Affairs by the Admin policy.</summary>
 internal sealed class AllReportsHandler(IStudentReportsDbContext db, ReportPresenter presenter)
-    : IRequestHandler<AllReportsQuery, PagedResult<ReportDto>>
+    : IRequestHandler<AllReportsQuery, PagedResult<StudentReportDto>>
 {
-    public async Task<PagedResult<ReportDto>> Handle(AllReportsQuery query, CancellationToken cancellationToken)
+    public async Task<PagedResult<StudentReportDto>> Handle(AllReportsQuery query, CancellationToken cancellationToken)
     {
         var reports = db.Reports.AsNoTracking();
         if (query.DepartmentId is { } departmentId)

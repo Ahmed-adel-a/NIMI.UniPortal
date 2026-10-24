@@ -7,7 +7,7 @@ namespace NIMI.UniPortal.Modules.StudentReports.Application.Common;
 /// <summary>One page of reports, newest first.</summary>
 internal static class ReportPages
 {
-    public static async Task<PagedResult<ReportDto>> PageAsync(
+    public static async Task<PagedResult<StudentReportDto>> PageAsync(
         IQueryable<StudentReport> reports, PageRequest paging, ReportPresenter presenter, CancellationToken cancellationToken)
     {
         var total = await reports.CountAsync(cancellationToken);
@@ -17,6 +17,6 @@ internal static class ReportPages
             .Skip(paging.Skip)
             .Take(paging.PageSize)
             .ToListAsync(cancellationToken);
-        return new PagedResult<ReportDto>(await presenter.PresentAllAsync(page, cancellationToken), paging.Page, paging.PageSize, total);
+        return new PagedResult<StudentReportDto>(await presenter.PresentAllAsync(page, cancellationToken), paging.Page, paging.PageSize, total);
     }
 }
