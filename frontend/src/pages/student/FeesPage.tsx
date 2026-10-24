@@ -118,7 +118,7 @@ export function FeesPage() {
                   <td className="ltr-nums">{p.receiptNumber}</td>
                   <td>{ar ? p.feeNameAr : p.feeName}</td>
                   <td className="ltr-nums">{formatMoney(p.amount, i18n.language)}</td>
-                  <td>{p.method}</td>
+                  <td>{t(`admin.payments.methods.${p.method}`, { defaultValue: p.method })}</td>
                   <td>{formatDateTime(p.paidAt, i18n.language)}</td>
                   <td>
                     <Button variant="ghost" className="min-h-8 px-2" onClick={() => void downloadFile(`/api/documents/receipts/${p.id}`, `${p.receiptNumber}.pdf`)}>

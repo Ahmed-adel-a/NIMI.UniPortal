@@ -5,6 +5,9 @@ import { en } from './en';
 
 export type Language = 'ar' | 'en';
 
+/** The app shows one language at a time, chosen in Profile & settings. */
+export const languages: readonly Language[] = ['ar', 'en'];
+
 const STORAGE_KEY = 'nimi.language';
 
 function savedLanguage(): Language {
@@ -23,6 +26,7 @@ export function directionOf(language: Language): 'rtl' | 'ltr' {
 export function applyLanguage(language: Language) {
   document.documentElement.lang = language;
   document.documentElement.dir = directionOf(language);
+  document.title = (language === 'ar' ? ar : en).app.name;
   try {
     localStorage.setItem(STORAGE_KEY, language);
   } catch {

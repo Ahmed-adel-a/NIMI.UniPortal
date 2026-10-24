@@ -4422,6 +4422,7 @@ export interface components {
             /** Format: uuid */
             feeItemId: string;
             name: string;
+            nameAr: string;
             category: string;
             /** Format: double */
             amount: number;

@@ -4,6 +4,7 @@ namespace NIMI.UniPortal.Modules.Payments.Application.Ledger.GetPaymentReport;
 public sealed record PaymentReportRowDto(
     Guid FeeItemId,
     string Name,
+    string NameAr,
     string Category,
     decimal Amount,
     decimal Expected,

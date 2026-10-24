@@ -19,9 +19,11 @@ describe('i18n', () => {
   it('switches the whole page to English, left to right', async () => {
     await i18n.changeLanguage('en');
     expect(document.documentElement.dir).toBe('ltr');
+    expect(document.title).toBe('University Portal');
     expect(localStorage.getItem('nimi.language')).toBe('en');
     await i18n.changeLanguage('ar');
     expect(document.documentElement.dir).toBe('rtl');
+    expect(document.title).toBe('البوابة الجامعية');
   });
 
   it('has the same keys in both languages', () => {

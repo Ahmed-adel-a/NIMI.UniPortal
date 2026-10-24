@@ -218,7 +218,7 @@ function Report() {
             <Table head={[t('admin.common.title'), t('admin.payments.payers'), t('admin.payments.expected'), t('admin.payments.collected'), t('admin.payments.outstanding')]}>
               {data.items.map((r) => (
                 <tr key={r.feeItemId}>
-                  <td>{r.name}</td>
+                  <td>{localName(r, i18n.language)}</td>
                   <td className="ltr-nums">{r.payers}</td>
                   <td className="ltr-nums">{formatMoney(r.expected, i18n.language)}</td>
                   <td className="ltr-nums">{formatMoney(r.collected, i18n.language)}</td>

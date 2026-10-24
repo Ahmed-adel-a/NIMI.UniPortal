@@ -11,6 +11,19 @@ export const en: DeepStrings<typeof ar> = {
     forbidden: "You don't have permission to do that.",
     notFound: 'Not found.',
     unavailable: 'Some data is unavailable right now.',
+    codes: {
+      validation_failed: 'Some fields are invalid. Check them and try again.',
+      invalid_value: 'A value breaks one of the system rules. Check it and try again.',
+      bad_request: "The request couldn't be read. Try again.",
+      invalid_credentials: 'Wrong sign-in details, or the account is temporarily locked.',
+      password_change_required: 'Change your temporary password before you continue.',
+      forbidden: "You don't have permission to do that.",
+      not_found: 'Not found.',
+      conflict: 'This conflicts with existing data, or it changed meanwhile. Reload and try again.',
+      choice_required: 'Choose the role to sign in with.',
+      rate_limited: 'Too many attempts. Wait a minute and try again.',
+      server_error: 'Something went wrong on the server. Please try again.',
+    },
   },
   roles: { student: 'Student', professor: 'Teaching staff', department_head: 'Department head', admin: 'Student Affairs' },
   auth: {
@@ -41,13 +54,15 @@ export const en: DeepStrings<typeof ar> = {
   },
   nav: {
     home: 'Home', schedule: 'Schedule', registration: 'Registration', standing: 'Year standing', grades: 'Grades', fees: 'Fees',
-    attendance: 'Attendance', courses: 'Courses', assignments: 'Assignments', reports: 'Reports', teaching: 'Teaching', headReports: 'Department reports', notifications: 'Notifications', profile: 'Profile',
-    language: 'العربية', theme: 'Theme', themeLight: 'Light', themeDark: 'Dark', themeSystem: 'System', menu: 'Menu',
+    attendance: 'Attendance', courses: 'Courses', assignments: 'Assignments', reports: 'Reports', teaching: 'Teaching', headReports: 'Department reports', notifications: 'Notifications', profile: 'Profile & settings',
+    theme: 'Theme', themeLight: 'Light', themeDark: 'Dark', themeSystem: 'System', menu: 'Menu',
   },
   profile: {
-    title: 'Profile', fullName: 'Name', email: 'Email', role: 'Role', studentCode: 'Student code', department: 'Department', faculty: 'Faculty',
+    title: 'Profile & settings', fullName: 'Name', email: 'Email', role: 'Role', studentCode: 'Student code', department: 'Department', faculty: 'Faculty',
     enrollmentYear: 'Enrollment year', academicSystem: 'Academic system', lastLogin: 'Last sign-in', changePassword: 'Change password',
     systems: { credit_hours: 'Credit hours', year_groups: 'Year groups' },
+    settings: 'Settings', language: 'Language', languageHint: 'The whole app switches to this language.',
+    languages: { ar: 'Arabic', en: 'English' },
   },
   notifications: { title: 'Notifications', empty: 'No notifications.', markAll: 'Mark all as read', unreadOnly: 'Unread only', markRead: 'Mark as read' },
   dashboard: {
@@ -112,7 +127,7 @@ export const en: DeepStrings<typeof ar> = {
   head: { title: 'Department reports', all: 'All', reply: 'Reply', closeToo: 'Close the report', answer: 'Send', close: 'Close', answered: 'Saved.', empty: 'No reports.', from: 'From {{name}} ({{code}})' },
   admin: {
     nav: { dashboard: 'Dashboard', users: 'Users', organization: 'Faculties & departments', terms: 'Terms', subjects: 'Subjects', facilities: 'Halls', timetable: 'Timetable', grades: 'Grade approval', payments: 'Fees', reports: 'Student reports', devices: 'Device changes', activity: 'Activity log', settings: 'Settings' },
-    common: { create: 'Add', edit: 'Edit', save: 'Save', active: 'Active', inactive: 'Inactive', activate: 'Activate', deactivate: 'Deactivate', code: 'Code', name: 'Name (English)', nameAr: 'Name (Arabic)', faculty: 'Faculty', department: 'Department', term: 'Term', all: 'All', none: '—', saved: 'Saved.', status: 'Status', actions: 'Actions', search: 'Search', select: 'Choose…', description: 'Description', change: 'Change', title: 'Name', noActiveTerm: 'No term is active. Activate one on the Terms page.' },
+    common: { create: 'Add', edit: 'Edit', save: 'Save', active: 'Active', inactive: 'Inactive', activate: 'Activate', deactivate: 'Deactivate', code: 'Code', name: 'Name (English)', nameAr: 'Name (Arabic)', displayName: 'Name', faculty: 'Faculty', department: 'Department', term: 'Term', all: 'All', none: '—', saved: 'Saved.', status: 'Status', actions: 'Actions', search: 'Search', select: 'Choose…', description: 'Description', change: 'Change', title: 'Name', noActiveTerm: 'No term is active. Activate one on the Terms page.' },
     dashboard: { title: 'Student Affairs dashboard', scope: 'Scope', university: 'Whole university' },
     users: {
       title: 'Users', new: 'New user', role: 'Role', email: 'Email', nationalId: 'National ID', enrollmentYear: 'Enrollment year', title2: 'Academic title', gender: 'Gender', phone: 'Phone', password: 'Password (optional)',

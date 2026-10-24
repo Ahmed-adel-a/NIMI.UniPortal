@@ -13011,6 +13011,7 @@
         "required": [
           "feeItemId",
           "name",
+          "nameAr",
           "category",
           "amount",
           "expected",
@@ -13025,6 +13026,9 @@
             "format": "uuid"
           },
           "name": {
+            "type": "string"
+          },
+          "nameAr": {
             "type": "string"
           },
           "category": {
