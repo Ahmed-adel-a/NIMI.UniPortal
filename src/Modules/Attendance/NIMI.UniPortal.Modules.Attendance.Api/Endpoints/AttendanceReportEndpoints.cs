@@ -46,7 +46,7 @@ internal static class AttendanceReportEndpoints
             new GetFinalsEligibilityQuery(
                 caller.GetUserId(),
                 caller.IsInRole(PortalRoles.Admin),
-                caller.IsInRole(PortalRoles.Professor),
+                caller.IsTeachingStaff(),
                 termId,
                 groupId,
                 facultyId,
@@ -94,7 +94,7 @@ internal static class AttendanceReportEndpoints
             new GetAtRiskQuery(
                 caller.GetUserId(),
                 caller.IsInRole(PortalRoles.Admin),
-                caller.IsInRole(PortalRoles.Professor),
+                caller.IsTeachingStaff(),
                 termId,
                 groupId,
                 new PageRequest(page, pageSize)),

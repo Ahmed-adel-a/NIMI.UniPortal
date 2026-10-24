@@ -49,7 +49,7 @@ internal sealed class UpdateScheduleSlotHandler(
         if (command.StaffId is { } staffId)
         {
             var staff = await users.GetUserAsync(staffId, cancellationToken);
-            if (staff is null || !staff.IsActive || staff.Role != PortalRoles.Professor)
+            if (staff is null || !staff.IsActive || !PortalRoles.CanTeach(staff.Role))
                 throw ValidationErrors.For(nameof(command.StaffId), "Must be an active professor.");
         }
 

@@ -74,7 +74,7 @@ internal static class LifecycleEndpoints
     private static async Task<Ok<PagedResult<RosterStudentDto>>> TeachingRoster(
         Guid groupId, int? page, int? pageSize, ClaimsPrincipal caller, StudentLifecycleReads reads, CancellationToken cancellationToken) =>
         TypedResults.Ok(await reads.RosterAsync(
-            groupId, caller.GetUserId(), caller.IsInRole(PortalRoles.Professor), isAdmin: false, new PageRequest(page, pageSize), cancellationToken));
+            groupId, caller.GetUserId(), caller.IsTeachingStaff(), isAdmin: false, new PageRequest(page, pageSize), cancellationToken));
 
     private static async Task<Ok<PagedResult<RosterStudentDto>>> AdminRoster(
         Guid groupId, int? page, int? pageSize, StudentLifecycleReads reads, CancellationToken cancellationToken) =>

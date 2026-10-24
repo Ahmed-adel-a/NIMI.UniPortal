@@ -10,6 +10,6 @@ internal static class CallerViewer
     public static Viewer From(ClaimsPrincipal caller) =>
         new(caller.GetUserId(),
             caller.IsInRole(PortalRoles.Admin),
-            caller.IsInRole(PortalRoles.Professor),
+            caller.IsTeachingStaff(),
             caller.IsInRole(PortalRoles.Student));
 }

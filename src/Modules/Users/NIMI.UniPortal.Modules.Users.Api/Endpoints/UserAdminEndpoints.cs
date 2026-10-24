@@ -34,7 +34,7 @@ internal static class UserAdminEndpoints
         admin.MapPost("/{id:guid}/reset-password", ResetPassword).WithName("ResetUserPassword");
     }
 
-    /// <param name="role">student / professor / admin — same spelling as in JSON bodies (case-insensitive).</param>
+    /// <param name="role">student / professor / department_head / admin — same spelling as in JSON bodies (case-insensitive).</param>
     private static async Task<Ok<PagedResult<UserDto>>> ListUsers(
         ISender sender, string? role, Guid? facultyId, Guid? departmentId, bool? isActive, string? search,
         int? page, int? pageSize, CancellationToken cancellationToken) =>
@@ -49,9 +49,9 @@ internal static class UserAdminEndpoints
     {
         if (string.IsNullOrWhiteSpace(role))
             return null;
-        if (Enum.TryParse<UserRole>(role.Trim(), ignoreCase: true, out var parsed) && Enum.IsDefined(parsed) && !int.TryParse(role, out _))
+        if (UserRoles.TryParse(role, out var parsed))
             return parsed;
-        throw new FluentValidation.ValidationException([new FluentValidation.Results.ValidationFailure("role", "Use student, professor or admin.")]);
+        throw new FluentValidation.ValidationException([new FluentValidation.Results.ValidationFailure("role", "Use student, professor, department_head or admin.")]);
     }
 
     private static async Task<Created<CreatedUserDto>> CreateUser(CreateUserCommand command, ISender sender, CancellationToken cancellationToken)

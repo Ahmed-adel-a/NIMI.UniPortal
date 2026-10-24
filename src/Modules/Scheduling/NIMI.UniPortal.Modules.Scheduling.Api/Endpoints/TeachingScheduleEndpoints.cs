@@ -28,7 +28,7 @@ internal static class TeachingScheduleEndpoints
         TypedResults.Ok(await sender.Send(
             new GetTeachingScheduleQuery(
                 caller.GetUserId(),
-                caller.IsInRole(PortalRoles.Professor),
+                caller.IsTeachingStaff(),
                 from,
                 to),
             cancellationToken));
