@@ -38,7 +38,8 @@ public sealed class TestAccountsTests(PortalWebAppFactory factory) : PortalTest(
         Assert.Equal(HttpStatusCode.OK, (await head.GetAsync("/api/department/reports")).StatusCode);
         Assert.Equal(HttpStatusCode.Created,
             (await student.PostAsJsonAsync("/api/reports", new { category = "other", title = "Test", message = "Reaches my own head." })).StatusCode);
-        Assert.Equal(1, (int)(await head.GetFromJsonAsync<JsonObject>("/api/department/reports?status=open"))!["totalCount"]!);
+        var inbox = await head.GetStringAsync("/api/department/reports?status=open");
+        Assert.Contains("Reaches my own head.", inbox);
 
         var admin = await SignInAsync("admin");
         Assert.Equal(HttpStatusCode.OK, (await admin.GetAsync("/api/admin/users")).StatusCode);
@@ -55,7 +56,9 @@ public sealed class TestAccountsTests(PortalWebAppFactory factory) : PortalTest(
 
         var ask = await Login(null);
         Assert.Equal(HttpStatusCode.Conflict, ask.StatusCode);
-        Assert.Equal(4, (await ask.Content.ReadFromJsonAsync<JsonObject>())!["details"]!.AsArray().Count);
+        Assert.Equal(
+            new[] { "admin", "department_head", "professor", "student" },
+            (await ask.Content.ReadFromJsonAsync<JsonObject>())!["details"]!.AsArray().Select(d => (string)d!["error"]!).Order());
     }
 
     private async Task<HttpClient> SignInAsync(string role)
