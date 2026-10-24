@@ -50,7 +50,7 @@ internal sealed class CreateUserHandler(
             UserRole.Professor => User.CreateProfessor(
                 command.FullName, email, passwordHash, department!, command.AcademicTitle!.Value, details, now),
             UserRole.DepartmentHead => await NewDepartmentHead(command, email, passwordHash, department!, details, now, cancellationToken),
-            _ => User.CreateAdmin(command.FullName, email, passwordHash, mustChangePassword: true, now),
+            _ => User.CreateAdmin(command.FullName, email, passwordHash, mustChangePassword: true, now, details),
         };
 
         db.Users.Add(user);
