@@ -77,6 +77,17 @@ public sealed class Term
     /// <summary>Both ends are inside the term (inclusive) — used by timetable date rules.</summary>
     public bool Contains(DateOnly date) => date >= StartsOn && date <= EndsOn;
 
+    /// <summary>
+    /// The date in this term at the same distance from its start as <paramref name="date"/> is from
+    /// <paramref name="source"/>'s start (week 3 stays week 3); null when that day falls outside this term. Used when a
+    /// term is created from an earlier one.
+    /// </summary>
+    public DateOnly? ShiftFrom(Term source, DateOnly date)
+    {
+        var shifted = StartsOn.AddDays(date.DayNumber - source.StartsOn.DayNumber);
+        return Contains(shifted) ? shifted : null;
+    }
+
     private void Apply(int academicYear, TermNumber number, DateOnly startsOn, DateOnly endsOn, int weekCount)
     {
         if (academicYear is < 2000 or > 2100)

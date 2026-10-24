@@ -2107,6 +2107,47 @@
         }
       }
     },
+    "/api/admin/terms/{id}/copy": {
+      "post": {
+        "tags": [
+          "Scheduling"
+        ],
+        "operationId": "CopyTerm",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyTermRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CopyTermResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/subjects": {
       "get": {
         "tags": [
@@ -8351,6 +8392,81 @@
           }
         }
       },
+      "CopiedCountsDto": {
+        "required": [
+          "groups",
+          "teachingAssignments",
+          "slots"
+        ],
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "teachingAssignments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slots": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CopyTermRequest": {
+        "required": [
+          "academicYear",
+          "number",
+          "startsOn",
+          "endsOn",
+          "weekCount"
+        ],
+        "type": "object",
+        "properties": {
+          "academicYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number": {
+            "$ref": "#/components/schemas/TermNumber"
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "weekCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CopyTermResultDto": {
+        "required": [
+          "term",
+          "copied",
+          "skipped"
+        ],
+        "type": "object",
+        "properties": {
+          "term": {
+            "$ref": "#/components/schemas/TermDto"
+          },
+          "copied": {
+            "$ref": "#/components/schemas/CopiedCountsDto"
+          },
+          "skipped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkippedItemDto"
+            }
+          }
+        }
+      },
       "CorrectGradeRequest": {
         "required": [
           "score",
@@ -13937,6 +14053,50 @@
             "type": "boolean"
           }
         }
+      },
+      "SkipReason": {
+        "enum": [
+          "subject_inactive",
+          "staff_inactive",
+          "facility_inactive",
+          "not_a_working_day",
+          "outside_term",
+          "conflict"
+        ]
+      },
+      "SkippedItemDto": {
+        "required": [
+          "kind",
+          "subjectCode",
+          "groupNumber",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/SkippedItemKind"
+          },
+          "subjectCode": {
+            "type": "string"
+          },
+          "groupNumber": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/SkipReason"
+          }
+        }
+      },
+      "SkippedItemKind": {
+        "enum": [
+          "group",
+          "teaching_assignment",
+          "slot"
+        ]
       },
       "StandingDto": {
         "required": [

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NIMI.UniPortal.Modules.Scheduling.Application.Behaviors;
 using NIMI.UniPortal.Modules.Scheduling.Contracts;
+using NIMI.UniPortal.Modules.Scheduling.Application.Terms.CopyTerm;
 using NIMI.UniPortal.Modules.Scheduling.Application.Timetable;
 using NIMI.UniPortal.SharedKernel.Messaging;
 
@@ -16,6 +17,7 @@ public static class SchedulingApplication
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(SchedulingUnitOfWorkBehavior<,>));
         services.AddScoped<ISchedulingApi, SchedulingApi>();
         services.AddScoped<SlotChangeNotifier>();
+        services.AddScoped<SlotCopier>();
         return services;
     }
 }

@@ -16,6 +16,7 @@ public static class AuditActions
     public const string DeviceChangeDecided = "device_change.decided";
     public const string ScheduleSlotUpdated = "schedule_slot.updated";
     public const string ScheduleSlotCancelled = "schedule_slot.cancelled";
+    public const string TermCopied = "term.copied";
     public const string StudyPlanSaved = "study_plan.saved";
     public const string AcademicSystemChanged = "academic_system.changed";
     public const string PromotionPolicyUpdated = "promotion_policy.updated";
