@@ -197,6 +197,8 @@ to be chosen.
 - **Academic system:** `GET /api/auth/me` returns `academicSystem` (`credit_hours` or `year_groups`). Show
   registration screens for credit hours and year-level screens for year groups. Schedule, progress and rosters work
   the same way for both.
+- **Sign-in:** `POST /api/auth/login` takes an email **or a national ID** in `email`. When one national ID has several
+  accounts, it answers 409 `choice_required` with one `details` entry per role; send the login again with `role`.
 - **Roles:** `/api/auth/me` returns `role`: `student`, `professor`, `department_head` or `admin`. A department head
   gets the reports inbox (`/api/department/reports`) and, for subjects they are assigned to, the teaching screens.
 - **Values:** enums are snake_case strings, times are UTC, ids are GUIDs, and names come in pairs (`name` / `nameAr`).

@@ -220,6 +220,9 @@ namespace NIMI.UniPortal.Modules.Users.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_users_email");
 
+                    b.HasIndex("NationalId")
+                        .HasDatabaseName("ix_users_national_id");
+
                     b.HasIndex("Role")
                         .HasDatabaseName("ix_users_role");
 
