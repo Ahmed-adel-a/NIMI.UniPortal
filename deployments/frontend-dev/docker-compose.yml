@@ -33,6 +33,10 @@ services:
       Database__ApplyMigrationsOnStartup: "true"
       Seed__DemoData: "true"
       Seed__DemoPassword: ${DEMO_PASSWORD:-Demo@2026}
+      # Optional: one login for every role (decision NATIONALIDLOGIN). Put TEST_NATIONAL_ID and TEST_PASSWORD in a
+      # .env file next to this one (never committed); sign in with the national ID and pick the role.
+      Seed__TestAccount__NationalId: ${TEST_NATIONAL_ID:-}
+      Seed__TestAccount__Password: ${TEST_PASSWORD:-}
       Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN:-http://localhost:5173}
       Cors__AllowedOrigins__1: http://localhost:3000
       App__FrontendUrl: ${FRONTEND_ORIGIN:-http://localhost:5173}   # where emailed links point

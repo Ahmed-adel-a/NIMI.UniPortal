@@ -1,11 +1,12 @@
-# NIMI UniPortal: backend
+# NIMI UniPortal
 
 The backend of an Arabic, right-to-left university portal for students, professors and Student Affairs. It is built as
 a **product sold to many universities**: every university gets its own deployment and its own database, and one
 deployment covers the whole university (faculties → departments, all managed as data).
 
-The first client is **Cairo University**. This repository holds the **backend only**. The React frontend lives in a
-separate repository (`university-map`) and talks to this API over HTTP.
+The first client is **Cairo University**. This repository holds the **.NET backend** and the **web app**
+(`frontend/`: React, Arabic right-to-left with an English switch, one app for every role). See
+[`frontend/README.md`](frontend/README.md) to run it.
 
 - [What it does](#what-it-does)
 - [How it is built](#how-it-is-built)
@@ -215,9 +216,10 @@ src/
   Modules/<Module>/ Contracts · Domain · Application · Infrastructure (EF Core, migrations) · Api (endpoints)
   Hosts/            NIMI.UniPortal.Hosting (shared) · Host.CairoUniversity · Host.AinShamsUniversity
 tests/              ArchitectureTests · Modules.UnitTests · Modules.IntegrationTests
+frontend/           the web app (React + Vite + TypeScript), see frontend/README.md
 deployments/        cairo-university/Dockerfile · frontend-dev/ (compose, start scripts, README)
 http/               .http demo requests per module
-.github/workflows/  backend-ci.yml (build + tests) · backend-image.yml (Docker image)
+.github/workflows/  backend-ci.yml (build + tests) · backend-image.yml (Docker image) · frontend-ci.yml (web app)
 ```
 
 ## Working on the code
