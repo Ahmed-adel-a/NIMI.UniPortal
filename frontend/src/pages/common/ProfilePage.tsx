@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../auth/useAuth';
 import { Card } from '../../components/ui/Card';
+import { SelectField } from '../../components/ui/Field';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { languages, type Language } from '../../i18n';
 import { formatDateTime } from '../../lib/format';
 
 export function ProfilePage() {
@@ -43,6 +45,22 @@ export function ProfilePage() {
               </div>
             ))}
         </dl>
+      </Card>
+      <Card title={t('profile.settings')} className="mt-6">
+        <div className="max-w-xs">
+          <SelectField
+            label={t('profile.language')}
+            hint={t('profile.languageHint')}
+            value={i18n.language}
+            onChange={(e) => void i18n.changeLanguage(e.target.value as Language)}
+          >
+            {languages.map((language) => (
+              <option key={language} value={language}>
+                {t(`profile.languages.${language}`)}
+              </option>
+            ))}
+          </SelectField>
+        </div>
       </Card>
     </>
   );

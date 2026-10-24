@@ -7,6 +7,19 @@ export const ar = {
     forbidden: 'ليست لديك صلاحية لهذا الإجراء.',
     notFound: 'العنصر غير موجود.',
     unavailable: 'بعض البيانات غير متاحة حاليًا.',
+    codes: {
+      validation_failed: 'بعض الحقول غير صحيحة. راجعها وحاول مرة أخرى.',
+      invalid_value: 'إحدى القيم تخالف قواعد النظام. راجعها وحاول مرة أخرى.',
+      bad_request: 'تعذرت قراءة الطلب. حاول مرة أخرى.',
+      invalid_credentials: 'بيانات الدخول غير صحيحة، أو الحساب موقوف مؤقتًا.',
+      password_change_required: 'يجب تغيير كلمة المرور المؤقتة قبل المتابعة.',
+      forbidden: 'ليست لديك صلاحية لهذا الإجراء.',
+      not_found: 'العنصر غير موجود.',
+      conflict: 'يتعارض هذا مع بيانات موجودة، أو تغيرت البيانات في الأثناء. أعد التحميل وحاول مرة أخرى.',
+      choice_required: 'اختر الدور الذي تريد الدخول به.',
+      rate_limited: 'محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى.',
+      server_error: 'حدث خطأ في الخادم. حاول مرة أخرى.',
+    },
   },
   roles: { student: 'طالب', professor: 'عضو هيئة تدريس', department_head: 'رئيس قسم', admin: 'شؤون الطلاب' },
   auth: {
@@ -37,13 +50,15 @@ export const ar = {
   },
   nav: {
     home: 'الرئيسية', schedule: 'الجدول', registration: 'التسجيل', standing: 'الفرقة الدراسية', grades: 'الدرجات', fees: 'المصروفات',
-    attendance: 'الحضور', courses: 'المقررات', assignments: 'التكليفات', reports: 'البلاغات', teaching: 'التدريس', headReports: 'بلاغات القسم', notifications: 'الإشعارات', profile: 'الملف الشخصي',
-    language: 'English', theme: 'المظهر', themeLight: 'فاتح', themeDark: 'داكن', themeSystem: 'تلقائي', menu: 'القائمة',
+    attendance: 'الحضور', courses: 'المقررات', assignments: 'التكليفات', reports: 'البلاغات', teaching: 'التدريس', headReports: 'بلاغات القسم', notifications: 'الإشعارات', profile: 'الملف الشخصي والإعدادات',
+    theme: 'المظهر', themeLight: 'فاتح', themeDark: 'داكن', themeSystem: 'تلقائي', menu: 'القائمة',
   },
   profile: {
-    title: 'الملف الشخصي', fullName: 'الاسم', email: 'البريد', role: 'الدور', studentCode: 'الكود الجامعي', department: 'القسم', faculty: 'الكلية',
+    title: 'الملف الشخصي والإعدادات', fullName: 'الاسم', email: 'البريد', role: 'الدور', studentCode: 'الكود الجامعي', department: 'القسم', faculty: 'الكلية',
     enrollmentYear: 'سنة الالتحاق', academicSystem: 'النظام الدراسي', lastLogin: 'آخر دخول', changePassword: 'تغيير كلمة المرور',
     systems: { credit_hours: 'الساعات المعتمدة', year_groups: 'نظام الفرق' },
+    settings: 'الإعدادات', language: 'اللغة', languageHint: 'يتحول التطبيق بالكامل إلى هذه اللغة.',
+    languages: { ar: 'العربية', en: 'الإنجليزية' },
   },
   notifications: { title: 'الإشعارات', empty: 'لا توجد إشعارات.', markAll: 'تحديد الكل كمقروء', unreadOnly: 'غير المقروءة فقط', markRead: 'تحديد كمقروء' },
   dashboard: {
@@ -108,7 +123,7 @@ export const ar = {
   head: { title: 'بلاغات القسم', all: 'الكل', reply: 'الرد', closeToo: 'إغلاق البلاغ', answer: 'إرسال', close: 'إغلاق', answered: 'تم الحفظ.', empty: 'لا بلاغات.', from: 'من {{name}} ({{code}})' },
   admin: {
     nav: { dashboard: 'لوحة المؤشرات', users: 'المستخدمون', organization: 'الكليات والأقسام', terms: 'الفصول الدراسية', subjects: 'المقررات', facilities: 'القاعات', timetable: 'الجدول الدراسي', grades: 'اعتماد الدرجات', payments: 'المصروفات', reports: 'بلاغات الطلاب', devices: 'تغيير الأجهزة', activity: 'سجل النشاط', settings: 'الإعدادات' },
-    common: { create: 'إضافة', edit: 'تعديل', save: 'حفظ', active: 'نشط', inactive: 'موقوف', activate: 'تفعيل', deactivate: 'إيقاف', code: 'الكود', name: 'الاسم (إنجليزي)', nameAr: 'الاسم (عربي)', faculty: 'الكلية', department: 'القسم', term: 'الفصل', all: 'الكل', none: '—', saved: 'تم الحفظ.', status: 'الحالة', actions: 'إجراءات', search: 'بحث', select: 'اختر…', description: 'الوصف', change: 'تغيير', title: 'الاسم', noActiveTerm: 'لا يوجد فصل دراسي نشط. فعّل فصلاً من صفحة الفصول الدراسية.' },
+    common: { create: 'إضافة', edit: 'تعديل', save: 'حفظ', active: 'نشط', inactive: 'موقوف', activate: 'تفعيل', deactivate: 'إيقاف', code: 'الكود', name: 'الاسم (إنجليزي)', nameAr: 'الاسم (عربي)', displayName: 'الاسم', faculty: 'الكلية', department: 'القسم', term: 'الفصل', all: 'الكل', none: '—', saved: 'تم الحفظ.', status: 'الحالة', actions: 'إجراءات', search: 'بحث', select: 'اختر…', description: 'الوصف', change: 'تغيير', title: 'الاسم', noActiveTerm: 'لا يوجد فصل دراسي نشط. فعّل فصلاً من صفحة الفصول الدراسية.' },
     dashboard: { title: 'لوحة شؤون الطلاب', scope: 'النطاق', university: 'الجامعة كلها' },
     users: {
       title: 'المستخدمون', new: 'مستخدم جديد', role: 'الدور', email: 'البريد', nationalId: 'الرقم القومي', enrollmentYear: 'سنة الالتحاق', title2: 'اللقب العلمي', gender: 'النوع', phone: 'الهاتف', password: 'كلمة مرور (اختياري)',

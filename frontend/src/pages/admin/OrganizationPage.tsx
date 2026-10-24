@@ -42,7 +42,7 @@ export function OrganizationPage() {
 type Notify = (message: { tone: 'success' | 'danger'; text: string }) => void;
 
 function Faculties({ onDone, onMessage }: { onDone: () => void; onMessage: Notify }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const errorMessage = useErrorMessage();
   const faculties = useFaculties();
   const [editing, setEditing] = useState<Schema<'FacultyDto'> | 'new' | null>(null);
@@ -88,12 +88,11 @@ function Faculties({ onDone, onMessage }: { onDone: () => void; onMessage: Notif
       )}
       <QueryState query={faculties}>
         {(data) => (
-          <Table head={[t('admin.common.code'), t('admin.common.nameAr'), t('admin.common.name'), t('admin.common.status'), '']}>
+          <Table head={[t('admin.common.code'), t('admin.common.displayName'), t('admin.common.status'), '']}>
             {data.items.map((f) => (
               <tr key={f.id}>
                 <td className="ltr-nums">{f.code}</td>
-                <td>{f.nameAr}</td>
-                <td dir="ltr" className="text-start">{f.name}</td>
+                <td>{localName(f, i18n.language)}</td>
                 <td><Badge tone={f.isActive ? 'success' : 'neutral'}>{f.isActive ? t('admin.common.active') : t('admin.common.inactive')}</Badge></td>
                 <td><Button variant="ghost" className="min-h-8 px-2" onClick={() => open(f)}>{t('admin.common.edit')}</Button></td>
               </tr>
@@ -161,13 +160,12 @@ function Departments({ onDone, onMessage }: { onDone: () => void; onMessage: Not
       )}
       <QueryState query={departments}>
         {(data) => (
-          <Table head={[t('admin.common.faculty'), t('admin.common.code'), t('admin.common.nameAr'), t('admin.common.name'), t('admin.common.status'), '']}>
+          <Table head={[t('admin.common.faculty'), t('admin.common.code'), t('admin.common.displayName'), t('admin.common.status'), '']}>
             {data.items.map((d) => (
               <tr key={d.id}>
                 <td className="ltr-nums">{d.facultyCode}</td>
                 <td className="ltr-nums">{d.code}</td>
-                <td>{d.nameAr}</td>
-                <td dir="ltr" className="text-start">{d.name}</td>
+                <td>{localName(d, i18n.language)}</td>
                 <td><Badge tone={d.isActive ? 'success' : 'neutral'}>{d.isActive ? t('admin.common.active') : t('admin.common.inactive')}</Badge></td>
                 <td><Button variant="ghost" className="min-h-8 px-2" onClick={() => open(d)}>{t('admin.common.edit')}</Button></td>
               </tr>

@@ -10,7 +10,7 @@ import { applyTheme, savedTheme, type Theme } from './theme';
 
 /** The signed-in frame: a sidebar on the reading side (right in Arabic), a top bar, and the page. */
 export function AppShell() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -58,12 +58,6 @@ export function AppShell() {
           </button>
           <span className="font-bold text-primary">{t('app.name')}</span>
           <div className="ms-auto flex items-center gap-1 sm:gap-2">
-            <button
-              className="rounded-lg px-2 py-1.5 text-sm hover:bg-sunk"
-              onClick={() => void i18n.changeLanguage(i18n.language === 'ar' ? 'en' : 'ar')}
-            >
-              {t('nav.language')}
-            </button>
             <button
               className="rounded-lg px-2 py-1.5 text-sm hover:bg-sunk"
               title={t('nav.theme')}
