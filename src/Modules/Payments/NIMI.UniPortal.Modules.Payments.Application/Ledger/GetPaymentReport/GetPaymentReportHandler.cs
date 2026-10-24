@@ -142,6 +142,7 @@ internal sealed class GetPaymentReportHandler(IPaymentsDbContext db, IUsersApi u
             rows.Add(new PaymentReportRowDto(
                 item.Id,
                 item.Name,
+                item.NameAr,
                 FeeCategoryNames.ToWire(item.Category),
                 item.Amount,
                 expected,
