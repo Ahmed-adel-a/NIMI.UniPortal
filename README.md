@@ -66,7 +66,7 @@ React app ──HTTP/JSON──► Host.CairoUniversity ──► core modules +
 
 ## Run it with Docker (no .NET needed)
 
-For the frontend developer, or anyone who only needs a running backend. You need **[Docker Desktop](https://www.docker.com/products/docker-desktop)**
+For anyone who only needs a running backend, for example to try the API with the demo data. You need **[Docker Desktop](https://www.docker.com/products/docker-desktop)**
 and the folder [`deployments/frontend-dev`](deployments/frontend-dev):
 
 - **Windows:** double-click `start.cmd`.
